@@ -1,3 +1,4 @@
 # licensed brand fonts: Aeonik is a TRIAL (no public websites, no redistribution); keep these font binaries out of the public repo until their web licences are confirmed
 assets/fonts/*
 !assets/fonts/Organetto-ExtBold.woff2
+!assets/fonts/AoiMono-Compact.woff2
