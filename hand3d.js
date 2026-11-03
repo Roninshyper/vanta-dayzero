@@ -294,5 +294,33 @@ window.Hand3D = (() => {
     return out;
   }
 
-  return { fk, skin, samples, points, arm, place, jid, JP, nV, CH, mul, trans, rotAxis, about, jointPos, syringe, grip, veins, wristRing, details };
+  /* ---- the skeleton, for the x-ray: bone shafts (tapered segments), knuckle and joint heads, the little carpal bones of the wrist, and the radius and ulna.
+         Every bone follows the posed joints, so it moves with the hand. Returns { segs: [{ a, b, r1, r2 }], knobs: [{ p, r }] } in model metres. ---- */
+  function bones(F, armLength) {
+    const L = armLength || 0.2, w = wristRing(), segs = [], knobs = [], J = n => jointPos(F, n), mixp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+    const seg = (a, b, r1, r2, fl) => segs.push({ a, b, r1, r2, fl }), knob = (p, r, h) => knobs.push({ p, r, h });
+    for (const f of ['index-finger', 'middle-finger', 'ring-finger', 'pinky-finger']) {
+      const mc = J(f + '-metacarpal'), pp = J(f + '-phalanx-proximal'), pi = J(f + '-phalanx-intermediate'), pd = J(f + '-phalanx-distal'), tip = J(f + '-tip');
+      seg(mixp(mc, pp, 0.08), mixp(mc, pp, 0.93), 0.0042, 0.0046); knob(pp, 0.0057, 1);                  // metacarpal, with the rounded head that makes the knuckle
+      seg(mixp(pp, pi, 0.1), mixp(pp, pi, 0.9), 0.0043, 0.0036); knob(pi, 0.0047, 1);                    // proximal phalanx
+      seg(mixp(pi, pd, 0.1), mixp(pi, pd, 0.9), 0.0036, 0.003); knob(pd, 0.0039, 1);                     // middle phalanx
+      seg(mixp(pd, tip, 0.12), mixp(pd, tip, 0.86), 0.0031, 0.0021);                                  // the distal phalanx, with its wider tuft
+    }
+    const tm = J('thumb-metacarpal'), tp = J('thumb-phalanx-proximal'), td = J('thumb-phalanx-distal'), tt = J('thumb-tip');
+    seg(mixp(tm, tp, 0.08), mixp(tm, tp, 0.93), 0.0055, 0.0053); knob(tp, 0.0062, 1);
+    seg(mixp(tp, td, 0.1), mixp(tp, td, 0.9), 0.0047, 0.0039); knob(td, 0.0045, 1);
+    seg(mixp(td, tt, 0.12), mixp(td, tt, 0.86), 0.0036, 0.0024);
+    const cz = w.cz, y0 = w.y;                                                                           // the wrist: two rows of small rounded carpal bones
+    [[-0.022, -0.012], [-0.009, -0.016], [0.004, -0.017], [0.016, -0.013], [-0.016, -0.026], [-0.002, -0.029], [0.012, -0.028], [0.025, -0.024]].forEach(q => knob([w.cx - 0.001, y0 + q[1], cz + q[0] - 0.002], 0.0056));
+    let prevR = null, prevU = null;                                                                      // the radius (thumb side) and the ulna, lying side by side along the forearm
+    for (let i = 0; i <= 8; i++) {
+      const d = 0.004 + (L - 0.004) * i / 8, sec = armSection(d, L), r = [sec.cx - 0.0005, y0 + d, sec.cz - 0.34 * sec.rz], u = [sec.cx - 0.001, y0 + d, sec.cz + 0.36 * sec.rz];
+      if (prevR) { seg(prevR.p, r, prevR.r, 0.0085 - 0.0035 * (i / 8), 1); seg(prevU.p, u, prevU.r, 0.0055, 1); }
+      prevR = { p: r, r: 0.0085 - 0.0035 * (i / 8) }; prevU = { p: u, r: 0.0055 };
+    }
+    knob([w.cx - 0.001, y0 + 0.004, w.cz - 0.34 * w.rz], 0.0095); knob([w.cx - 0.001, y0 + 0.004, w.cz + 0.36 * w.rz], 0.0072);   // the flared ends at the wrist
+    return { segs, knobs };
+  }
+
+  return { fk, skin, samples, points, arm, place, jid, JP, nV, CH, mul, trans, rotAxis, about, jointPos, syringe, grip, veins, bones, wristRing, details };
 })();
