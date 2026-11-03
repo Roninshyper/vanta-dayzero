@@ -48,6 +48,7 @@
   #steps { position: relative; height: 520vh; }
   .stage { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; }
 
+  #cam3d { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
   #veinlines { position: absolute; display: none; z-index: 1; pointer-events: none; will-change: transform, opacity; filter: drop-shadow(0 0 2px rgba(255,255,255,.55)); }
   #phone { position: absolute; display: none; z-index: 2; background: url(assets/phone.webp) center / 100% 100% no-repeat; will-change: transform; }
   #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -98,6 +99,88 @@
     .card { position: relative; left: auto; top: auto; width: auto; min-height: 0; padding: 20px; border-radius: 20px; }
     .card h3 { font-size: 1.1rem; } .card p { font-size: .9rem; margin-top: 10px; }
   }
+  /* ---------- "What is measured" ---------- */
+  #measure { position: relative; background: #000; padding: 6vh 0 10vh; overflow: hidden; }
+  .measure .m-head { position: absolute; left: 5.1%; top: 46.9%; transform: translateY(-50%); width: 28.4cqw; z-index: 2; }
+  .m-head h2 { font-size: max(2.2rem, 4.2cqw); font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; }
+  .m-head p { margin-top: 1.4cqw; font-size: max(.95rem, 1.05cqw); line-height: 1.45; color: #9d9d9d; }
+  .pills { display: contents; }
+  .pill { --ease: cubic-bezier(.22, .8, .24, 1); position: absolute; left: var(--x); top: calc(var(--y) - 1.5cqw); transform: translateX(-50%);
+    width: var(--pw); min-height: 3cqw; z-index: 2; display: flex; flex-direction: column; align-items: center; padding: .85cqw 1.2cqw;
+    border: 1px solid rgba(255,255,255,.09); border-radius: 1.6cqw; color: #fff; font: inherit; text-align: center; cursor: pointer;
+    background: linear-gradient(160deg, rgba(255,255,255,.11), rgba(255,255,255,.03));          /* frosted glass, same as the cards in "All of this." */
+    -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1);
+    box-shadow: 0 1.2cqw 3cqw rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+    transition: width .3s var(--ease), background .25s ease, box-shadow .3s ease; }
+  .pill .t { font-size: max(13px, 1.2cqw); font-weight: 500; letter-spacing: -0.01em; line-height: 1.3; white-space: nowrap; }
+  .pill .d { display: grid; grid-template-rows: 0fr; width: 0; min-width: 100%; transition: grid-template-rows .3s var(--ease); }
+  .pill .d > span { overflow: hidden; min-height: 0; opacity: 0; font-size: max(11px, .78cqw); line-height: 1.45; color: #a9a9a9; transition: opacity .18s ease; }
+  .pill .d > span > i { display: block; font-style: normal; padding: .7cqw 0 .55cqw; }
+  .pill { animation: pillfloat var(--fd, 7s) ease-in-out var(--fl, 0s) infinite alternate; }
+  .pill:nth-child(4n+1) { --fd: 7.2s; --fl: -1s; } .pill:nth-child(4n+2) { --fd: 8.6s; --fl: -3.4s; }
+  .pill:nth-child(4n+3) { --fd: 6.4s; --fl: -5s; }  .pill:nth-child(4n) { --fd: 9.4s; --fl: -2.2s; }
+  @keyframes pillfloat { 0% { translate: 0 0; } 33% { translate: .35cqw -.6cqw; } 66% { translate: -.3cqw .3cqw; } 100% { translate: .15cqw -.4cqw; } }
+  .pill.open, .pill:focus-visible, .pill:hover { animation-play-state: paused; }   /* hold still while you read it */
+  @media (prefers-reduced-motion: reduce) { .pill { animation: none; } }
+  .pill:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 3px; }
+  .pill.open, .pill:focus-visible { width: var(--cw); z-index: 6; background: linear-gradient(160deg, rgba(255,255,255,.15), rgba(255,255,255,.05)); box-shadow: 0 1.4cqw 3.4cqw rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.1); }
+  .pill.open .d, .pill:focus-visible .d { grid-template-rows: 1fr; }
+  .pill.open .d > span, .pill:focus-visible .d > span { opacity: 1; transition-delay: .05s; }
+  @media (max-width: 1099px) {
+    .measure .m-head { position: relative; left: auto; top: auto; transform: none; width: auto; padding: 26vw 0 12vw; }
+    .m-head h2 { font-size: 2.6rem; } .m-head p { font-size: 1rem; margin-top: 16px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 10px; position: relative; z-index: 2; }
+    .pill { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: 100%; min-height: 0; padding: 12px 18px; border-radius: 24px; }
+    .pill .t { font-size: .95rem; } .pill .d > span { font-size: .85rem; } .pill .d > span > i { padding: 8px 0 2px; }
+    .pill.open, .pill:focus-visible { width: 100%; }
+  }
+  /* ---------- Comparison ---------- */
+  #compare { position: relative; background: #000; padding: 16vh 20px 14vh; overflow: hidden; }
+  #compare::before { content: ""; position: absolute; left: 50%; top: 52%; width: min(1100px, 140vw); aspect-ratio: 1; transform: translate(-8%, -35%);
+    background: radial-gradient(closest-side, rgba(255,255,255,.075), rgba(255,255,255,.02) 55%, transparent); pointer-events: none; }
+  .cmp-head { position: relative; text-align: center; max-width: 760px; margin: 0 auto; }
+  .cmp-head h2 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.06; }
+  .cmp-head p { margin-top: 14px; font-size: clamp(.85rem, 1vw, .95rem); color: #9d9d9d; }
+
+  .cmp { position: relative; max-width: 1000px; margin: clamp(40px, 8vh, 80px) auto 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .cmp-bg { position: absolute; top: 0; bottom: 0; right: 0; width: 50%; border-radius: 24px; border: 1px solid rgba(255,255,255,.1);
+    background: linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.035));          /* frosted glass, same as the cards in "All of this." */
+    -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+  .cmp > .hd, .cmp > .it { position: relative; z-index: 1; padding-left: clamp(18px, 3vw, 36px); padding-right: clamp(18px, 3vw, 36px); }
+  .hd { display: flex; align-items: center; gap: 12px; padding-top: 26px; padding-bottom: 22px; }
+  .hd .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; flex: none; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: #cfcfcf; }
+  .hd h3 { font-size: clamp(.92rem, 1.15vw, 1.02rem); font-weight: 500; letter-spacing: -0.015em; }
+  .hd.l h3 { color: #a9a9a9; }
+  .it { display: flex; align-items: center; min-height: 62px; padding-top: 14px; padding-bottom: 14px; border-top: 1px dashed rgba(255,255,255,.15);
+    font-size: clamp(.78rem, .88vw, .86rem); line-height: 1.35; }
+  .it.l { justify-content: space-between; gap: 20px; color: #b3b3b3; }
+  .it.l .st { color: #868686; white-space: nowrap; font-size: .92em; }
+  .it.r { gap: 12px; color: #fff; }
+  .it.r svg { flex: none; width: 15px; height: 15px; color: #fff; }
+  .it.r .sm { display: none; font-style: normal; }
+  .cmp > .it:last-child, .cmp > .it:nth-last-child(2) { padding-bottom: 24px; }
+
+  .cmp-cta { position: relative; text-align: center; margin-top: clamp(40px, 7vh, 64px); }
+  .cmp-cta .btn { margin-top: 0; padding: 11px 22px; font-size: .8rem; }
+
+  /* reveal as you arrive */
+  .cmp .hd, .cmp .it { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .9s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 70ms); }
+  .cmp .cmp-bg { opacity: 0; transform: translateY(24px) scale(.985); transition: opacity 1s ease, transform 1.1s cubic-bezier(.2,.7,.2,1); }
+  .cmp.in .hd, .cmp.in .it, .cmp.in .cmp-bg { opacity: 1; transform: none; }
+  .cmp .it:hover { background: rgba(255,255,255,.02); }
+  @media (prefers-reduced-motion: reduce) { .cmp .hd, .cmp .it, .cmp .cmp-bg { transition: none; opacity: 1; transform: none; } }
+
+  @media (max-width: 860px) {
+    .cmp { grid-template-columns: 1fr; }
+    .cmp .l { display: none; }
+    .cmp-bg { width: 100%; }
+    .it { min-height: 0; }
+    .it.r { flex-wrap: wrap; row-gap: 4px; }
+    .it.r > span:not(.sm) { flex: 1; min-width: 0; }
+    .it.r .sm { display: block; flex-basis: 100%; padding-left: 27px; font-size: .74rem; color: #8c8c8c; }
+    .cmp > .it:nth-last-child(2) { padding-bottom: 18px; }
+  }
 </style>
 </head>
 <body>
@@ -124,8 +207,8 @@
 <section id="steps">
   <div class="stage">
     <canvas id="scene" aria-hidden="true"></canvas>
-    <canvas id="veinlines" aria-hidden="true"></canvas>
-    <div id="phone" aria-hidden="true"></div>
+    <div id="cam3d"><canvas id="veinlines" aria-hidden="true"></canvas>
+    <div id="phone" aria-hidden="true"></div></div>
 
     <div class="step" id="s1">
       <div class="tag">Step 01 · The draw</div>
@@ -163,6 +246,70 @@
   </div>
 </section>
 
+<section id="measure">
+  <div class="ring measure" id="ring2">
+    <canvas id="ringdots2" aria-hidden="true"></canvas>
+    <div class="m-head" id="mhead">
+      <h2>What is measured</h2>
+      <p>Twelve systems, one draw. Every marker is explained in range inside the app, and anything that needs a clinician is routed to one.</p>
+    </div>
+    <div class="pills">
+      <button class="pill" style="--x:46.2%;--y:21.7%;--pw:11.3cqw;--cw:14cqw"><span class="t">Urine &amp; food</span><span class="d"><span><i>Complete urine analysis · IgG food intolerance profile</i></span></span></button>
+      <button class="pill" style="--x:58.1%;--y:30.9%;--pw:11.4cqw;--cw:14cqw"><span class="t">Thyroid</span><span class="d"><span><i>Free T3 · free T4 · ultrasensitive TSH · anti-TPO</i></span></span></button>
+      <button class="pill" style="--x:44%;--y:36.6%;--pw:11.4cqw;--cw:15cqw"><span class="t">Lipids &amp; cardiac</span><span class="d"><span><i>Total cholesterol · LDL · HDL · triglycerides · VLDL · cardiac risk markers · homocysteine</i></span></span></button>
+      <button class="pill" style="--x:63.8%;--y:43.1%;--pw:14.6cqw;--cw:14.6cqw"><span class="t">Kidney &amp; electrolytes</span><span class="d"><span><i>Creatinine · urea · uric acid · eGFR · sodium · potassium · chloride</i></span></span></button>
+      <button class="pill" style="--x:48.5%;--y:48.1%;--pw:11.4cqw;--cw:15cqw"><span class="t">Liver</span><span class="d"><span><i>ALT · AST · GGT · ALP · bilirubin · albumin · total protein · hepatitis B surface antigen</i></span></span></button>
+      <button class="pill" style="--x:71.1%;--y:52.8%;--pw:11.4cqw;--cw:14cqw"><span class="t">Metabolic</span><span class="d"><span><i>HbA1c · fasting glucose · fasting insulin · HOMA-IR · amylase · lipase</i></span></span></button>
+      <button class="pill" style="--x:42.6%;--y:58.4%;--pw:11.4cqw;--cw:15cqw"><span class="t">Blood &amp; iron</span><span class="d"><span><i>Complete hemogram with differential · ESR · ferritin · serum iron · TIBC · transferrin saturation</i></span></span></button>
+      <button class="pill" style="--x:58.1%;--y:58.4%;--pw:11.4cqw;--cw:13.5cqw"><span class="t">Vitamins</span><span class="d"><span><i>A · D · E · K · B1 · B2 · B3 · B5 · B6 · B7 · B9 · B12</i></span></span></button>
+      <button class="pill" style="--x:32.6%;--y:68.6%;--pw:11.4cqw;--cw:14.5cqw"><span class="t">Hormones</span><span class="d"><span><i>Cortisol · DHEA-S · testosterone · free testosterone · SHBG · estradiol · LH · FSH</i></span></span></button>
+      <button class="pill" style="--x:55.4%;--y:68.6%;--pw:18.5cqw;--cw:18.5cqw"><span class="t">Minerals &amp; heavy metals</span><span class="d"><span><i>Magnesium · zinc · lead · mercury · cadmium · arsenic</i></span></span></button>
+      <button class="pill" style="--x:24.6%;--y:77.7%;--pw:11.4cqw;--cw:12.5cqw"><span class="t">Immunity</span><span class="d"><span><i>Antinuclear antibodies · anti-CCP</i></span></span></button>
+      <button class="pill" style="--x:42.9%;--y:77.7%;--pw:11.4cqw;--cw:14.5cqw"><span class="t">Sex-specific</span><span class="d"><span><i>PSA and free PSA on the male panel · CA-125 on the female panel</i></span></span></button>
+    </div>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="cmp-head">
+    <h2>Not a checkup.<br>Day zero.</h2>
+    <p>A checkup hands you a PDF. Dayzero hands you the day.</p>
+  </div>
+
+  <div class="cmp" id="cmp">
+    <div class="cmp-bg" aria-hidden="true"></div>
+
+    <div class="hd l"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5h6M9 10h6M9 14h6M9 18h3"/></svg></span><h3>A Standard Checkup</h3></div>
+    <div class="hd r"><span class="ic"><svg width="24" height="17" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1 1.5C7 2 12 5.5 15 12.5"/></svg></span><h3>Dayzero</h3></div>
+
+    <div class="it l"><span>Collected at home, at a slot you choose</span><span class="st">Varies</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>Collected at home, at a slot you choose</span><em class="sm">A standard checkup: Varies</em></div>
+
+    <div class="it l"><span>Every marker explained in range, in plain language</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>Every marker explained in range, in plain language</span><em class="sm">A standard checkup: not included</em></div>
+
+    <div class="it l"><span>A digital twin built from the results</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>A digital twin built from the results</span><em class="sm">A standard checkup: not included</em></div>
+
+    <div class="it l"><span>A protocol written from the results</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>A protocol written from the results</span><em class="sm">A standard checkup: not included</em></div>
+
+    <div class="it l"><span>Read beside your sleep, training and recovery</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>Read beside your sleep, training and recovery</span><em class="sm">A standard checkup: not included</em></div>
+
+    <div class="it l"><span>A doctor to walk you through it</span><span class="st">Varies</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>A doctor to walk you through it</span><em class="sm">A standard checkup: Varies</em></div>
+
+    <div class="it l"><span>Ninety days of a health OS that acts on it</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>Ninety days of a health OS that acts on it</span><em class="sm">A standard checkup: not included</em></div>
+
+    <div class="it l"><span>Member pricing on what the protocol asks for</span><span class="st">—</span></div>
+    <div class="it r"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Included"><path d="M3.5 9.5l3.5 3.5L14.5 5"/></svg><span>Member pricing on what the protocol asks for</span><em class="sm">A standard checkup: not included</em></div>
+  </div>
+
+  <div class="cmp-cta"><a class="btn" href="#">Compare with Others</a></div>
+</section>
+
 <footer>
   <a class="btn" href="#">Start Dayzero</a>
   <div>© Vanta</div>
@@ -173,13 +320,96 @@
 <script src="vein-hand-image.js"></script>
 <script src="hand-image.js"></script>
 <script>
+/* ======================= 3D PARTICLES: shared renderer for every dot animation ======================= */
+/* Each dot has a world position (x, y) plus a depth z (towards the viewer). A small camera swings with the pointer and drifts on its own;
+   near dots grow and brighten, far dots shrink and dim, and dots away from the focal plane turn into soft bokeh. */
+const PART = (() => {
+  const FLAT = true;   // true = flat halftone dots (no depth, camera or bokeh) · false = 3D particles
+  const NB = 10, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cam = { yaw: 0, pitch: 0, ty: 0, tp: 0, stamp: -1 };
+  addEventListener('pointermove', e => { cam.ty = e.clientX / innerWidth - 0.5; cam.tp = e.clientY / innerHeight - 0.5; });
+  function step(now) {                                   // advance the camera once per frame, however many canvases draw
+    if (cam.stamp === now) return; cam.stamp = now;
+    const iy = reduce ? 0 : Math.sin(now * 0.00033) * 0.35, ip = reduce ? 0 : Math.cos(now * 0.00027) * 0.25;
+    cam.yaw += (cam.ty * 2 + iy - cam.yaw) * 0.05; cam.pitch += (cam.tp * 2 + ip - cam.pitch) * 0.05;
+  }
+  let sx, sy, sr, bk, cap = 0;
+  const ensure = n => { if (n > cap) { cap = n; sx = new Float32Array(n); sy = new Float32Array(n); sr = new Float32Array(n); bk = new Uint8Array(n); } };
+
+  function draw(o) {
+    step(o.time); const n = o.n, X = o.X, Y = o.Y, Z = o.Z, R = o.R, ctx = o.ctx; ensure(n);
+    if (FLAT) {                                          // the original look: dot size carries the brightness, nothing else
+      const counts8 = new Uint32Array(8), t8 = o.time, sh = o.shimmer === undefined ? 0.25 : o.shimmer, rr8 = o.rRef;
+      for (let i = 0; i < n; i++) {
+        const r = R[i]; if (r < 0.2) { bk[i] = 255; continue; }
+        sx[i] = X[i] + (sh ? Math.sin(t8 * 0.0009 + i * 0.37) * sh : 0); sy[i] = Y[i] + (sh ? Math.cos(t8 * 0.0008 + i * 0.53) * sh : 0); sr[i] = r;
+        const q = Math.min(7, (r / rr8 * 8) | 0); bk[i] = q; counts8[q]++;
+      }
+      for (let q = 0; q < 8; q++) {
+        if (!counts8[q]) continue;
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.45 + 0.55 * (q + 1) / 8) + ')'; ctx.beginPath();
+        for (let i = 0; i < n; i++) if (bk[i] === q) { ctx.moveTo(sx[i] + sr[i], sy[i]); ctx.arc(sx[i], sy[i], sr[i], 0, 6.2832); }
+        ctx.fill();
+      }
+      return;
+    }
+    const yaw = cam.yaw * o.amt + (o.yawBias || 0), pitch = cam.pitch * o.amt * 0.7;
+    const cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const dimFrom = o.dimFrom === undefined ? n : o.dimFrom, f = o.f, inv = 1 / o.zRange, ox = o.ox, oy = o.oy, rRef = o.rRef, t = o.time, drift = o.drift, def = o.defocus, zf = o.zFocus || 0;
+    const counts = new Uint32Array(NB);
+    for (let i = 0; i < n; i++) {
+      const r = R[i]; if (r < 0.12) { bk[i] = 255; continue; }
+      const dx = X[i] - ox + Math.sin(t * 0.0009 + i * 0.37) * drift, dy = Y[i] - oy + Math.cos(t * 0.0008 + i * 0.53) * drift;
+      const z = Z[i] + Math.sin(t * 0.0007 + i * 0.91) * drift * 7;                       // every particle breathes slightly in depth
+      const x1 = dx * cyw + z * syw, z1 = z * cyw - dx * syw, y2 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp;
+      const s = f / (f - z2); if (s > 2.6 || s < 0.2) { bk[i] = 255; continue; }          // perspective
+      const zn = Math.max(-1, Math.min(1, z2 * inv)), dof = Math.min(1, Math.abs(z2 - zf) * inv);
+      const rad = r * s * (1 + def * dof * 0.9);                                          // out-of-focus dots swell into bokeh…
+      let a = (0.42 + 0.58 * Math.min(1, r / rRef)) * (0.7 + 0.3 * zn) * (1 - 0.45 * def * dof) * (0.88 + 0.12 * Math.sin(t * 0.0016 + i * 1.7));   // …and get dimmer, far dots fade, a faint twinkle
+      if (i >= dimFrom) a *= 0.38;                                                        // loose dust stays a faint backdrop
+      if (a <= 0.05) { bk[i] = 255; continue; }
+      sx[i] = ox + x1 * s; sy[i] = oy + y2 * s; sr[i] = rad;
+      const q = Math.min(NB - 1, (a * NB) | 0); bk[i] = q; counts[q]++;
+    }
+    const prev = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter';   // overlapping particles add up, like a glowing cloud
+    for (let q = 0; q < NB; q++) {
+      if (!counts[q]) continue;
+      ctx.fillStyle = 'rgba(255,255,255,' + ((q + 0.7) / NB) + ')'; ctx.beginPath();
+      for (let i = 0; i < n; i++) if (bk[i] === q) { ctx.moveTo(sx[i] + sr[i], sy[i]); ctx.arc(sx[i], sy[i], sr[i], 0, 6.2832); }
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = prev;
+  }
+  // loose "dust" at every depth: tiny far specks, big soft near bokeh. It sells the sense of a volume you are looking into.
+  function makeDust(count, w, h, depth) {
+    const d = { count, w, h, x: new Float32Array(count), y: new Float32Array(count), z: new Float32Array(count), r: new Float32Array(count), vx: new Float32Array(count), vy: new Float32Array(count) };
+    for (let i = 0; i < count; i++) {
+      d.x[i] = Math.random() * w * 1.5 - w * 0.25; d.y[i] = Math.random() * h * 1.5 - h * 0.25;
+      const z = (Math.random() * 2 - 1) * depth; d.z[i] = z;
+      d.r[i] = (0.4 + Math.random() * 0.8) * (1 + Math.max(0, z / depth) * 1.3);
+      d.vx[i] = (Math.random() - 0.5) * 10; d.vy[i] = (Math.random() - 0.5) * 8;
+    }
+    return d;
+  }
+  function writeDust(d, t, X, Y, Z, R, off) {
+    const w = d.w * 1.5, h = d.h * 1.5, s = t * 0.001;
+    for (let i = 0; i < d.count; i++) {
+      let x = (d.x[i] + d.vx[i] * s + d.w * 0.25) % w; if (x < 0) x += w;
+      let y = (d.y[i] + d.vy[i] * s + d.h * 0.25) % h; if (y < 0) y += h;
+      X[off + i] = x - d.w * 0.25; Y[off + i] = y - d.h * 0.25; Z[off + i] = d.z[i]; R[off + i] = d.r[i];
+    }
+  }
+  const angles = (amt, bias = 0) => FLAT ? { yaw: 0, pitch: 0 } : { yaw: cam.yaw * amt + bias, pitch: cam.pitch * amt * 0.7 };   // the same camera, for DOM layers that must follow it
+  return { draw, cam, makeDust, writeDust, angles };
+})();
+
 /* ======================= HERO: dots form the statue on load ======================= */
 (() => {
   const CFG = { spacing: 2.7, dotMin: 0.4, dotMax: 1.3, threshold: 0.03, gamma: 0.5, formDuration: 1.7,
     stiffness: 24, damping: 7.5, mouseRadius: 90, mouseForce: 1400, idleFloat: 0.35 };
   const canvas = document.getElementById('dots'), ctx = canvas.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, BUCKETS = 8;
-  let W, H, dpr, N = 0, tx, ty, px, py, vx, vy, delay, r, bucket, startR, order = [], t0 = 0, last = 0, visible = true;
+  let W, H, dpr, N = 0, tx, ty, px, py, vx, vy, delay, r, bucket, startR, order = [], t0 = 0, last = 0, visible = true, dust, zt, zs0, X3, Y3, Z3, R3, pvx = 0, pvy = 0, pr = 1, Sm = 1;
   const mouse = { x: -9999, y: -9999 }, img = new Image();
 
   function layout() {
@@ -195,7 +425,8 @@
     const oy = H * 0.12 - 0.16 * dh;
     o.fillStyle = '#000'; o.fillRect(0, 0, off.width, off.height); o.drawImage(img, ox, oy, dw, dh);
     const data = o.getImageData(0, 0, off.width, off.height).data;
-    const sp = (W < 700 ? CFG.spacing * 0.9 : CFG.spacing) * 1.35, xs = [], ys = [], rs = [], bs = [];   // grid pitch
+    const sp = (W < 700 ? CFG.spacing * 0.9 : CFG.spacing) * 1.35, xs = [], ys = [], rs = [], bs = [], ls = [];   // finer grid = more detail
+    const sp0 = sp;   // grid pitch
     for (let y = 0; y < H; y += sp) for (let x = 0; x < W; x += sp) {
       const jx = x + sp / 2, jy = y + sp / 2;                 // dots sit on a regular grid, like the ring section
       const k = ((Math.min(off.height - 1, jy | 0)) * off.width + Math.min(off.width - 1, jx | 0)) * 4;
@@ -203,12 +434,14 @@
       if (l < CFG.threshold) continue;
       l = Math.pow((l - CFG.threshold) / (1 - CFG.threshold), CFG.gamma);
       const rd = sp * 0.56 * Math.pow(l, 1.2); if (rd < 0.25) continue;     // dot size carries the brightness
-      xs.push(jx); ys.push(jy); rs.push(rd); bs.push(Math.min(BUCKETS - 1, (rd / (sp * 0.56) * BUCKETS) | 0));
+      xs.push(jx); ys.push(jy); rs.push(rd); ls.push(l); bs.push(Math.min(BUCKETS - 1, (rd / (sp * 0.56) * BUCKETS) | 0));
     }
     N = xs.length; tx = Float32Array.from(xs); ty = Float32Array.from(ys); r = Float32Array.from(rs); bucket = Uint8Array.from(bs);
     px = new Float32Array(N); py = new Float32Array(N); vx = new Float32Array(N); vy = new Float32Array(N);
+    Sm = Math.min(W, H); pr = sp * 0.56; zt = new Float32Array(N); zs0 = new Float32Array(N); X3 = new Float32Array(N); Y3 = new Float32Array(N); Z3 = new Float32Array(N); R3 = new Float32Array(N);
+    for (let i = 0; i < N; i++) { zt[i] = (ls[i] - 0.5) * Sm * 0.42 + (Math.random() - 0.5) * Sm * 0.05; zs0[i] = (Math.random() - 0.5) * Sm * 1.3; }   // brighter = nearer, so the face has relief
     delay = new Float32Array(N); startR = new Float32Array(N);
-    const fx = ox + 0.64 * dw, fy = oy + 0.33 * dh; let maxD = 1;
+    const fx = ox + 0.64 * dw, fy = oy + 0.33 * dh; pvx = fx; pvy = fy; let maxD = 1;
     for (let i = 0; i < N; i++) maxD = Math.max(maxD, Math.hypot(tx[i] - fx, ty[i] - fy));
     for (let i = 0; i < N; i++) {
       delay[i] = Math.hypot(tx[i] - fx, ty[i] - fy) / maxD * CFG.formDuration + Math.random() * 0.5;
@@ -233,17 +466,11 @@
       vx[i] = (vx[i] + ax * dt) * damp; vy[i] = (vy[i] + ay * dt) * damp; px[i] += vx[i] * dt; py[i] += vy[i] * dt;
     }
     ctx.clearRect(0, 0, W, H);
-    const fl = t > CFG.formDuration + 1 ? CFG.idleFloat : 0;
-    for (let b = 0; b < BUCKETS; b++) {
-      ctx.fillStyle = `rgba(255,255,255,${0.45 + 0.55 * (b + 1) / BUCKETS})`; ctx.beginPath();
-      const list = order[b];
-      for (let j = 0; j < list.length; j++) {
-        const i = list[j], p = 1 - Math.min(1, Math.hypot(px[i] - tx[i], py[i] - ty[i]) / (startR[i] + 1)), rad = r[i] * (0.35 + 0.65 * p);
-        const x = px[i] + (fl ? Math.sin(t * 0.9 + tx[i] * 0.05) * fl : 0), y = py[i] + (fl ? Math.cos(t * 0.8 + ty[i] * 0.05) * fl : 0);
-        ctx.moveTo(x + rad, y); ctx.arc(x, y, rad, 0, 6.2832);
-      }
-      ctx.fill();
+    for (let i = 0; i < N; i++) {                          // dots fly in from the depths as they land on the statue
+      const p = 1 - Math.min(1, Math.hypot(px[i] - tx[i], py[i] - ty[i]) / (startR[i] + 1));
+      X3[i] = px[i]; Y3[i] = py[i]; Z3[i] = zs0[i] + (zt[i] - zs0[i]) * p; R3[i] = r[i] * (0.35 + 0.65 * p);
     }
+    PART.draw({ ctx, time: now, n: N, X: X3, Y: Y3, Z: Z3, R: R3, rRef: pr, ox: pvx, oy: pvy, amt: 0.3, f: Math.max(W, H) * 1.1, zRange: Sm * 0.35, defocus: 0.5, drift: 0.45 });
   }
   addEventListener('pointermove', e => { const b = canvas.getBoundingClientRect(); mouse.x = e.clientX - b.left; mouse.y = e.clientY - b.top; });
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); build(); t0 = 0; }, 200); });
@@ -255,7 +482,7 @@
 /* ======================= STEPS: one dot system that morphs between scenes ======================= */
 (() => {
   const $ = id => document.getElementById(id);
-  const veinEl = $('veinlines'), sec = $('steps'), stage = sec.querySelector('.stage'), canvas = $('scene'), phoneEl = $('phone'), ctx = canvas.getContext('2d');
+  const cam3d = $('cam3d'), veinEl = $('veinlines'), sec = $('steps'), stage = sec.querySelector('.stage'), canvas = $('scene'), phoneEl = $('phone'), ctx = canvas.getContext('2d');
   const s1 = $('s1'), s2 = $('s2'), s3 = $('s3'), prog = [...document.querySelectorAll('.progress i')];
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const ss = (v, a, b) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -293,7 +520,7 @@
   const PHONE = { x: 456, y: 1510, w: 152, h: 285, r: 18 };   // the phone body inside the layout image (shown as a picture, not dots)
 
   const img = new Image(), veinImg = new Image(), handImg = new Image();
-  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, VT, xs, ys, rs, bk, visible = false, k = 1, phoneBox = null, veinMove = [0, 0];
+  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, swz, zs, dust, zS = 100, jz = 5, Smin = 600, VT, xs, ys, rs, bk, visible = false, k = 1, phoneBox = null, veinMove = [0, 0];
   let target = 0, cur = 0, lastNow = 0;
   const mouse = { x: -9999, y: -9999 };
 
@@ -351,7 +578,7 @@
     for (let s = 0; s < cnt; s++) {
       const i = lo + s, j = Math.min(n - 1, Math.floor(s * n / cnt)), p = pts[j], [x, y] = fn(p, j);
       const first = j !== prev; prev = j;
-      S.X[i] = x; S.Y[i] = y; S.R[i] = first ? radius(p.l) : 0;
+      S.X[i] = x; S.Y[i] = y; S.R[i] = first ? radius(p.l) : 0; S.Z[i] = (p.l - 0.5) * zS + (Math.random() - 0.5) * jz;   // brighter = nearer
       if (veins) {
         const isVein = p.l0 > CFG.veinLum;
         S.Rh[i] = !first ? 0 : isVein ? (Math.random() < 0.9 ? 0 : radius(0.45)) : S.R[i];
@@ -360,7 +587,7 @@
       } else S.Rh[i] = S.R[i];
     }
   }
-  const blank = () => ({ X: new Float32Array(N), Y: new Float32Array(N), R: new Float32Array(N), Rh: new Float32Array(N), veins: false });
+  const blank = () => ({ X: new Float32Array(N), Y: new Float32Array(N), R: new Float32Array(N), Rh: new Float32Array(N), Z: new Float32Array(N), veins: false });
 
   // the vein hand comes from its own full-resolution image, drawn about 500 layout-px tall
   const VEIN_CROP = () => ({ x: 0, y: 0, w: veinImg.naturalWidth, h: veinImg.naturalHeight });
@@ -408,7 +635,7 @@
   }
 
   function build() {
-    k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760;
+    k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760; Smin = Math.min(W, H); zS = Smin * 0.42; jz = Smin * 0.05;
     const at = {
       handL: [W * 0.25, H * (m ? 0.66 : 0.60)], handR: [W * 0.69, H * (m ? 0.60 : 0.54)],
       veins: [W * (m ? 0.30 : 0.24), H * (m ? 0.66 : 0.54)], phone: [W * (m ? 0.70 : 0.76), H * (m ? 0.66 : 0.56)]
@@ -438,7 +665,7 @@
     // slots [0, NA) = the hand that carries through the whole story · slots [NA, N) = the left hand, which drops away
     const apart = W * CFG.apart, close = W * 0.012;
     const S0 = blank(), S1 = blank(), S2 = blank(), S3 = blank(), S4 = blank();
-    for (let i = 0; i < N; i++) { S0.X[i] = W / 2 + (Math.random() - 0.5) * W * 1.1; S0.Y[i] = H / 2 + (Math.random() - 0.5) * H * 1.1; }
+    for (let i = 0; i < N; i++) { S0.X[i] = W / 2 + (Math.random() - 0.5) * W * 1.1; S0.Y[i] = H / 2 + (Math.random() - 0.5) * H * 1.1; S0.Z[i] = (Math.random() - 0.5) * Smin * 1.2; }
     fill(S1, 0, NA, R, p => [p.x - apart, p.y + H * 0.03]);          fill(S1, NA, N, L, p => [p.x + apart, p.y - H * 0.03]);
     fill(S2, 0, NA, R, p => [p.x, p.y]);                              fill(S2, NA, N, L, p => [p.x, p.y]);
     const drop = (p, j) => [p.x + W * (0.1 + 0.08 * ((j * 7919) % 100) / 100), p.y - H * (0.08 + 0.14 * ((j * 104729) % 100) / 100)];   // doctor's hand drifts up and away
@@ -447,12 +674,13 @@
     for (const S of [S3, S4]) for (let i = NA; i < N; i++) { S.R[i] = 0; S.Rh[i] = 0; }
     scenes = [S0, S1, S2, S3, S4];
 
-    dly = new Float32Array(N); swx = new Float32Array(N); swy = new Float32Array(N);
+    dly = new Float32Array(N); swx = new Float32Array(N); swy = new Float32Array(N); swz = new Float32Array(N);
     for (let i = 0; i < N; i++) {
       dly[i] = CFG.spread * (0.55 * Math.random() + 0.45 * (i % NA) / NA);
-      const a = Math.random() * 6.2832, s = (0.3 + Math.random()) * CFG.swirl; swx[i] = Math.cos(a) * s; swy[i] = Math.sin(a) * s;
+      const a = Math.random() * 6.2832, s = (0.3 + Math.random()) * CFG.swirl; swx[i] = Math.cos(a) * s; swy[i] = Math.sin(a) * s; swz[i] = (Math.random() - 0.5) * Smin * 0.3;
     }
-    xs = new Float32Array(N); ys = new Float32Array(N); rs = new Float32Array(N); bk = new Uint8Array(N);
+    xs = new Float32Array(N); ys = new Float32Array(N); zs = new Float32Array(N); rs = new Float32Array(N); bk = new Uint8Array(N);
+    cam3d.style.transformOrigin = W / 2 + 'px ' + H / 2 + 'px';
 
     // the phone: a real picture cut from the layout, centred on the phone's place in the final pose
     const ph = 0.686 * hh * kh, pw = ph * PHONE_ASPECT;
@@ -471,34 +699,31 @@
   function draw(p, time) {
     if (!N) return;
     const { a, b, type, t } = locate(p), A = scenes[a], B = scenes[b], hold = type === 'hold';
-    const va = veinAmt(p), R = CFG.mouseRadius, mf = CFG.mouseForce, span = 1 - CFG.spread, counts = new Uint32Array(BUCKETS);
+    const va = veinAmt(p), R = CFG.mouseRadius, mf = CFG.mouseForce, span = 1 - CFG.spread;
     const rad = (S, i) => S.veins ? S.Rh[i] + (S.R[i] - S.Rh[i]) * clamp((va * 1.4 - VT[i]) / 0.4) : S.R[i];   // veins grow in from the fingertips
 
     for (let i = 0; i < N; i++) {
-      let x, y, r;
-      if (hold) { x = A.X[i]; y = A.Y[i]; r = rad(A, i); }
+      let x, y, z, r;
+      if (hold) { x = A.X[i]; y = A.Y[i]; z = A.Z[i]; r = rad(A, i); }
       else if (type === 'move') {                          // rigid slide, no stagger
-        x = A.X[i] + (B.X[i] - A.X[i]) * t; y = A.Y[i] + (B.Y[i] - A.Y[i]) * t; r = A.R[i] + (B.R[i] - A.R[i]) * t;
+        x = A.X[i] + (B.X[i] - A.X[i]) * t; y = A.Y[i] + (B.Y[i] - A.Y[i]) * t; r = A.R[i] + (B.R[i] - A.R[i]) * t; z = A.Z[i] + (B.Z[i] - A.Z[i]) * t;
       } else {
         const u = clamp((t - dly[i]) / span), e = u * u * (3 - 2 * u), w = Math.sin(Math.PI * e);
         const dx = B.X[i] - A.X[i], dy = B.Y[i] - A.Y[i];
         x = A.X[i] + dx * e - dy * CFG.arc * w + swx[i] * w; y = A.Y[i] + dy * e + dx * CFG.arc * w + swy[i] * w;
+        z = A.Z[i] + (B.Z[i] - A.Z[i]) * e + swz[i] * w;                     // dots also arc through depth while they morph
         const ra = rad(A, i), rb = rad(B, i); r = ra + (rb - ra) * e;
       }
       const mx = x - mouse.x, my = y - mouse.y, d2 = mx * mx + my * my;
       if (d2 < R * R) { const d = Math.sqrt(d2) + 0.001, f = 1 - d / R; x += mx / d * f * f * mf; y += my / d * f * f * mf; }
-      x += Math.sin(time * 0.0009 + i * 0.37) * 0.25; y += Math.cos(time * 0.0008 + i * 0.53) * 0.25;
-      xs[i] = x; ys[i] = y; rs[i] = r;
-      const bi = r < 0.2 ? 255 : Math.min(BUCKETS - 1, (r / (gp * 0.56) * BUCKETS) | 0); bk[i] = bi; if (bi !== 255) counts[bi]++;
+      xs[i] = x; ys[i] = y; zs[i] = z; rs[i] = r;
     }
     ctx.clearRect(0, 0, W, H);
     ctx.globalAlpha = 1 - 0.8 * va;                        // x-ray: the skin dots fade back while the veins come forward
-    for (let bi = 0; bi < BUCKETS; bi++) {
-      if (!counts[bi]) continue;
-      ctx.fillStyle = `rgba(255,255,255,${0.45 + 0.55 * (bi + 1) / BUCKETS})`; ctx.beginPath();
-      for (let i = 0; i < N; i++) if (bk[i] === bi) { ctx.moveTo(xs[i] + rs[i], ys[i]); ctx.arc(xs[i], ys[i], rs[i], 0, 6.2832); }
-      ctx.fill();
-    }
+    const fz = Math.max(W, H) * 1.3, bias = (p - 0.5) * 0.14;
+    PART.draw({ ctx, time, n: N, X: xs, Y: ys, Z: zs, R: rs, rRef: gp * 0.56, ox: W / 2, oy: H / 2, amt: 0.09, yawBias: bias, f: fz, zRange: Smin * 0.4, defocus: 0.5, drift: 0.35 });
+    const an = PART.angles(0.09, bias);                     // the vein lines and the phone ride the same camera, so they stay glued to the hand
+    cam3d.style.transform = 'perspective(' + fz + 'px) rotateX(' + an.pitch + 'rad) rotateY(' + an.yaw + 'rad)';
     ctx.globalAlpha = 1;
     // veins: reveal from the fingertips down, then follow the hand as it rotates away while fading out
     const rev = ss(p, 0.56, 0.68), fade = 1 - ss(p, 0.72, 0.82), tm = ss(p, 0.70, 0.84), edge = rev * 120 - 20;
@@ -540,74 +765,98 @@
   img.src = window.TOUCH_IMG; veinImg.src = window.VEIN_IMG; handImg.src = window.HAND_IMG;
 })();
 
-/* ======================= ALL OF THIS: halftone glow that spreads out from the centre ======================= */
+/* ======================= HALFTONE GLOWS: light that spreads out from the centre (used by two sections) ======================= */
 (() => {
-  const ring = document.getElementById('ring'), cv = document.getElementById('ringdots'), head = document.getElementById('ringhead'), ctx = cv.getContext('2d');
   const BUCKETS = 8, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CFG = {
-    period: 9,        // seconds for one band of light to travel from the centre to the edge
-    bands: 1.15,      // bands of light visible across the ring at once (higher = more, thinner bands)
-    burst: 3.2,       // seconds the first burst takes to fill the ring when you arrive
-    base: 0.16        // how much light remains between bands (0 = fully dark gaps)
-  };
-  const allEl = document.getElementById('all');
-  let W, H, CW, CH, dpr, pitch, n = 0, px, py, rr, th, prof, rad, bk, S, rEdge, visible = false, t0 = 0;
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v, RD = 0;
 
-  function build() {
-    dpr = Math.min(devicePixelRatio || 1, 2); W = ring.clientWidth; H = ring.clientHeight;
-    const hr = head.getBoundingClientRect(), br = ring.getBoundingClientRect();
-    const cx = hr.left - br.left + hr.width / 2, cy = hr.top - br.top + hr.height / 2;
-    S = W;                                                          // ring size reference
-    pitch = Math.min(7.5, Math.max(4.5, S * 0.0042));
-    const r0 = 0.25 * S, sg = 0.125 * S; rEdge = r0 + 2.1 * sg;
-    // the glow reaches further than the ring's box: grow the canvas (and the section's padding) so it fades out fully before any edge
-    const padX = Math.max(0, Math.ceil(rEdge - Math.min(cx, W - cx))) + 8, padY = Math.max(0, Math.ceil(rEdge - Math.min(cy, H - cy))) + 8;
-    CW = W + 2 * padX; CH = H + 2 * padY;
-    cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    Object.assign(cv.style, { left: -padX + 'px', top: -padY + 'px', width: CW + 'px', height: CH + 'px' });
-    Object.assign(allEl.style, { paddingTop: Math.max(padY, innerHeight * 0.06) + 'px', paddingBottom: Math.max(padY, innerHeight * 0.1) + 'px' });
-    const ox = cx + padX, oy = cy + padY, xs = [], ys = [], rs = [], ts = [], ps = [];
-    for (let y = pitch / 2; y < CH; y += pitch) for (let x = pitch / 2; x < CW; x += pitch) {
-      const dx = x - ox, dy = y - oy, r = Math.hypot(dx, dy); if (r > rEdge) continue;
-      const p = Math.exp(-Math.pow((r - r0) / sg, 2)); if (p < 0.02) continue;     // dark centre, soft outer edge
-      xs.push(x); ys.push(y); rs.push(r); ts.push(Math.atan2(dy, dx)); ps.push(p);
+  function makeGlow(o) {
+    const host = document.getElementById(o.host), ring = document.getElementById(o.ring), cv = document.getElementById(o.canvas), head = document.getElementById(o.head), ctx = cv.getContext('2d');
+    const CFG = {
+      period: 9,        // seconds for one band of light to travel from the centre to the edge
+      bands: 1.15,      // bands of light visible across the ring at once (higher = more, thinner bands)
+      burst: 3.2,       // seconds the first burst takes to fill the ring when you arrive
+      base: 0.16,       // how much light remains between bands (0 = fully dark gaps)
+      r0: o.r0, sg: o.sg,        // ring radius and outer softness, as fractions of the section width
+      sgIn: o.sgIn || o.sg,       // softness on the inside edge (small = crisp planet limb)
+      leanPow: o.leanPow || 1,    // higher = light hugs the lit side more tightly
+      gain: o.gain || 1,                 // overall brightness
+      tilt: o.tilt, leanMin: o.leanMin   // which way the glow leans, and how strongly
+    };
+    let W, H, CW, CH, dpr, pitch, n = 0, px, py, rr, th, prof, rad, bk, S, rEdge, visible = false, t0 = 0, zz, zj, dustR, pcx = 0, pcy = 0;
+
+    function build() {
+      dpr = Math.min(devicePixelRatio || 1, 2); W = ring.clientWidth; H = ring.clientHeight;
+      const hr = head.getBoundingClientRect(), br = ring.getBoundingClientRect();
+      const cx = hr.left - br.left + hr.width / 2, cy = hr.top - br.top + hr.height / 2;
+      S = W; pitch = Math.min(7.5, Math.max(4.5, S * 0.0042));
+      const r0 = CFG.r0 * S, sg = CFG.sg * S, sgIn = CFG.sgIn * S; rEdge = r0 + 2.1 * sg;
+      // the glow reaches further than the ring's box: grow the canvas (and the section's padding) so it fades out fully before any edge
+      const padX = Math.max(0, Math.ceil(rEdge - Math.min(cx, W - cx))) + 8, padY = Math.max(0, Math.ceil(rEdge - Math.min(cy, H - cy))) + 8;
+      CW = W + 2 * padX; CH = H + 2 * padY;
+      cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      Object.assign(cv.style, { left: -padX + 'px', top: -padY + 'px', width: CW + 'px', height: CH + 'px' });
+      Object.assign(host.style, { paddingTop: Math.max(padY, innerHeight * 0.06) + 'px', paddingBottom: Math.max(padY, innerHeight * 0.1) + 'px' });
+      const ox = cx + padX, oy = cy + padY, xs = [], ys = [], rs = [], ts = [], ps = [];
+      for (let y = pitch / 2; y < CH; y += pitch) for (let x = pitch / 2; x < CW; x += pitch) {
+        const dx = x - ox, dy = y - oy, r = Math.hypot(dx, dy); if (r > rEdge) continue;
+        const p = Math.exp(-Math.pow((r - r0) / (r < r0 ? sgIn : sg), 2)); if (p < 0.02) continue;     // dark centre, soft outer edge
+        xs.push(x); ys.push(y); rs.push(r); ts.push(Math.atan2(dy, dx)); ps.push(p);
+      }
+      n = xs.length; px = new Float32Array(n + RD); px.set(xs); py = new Float32Array(n + RD); py.set(ys); rr = Float32Array.from(rs); th = Float32Array.from(ts); prof = Float32Array.from(ps);
+      rad = new Float32Array(n + RD); bk = new Uint8Array(n); zz = new Float32Array(n + RD); zj = new Float32Array(n); for (let i = 0; i < n; i++) zj[i] = (Math.random() - 0.5) * S * 0.06;
+      dustR = PART.makeDust(RD, CW, CH, S * 0.35); pcx = cx + padX; pcy = cy + padY;
     }
-    n = xs.length; px = Float32Array.from(xs); py = Float32Array.from(ys); rr = Float32Array.from(rs); th = Float32Array.from(ts); prof = Float32Array.from(ps);
-    rad = new Float32Array(n); bk = new Uint8Array(n);
+
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (!visible || !n) return;
+      if (!t0) t0 = now;
+      const t = reduce ? 0 : (now - t0) / 1000, rMax = pitch * 0.56;
+      const lam = rEdge / CFG.bands, front = reduce ? 1e9 : (t / CFG.burst) * (rEdge * 1.25);   // front of the first burst, moving out
+      const tilt = CFG.tilt + 0.25 * Math.sin(t * 0.13), lm = CFG.leanMin;
+      for (let i = 0; i < n; i++) {
+        const r = rr[i];
+        const wave = Math.pow(0.5 + 0.5 * Math.cos(6.2832 * (r / lam - t / CFG.period)), 2.2);   // bands travelling outward
+        const lean = lm + (1 - lm) * Math.pow(0.5 + 0.5 * Math.cos(th[i] - tilt), CFG.leanPow);
+        const open = clamp01((front - r) / (0.18 * S));                                          // light has reached this radius yet?
+        const I = prof[i] * (CFG.base + (1 - CFG.base) * wave) * lean * open * CFG.gain;
+        const rd = rMax * Math.pow(I, 0.62);
+        rad[i] = rd; zz[i] = (Math.min(I, 1.4) - 0.2) * S * 0.12;   // the bright bands rise towards you, so the light ripples in depth
+      }
+      ctx.clearRect(0, 0, CW, CH);
+      PART.writeDust(dustR, now, px, py, zz, rad, n);
+      PART.draw({ ctx, time: now, n: n + RD, dimFrom: n, shimmer: 0, X: px, Y: py, Z: zz, R: rad, rRef: rMax, ox: pcx, oy: pcy, amt: 0.2, f: S * 1.5, zRange: S * 0.12, defocus: 0.35, drift: 0.3, zFocus: S * 0.03 });
+    }
+
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (e.isIntersecting) ring.classList.add('in'); }, { threshold: 0.12 }).observe(ring);
+    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { build(); requestAnimationFrame(frame); });
   }
 
-  function frame(now) {
-    requestAnimationFrame(frame);
-    if (!visible || !n) return;
-    if (!t0) t0 = now;
-    const t = reduce ? 0 : (now - t0) / 1000, rMax = pitch * 0.56, counts = new Uint32Array(BUCKETS);
-    const lam = rEdge / CFG.bands, front = reduce ? 1e9 : (t / CFG.burst) * (rEdge * 1.25);   // front of the first burst, moving out
-    const tilt = -1.7 + 0.25 * Math.sin(t * 0.13);                                             // the glow leans slightly towards the top, like your design
-    for (let i = 0; i < n; i++) {
-      const r = rr[i];
-      const wave = Math.pow(0.5 + 0.5 * Math.cos(6.2832 * (r / lam - t / CFG.period)), 2.2);   // bands travelling outward
-      const lean = 0.72 + 0.28 * (0.5 + 0.5 * Math.cos(th[i] - tilt));
-      const open = clamp01((front - r) / (0.18 * S));                                          // light has reached this radius yet?
-      const I = prof[i] * (CFG.base + (1 - CFG.base) * wave) * lean * open;
-      const rd = rMax * Math.pow(I, 0.62);
-      rad[i] = rd; const q = rd < 0.25 ? 255 : Math.min(BUCKETS - 1, (rd / rMax * BUCKETS) | 0); bk[i] = q; if (q !== 255) counts[q]++;
-    }
-    ctx.clearRect(0, 0, CW, CH);
-    for (let q = 0; q < BUCKETS; q++) {
-      if (!counts[q]) continue;
-      ctx.fillStyle = `rgba(255,255,255,${0.45 + 0.55 * (q + 1) / BUCKETS})`; ctx.beginPath();
-      for (let i = 0; i < n; i++) if (bk[i] === q) { ctx.moveTo(px[i] + rad[i], py[i]); ctx.arc(px[i], py[i], rad[i], 0, 6.2832); }
-      ctx.fill();
-    }
-  }
-  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  // "All of this.": a ring that leans towards the top
+  makeGlow({ host: 'all', ring: 'ring', canvas: 'ringdots', head: 'ringhead', r0: 0.25, sg: 0.125, tilt: -1.7, leanMin: 0.72 });
+  // "What is measured": a planet. The headline sits on its dark disc, and its lit limb glows towards the lower right
+  makeGlow({ host: 'measure', ring: 'ring2', canvas: 'ringdots2', head: 'mhead', r0: 0.29, sg: 0.16, sgIn: 0.03, tilt: 0.5, leanMin: 0.1, leanPow: 1.1, gain: 1.05 });
 
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (e.isIntersecting) { ring.classList.add('in'); if (!t0) t0 = 0; }
-  }, { threshold: 0.12 }).observe(ring);
-  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { build(); requestAnimationFrame(frame); });
+  // pills: hovering opens one at a time (so a tall card can never trap the pointer); a tap does the same on touch screens
+  const pills = [...document.querySelectorAll('.pill')], canHover = matchMedia('(hover: hover)').matches;
+  const closeAll = except => pills.forEach(q => { if (q !== except) q.classList.remove('open'); });
+  pills.forEach(p => {
+    p.addEventListener('pointerenter', e => { if (!canHover || e.pointerType === 'touch') return; clearTimeout(p._t); closeAll(p); p.classList.add('open'); });
+    p.addEventListener('pointerleave', e => { if (!canHover || e.pointerType === 'touch') return; p._t = setTimeout(() => p.classList.remove('open'), 40); });
+    p.addEventListener('click', e => { if (canHover && e.pointerType !== 'touch') return; const was = p.classList.contains('open'); closeAll(); if (!was) p.classList.add('open'); });
+  });
+  addEventListener('scroll', () => { if (canHover) closeAll(); }, { passive: true });
+  document.addEventListener('pointerleave', () => closeAll());
+})();
+</script>
+<script>
+/* comparison: rows fade up one after another when the section arrives */
+(() => {
+  const cmp = document.getElementById('cmp'); if (!cmp) return;
+  [...cmp.querySelectorAll('.hd, .it')].forEach((el, i) => el.style.setProperty('--i', Math.floor(i / 2)));
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { cmp.classList.add('in'); io.disconnect(); } }, { threshold: 0.18 }).observe(cmp);
 })();
 </script>
 </body>
