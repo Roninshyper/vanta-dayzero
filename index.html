@@ -50,7 +50,13 @@
 
   #cam3d { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
   #veinlines { position: absolute; display: none; z-index: 1; pointer-events: none; will-change: transform, opacity; filter: drop-shadow(0 0 2px rgba(255,255,255,.55)); }
-  #phone { position: absolute; display: none; z-index: 2; background: url(assets/phone.webp) center / 100% 100% no-repeat; will-change: transform; }
+  #phone { position: absolute; display: none; z-index: 2; transform-style: preserve-3d; will-change: transform; }
+  #phone > div { position: absolute; inset: 0; border-radius: var(--pr, 18px); }
+  #phone .ph-slice { background: linear-gradient(90deg, #7f858d, #e9ecef 48%, #8c929a); }
+  #phone .ph-front { background: url(assets/phone.webp) center / 100% 100% no-repeat; }
+  #phone .ph-back { background: radial-gradient(circle at 28% 16%, #3a3d42, #17181b 55%); box-shadow: inset 0 0 0 2px #8d939b; }
+  #phone .ph-back::after { content: ""; position: absolute; left: 9%; top: 5%; width: 36%; height: 17%; border-radius: 22%; background: #0e0f11; box-shadow: inset 0 0 0 2px #555a61; }
+  #scene2 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; pointer-events: none; }
   #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
   .step { position: absolute; z-index: 3; max-width: min(400px, 86vw); opacity: 0; will-change: transform, opacity; }
@@ -207,8 +213,8 @@
 <section id="steps">
   <div class="stage">
     <canvas id="scene" aria-hidden="true"></canvas>
-    <div id="cam3d"><canvas id="veinlines" aria-hidden="true"></canvas>
-    <div id="phone" aria-hidden="true"></div></div>
+    <div id="cam3d"><div id="phone" aria-hidden="true"></div></div>
+    <canvas id="scene2" aria-hidden="true"></canvas>
 
     <div class="step" id="s1">
       <div class="tag">Step 01 · The draw</div>
@@ -315,27 +321,131 @@
   <div>© Vanta</div>
 </footer>
 
-<script src="hero-image.js"></script>
-<script src="touch-image.js"></script>
-<script src="vein-hand-image.js"></script>
-<script src="hand-image.js"></script>
+<script src="david-model.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand3d.js"></script>
 <script>
 /* ======================= 3D PARTICLES: shared renderer for every dot animation ======================= */
 /* Each dot has a world position (x, y) plus a depth z (towards the viewer). A small camera swings with the pointer and drifts on its own;
    near dots grow and brighten, far dots shrink and dim, and dots away from the focal plane turn into soft bokeh. */
 const PART = (() => {
-  const FLAT = true;   // true = flat halftone dots (no depth, camera or bokeh) · false = 3D particles
+  const FLAT = false;   // true = flat halftone dots (no depth, camera or bokeh) · false = 3D particles
   const NB = 10, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cam = { yaw: 0, pitch: 0, ty: 0, tp: 0, stamp: -1 };
   addEventListener('pointermove', e => { cam.ty = e.clientX / innerWidth - 0.5; cam.tp = e.clientY / innerHeight - 0.5; });
   function step(now) {                                   // advance the camera once per frame, however many canvases draw
     if (cam.stamp === now) return; cam.stamp = now;
-    const iy = reduce ? 0 : Math.sin(now * 0.00033) * 0.35, ip = reduce ? 0 : Math.cos(now * 0.00027) * 0.25;
+    const iy = reduce ? 0 : Math.sin(now * 0.00033) * 0.6, ip = reduce ? 0 : Math.cos(now * 0.00027) * 0.3;
     cam.yaw += (cam.ty * 2 + iy - cam.yaw) * 0.05; cam.pitch += (cam.tp * 2 + ip - cam.pitch) * 0.05;
   }
-  let sx, sy, sr, bk, cap = 0;
-  const ensure = n => { if (n > cap) { cap = n; sx = new Float32Array(n); sy = new Float32Array(n); sr = new Float32Array(n); bk = new Uint8Array(n); } };
+  let sx, sy, sr, bk, fb, cap = 0;
+  const ensure = n => { if (n > cap) { cap = n; sx = new Float32Array(n); sy = new Float32Array(n); sr = new Float32Array(n); bk = new Uint8Array(n); fb = new Uint8Array(n); } };
 
+  // "plexus": every Nth particle becomes a node, and each node is linked to its nearest neighbours with a thin line. As the picture
+  // moves or morphs the links form and break on their own. A few nodes also carry a small coordinate readout.
+  let nodes = new Int32Array(0); const segs = [[], [], []];
+  function network(ctx, n, rRef, net, W, H) {
+    const every = net.every, maxD = net.maxD, link = net.link || 3, minR = rRef * (net.minR === undefined ? 0.3 : net.minR);
+    if (nodes.length < n / every + 2) nodes = new Int32Array((n / every | 0) + 8);
+    let m = 0, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+    for (let i = 0; i < n; i += every) {
+      if (bk[i] === 255 || sr[i] < minR) continue;
+      nodes[m++] = i; const x = sx[i], y = sy[i];
+      if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y;
+    }
+    if (m < 2) return;
+    const cs = maxD, gw = Math.ceil((maxX - minX) / cs) + 1, gh = Math.ceil((maxY - minY) / cs) + 1; if (gw * gh > 300000) return;
+    const head = new Int32Array(gw * gh).fill(-1), next = new Int32Array(m), maxD2 = maxD * maxD, t1 = maxD2 * 0.11, t2 = maxD2 * 0.44;
+    for (let k = 0; k < m; k++) { const i = nodes[k], c = (((sy[i] - minY) / cs) | 0) * gw + (((sx[i] - minX) / cs) | 0); next[k] = head[c]; head[c] = k; }
+    segs[0].length = segs[1].length = segs[2].length = 0;
+    const bd = new Float32Array(link), bk2 = new Int32Array(link);
+    for (let k = 0; k < m; k++) {
+      const i = nodes[k], x = sx[i], y = sy[i], cx = ((x - minX) / cs) | 0, cy = ((y - minY) / cs) | 0; let cnt = 0;
+      for (let gy = Math.max(0, cy - 1); gy <= Math.min(gh - 1, cy + 1); gy++) for (let gx = Math.max(0, cx - 1); gx <= Math.min(gw - 1, cx + 1); gx++) {
+        for (let q = head[gy * gw + gx]; q !== -1; q = next[q]) {
+          if (q === k) continue;
+          const j = nodes[q], dx = sx[j] - x, dy = sy[j] - y, d2 = dx * dx + dy * dy; if (d2 > maxD2) continue;
+          let p; if (cnt < link) p = cnt++; else { if (d2 >= bd[link - 1]) continue; p = link - 1; }
+          while (p > 0 && bd[p - 1] > d2) { bd[p] = bd[p - 1]; bk2[p] = bk2[p - 1]; p--; }
+          bd[p] = d2; bk2[p] = q;
+        }
+      }
+      for (let u = 0; u < cnt; u++) {
+        const j = nodes[bk2[u]], lvl = bd[u] < t1 ? 0 : bd[u] < t2 ? 1 : 2;
+        segs[lvl].push(x, y, sx[j], sy[j]);
+      }
+    }
+    const a0 = net.alpha === undefined ? 1 : net.alpha, al = [0.55, 0.34, 0.18];
+    ctx.lineWidth = 0.6; ctx.lineCap = 'round';
+    for (let l = 0; l < 3; l++) {
+      const s = segs[l]; if (!s.length) continue;
+      ctx.strokeStyle = 'rgba(255,255,255,' + (al[l] * a0) + ')'; ctx.beginPath();
+      for (let i = 0; i < s.length; i += 4) { ctx.moveTo(s[i], s[i + 1]); ctx.lineTo(s[i + 2], s[i + 3]); }
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,' + (0.85 * a0) + ')'; ctx.beginPath();                    // the nodes themselves: small bright points
+    for (let k = 0; k < m; k++) { const i = nodes[k]; ctx.moveTo(sx[i] + 1.1, sy[i]); ctx.arc(sx[i], sy[i], 1.1, 0, 6.2832); }
+    ctx.fill();
+    if (net.labelEvery) {                                                                          // a few HUD readouts that follow their node
+      ctx.font = '9px ui-monospace, Menlo, Consolas, monospace'; ctx.fillStyle = 'rgba(255,255,255,' + (0.55 * a0) + ')'; ctx.textBaseline = 'alphabetic';
+      for (let k = 0; k < m; k++) {
+        const i = nodes[k]; if (i % net.labelEvery) continue;
+        ctx.fillText((sx[i] / W).toFixed(3) + '  ' + (sy[i] / H).toFixed(3), sx[i] + 7, sy[i] - 6);
+      }
+    }
+  }
+
+  // Turns a picture into a solid. The silhouette is "inflated" into a rounded volume: thickness grows with the distance from the edge,
+  // up to a maximum of R, like a puffed-up cutout. Returns zAt(x, y) = half the thickness of the object at that pixel.
+  function inflate(data, cw, ch, thr, R) {
+    const s = Math.max(2, Math.round(Math.max(cw, ch) / 220)), lw = Math.ceil(cw / s), lh = Math.ceil(ch / s), L = lw * lh;
+    let m = new Uint8Array(L);
+    for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {
+      let sum = 0, c = 0;
+      for (let yy = y * s; yy < Math.min(ch, y * s + s); yy++) for (let xx = x * s; xx < Math.min(cw, x * s + s); xx++) { const q = (yy * cw + xx) * 4; sum += 0.2126 * data[q] + 0.7152 * data[q + 1] + 0.0722 * data[q + 2]; c++; }
+      m[y * lw + x] = sum / c / 255 > thr ? 1 : 0;
+    }
+    const pass = (src, grow) => {
+      const o = new Uint8Array(L);
+      for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {
+        let v = grow ? 0 : 1;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= lw || yy >= lh) continue; const w = src[yy * lw + xx]; if (grow) { if (w) v = 1; } else if (!w) v = 0; }
+        o[y * lw + x] = v;
+      }
+      return o;
+    };
+    m = pass(pass(pass(m, true), true), true); m = pass(pass(pass(m, false), false), false);        // close small holes, such as shadows inside the object
+    const BIG = 1e6, d = new Float32Array(L); for (let i = 0; i < L; i++) d[i] = m[i] ? BIG : 0;
+    for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {                                       // distance to the nearest edge (two-pass chamfer)
+      const i = y * lw + x; if (!m[i]) continue; let v = d[i];
+      if (x > 0) v = Math.min(v, d[i - 1] + 1);
+      if (y > 0) { v = Math.min(v, d[i - lw] + 1); if (x > 0) v = Math.min(v, d[i - lw - 1] + 1.414); if (x < lw - 1) v = Math.min(v, d[i - lw + 1] + 1.414); }
+      d[i] = v;
+    }
+    for (let y = lh - 1; y >= 0; y--) for (let x = lw - 1; x >= 0; x--) {
+      const i = y * lw + x; if (!m[i]) continue; let v = d[i];
+      if (x < lw - 1) v = Math.min(v, d[i + 1] + 1);
+      if (y < lh - 1) { v = Math.min(v, d[i + lw] + 1); if (x < lw - 1) v = Math.min(v, d[i + lw + 1] + 1.414); if (x > 0) v = Math.min(v, d[i + lw - 1] + 1.414); }
+      d[i] = v;
+    }
+    let z = new Float32Array(L);
+    for (let i = 0; i < L; i++) { const dd = Math.min(d[i], BIG) * s; z[i] = !m[i] ? 0 : dd >= R ? R : Math.sqrt(dd * (2 * R - dd)); }      // circular profile, flat on top
+    for (let k = 0; k < 2; k++) {                                                                      // smooth it
+      const z2 = new Float32Array(L);
+      for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) {
+        let sum = 0, c = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= lw || yy >= lh) continue; sum += z[yy * lw + xx]; c++; }
+        z2[y * lw + x] = sum / c;
+      }
+      z = z2;
+    }
+    return (x, y) => z[Math.max(0, Math.min(lh - 1, (y / s) | 0)) * lw + Math.max(0, Math.min(lw - 1, (x / s) | 0))];
+  }
+
+  let last = { cyw: 1, syw: 0, cp: 1, sp: 0, f: 1000 };
+  // project a point (and rotate a direction) with the camera of the most recent draw()
+  const proj = (x, y, z, pvx, pvy) => { const L = last, dx = x - pvx, dy = y - pvy, x1 = dx * L.cyw + z * L.syw, z1 = z * L.cyw - dx * L.syw, y2 = dy * L.cp - z1 * L.sp, z2 = dy * L.sp + z1 * L.cp, s = L.f / (L.f - z2); return [pvx + x1 * s, pvy + y2 * s, s, z2]; };
+  const rotVec = (x, y, z) => { const L = last, x1 = x * L.cyw + z * L.syw, z1 = z * L.cyw - x * L.syw; return [x1, y * L.cp - z1 * L.sp, y * L.sp + z1 * L.cp]; };
   function draw(o) {
     step(o.time); const n = o.n, X = o.X, Y = o.Y, Z = o.Z, R = o.R, ctx = o.ctx; ensure(n);
     if (FLAT) {                                          // the original look: dot size carries the brightness, nothing else
@@ -351,32 +461,43 @@ const PART = (() => {
         for (let i = 0; i < n; i++) if (bk[i] === q) { ctx.moveTo(sx[i] + sr[i], sy[i]); ctx.arc(sx[i], sy[i], sr[i], 0, 6.2832); }
         ctx.fill();
       }
+      if (o.net) network(ctx, n, rr8, o.net, o.W, o.H);
       return;
     }
     const yaw = cam.yaw * o.amt + (o.yawBias || 0), pitch = cam.pitch * o.amt * 0.7;
     const cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
-    const dimFrom = o.dimFrom === undefined ? n : o.dimFrom, f = o.f, inv = 1 / o.zRange, ox = o.ox, oy = o.oy, rRef = o.rRef, t = o.time, drift = o.drift, def = o.defocus, zf = o.zFocus || 0;
-    const counts = new Uint32Array(NB);
+    const dimFrom = o.dimFrom === undefined ? n : o.dimFrom, f = o.f, inv = 1 / o.zRange, ox = o.ox, oy = o.oy, PXa = o.PX, PYa = o.PY, NXa = o.NX, NYa = o.NY, NZa = o.NZ, rRef = o.rRef, t = o.time, drift = o.drift, def = o.defocus, zf = o.zFocus || 0;
+    const counts = new Uint32Array(NB * 2); last = { cyw, syw, cp, sp, f }; const zFront = o.zFront, hasFront = !!o.ctxFront;
     for (let i = 0; i < n; i++) {
       const r = R[i]; if (r < 0.12) { bk[i] = 255; continue; }
-      const dx = X[i] - ox + Math.sin(t * 0.0009 + i * 0.37) * drift, dy = Y[i] - oy + Math.cos(t * 0.0008 + i * 0.53) * drift;
+      const pxv = PXa ? PXa[i] : ox, pyv = PYa ? PYa[i] : oy;                              // every object turns about its own centre
+      const dx = X[i] - pxv + Math.sin(t * 0.0009 + i * 0.37) * drift, dy = Y[i] - pyv + Math.cos(t * 0.0008 + i * 0.53) * drift;
       const z = Z[i] + Math.sin(t * 0.0007 + i * 0.91) * drift * 7;                       // every particle breathes slightly in depth
       const x1 = dx * cyw + z * syw, z1 = z * cyw - dx * syw, y2 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp;
       const s = f / (f - z2); if (s > 2.6 || s < 0.2) { bk[i] = 255; continue; }          // perspective
       const zn = Math.max(-1, Math.min(1, z2 * inv)), dof = Math.min(1, Math.abs(z2 - zf) * inv);
-      const rad = r * s * (1 + def * dof * 0.9);                                          // out-of-focus dots swell into bokeh…
-      let a = (0.42 + 0.58 * Math.min(1, r / rRef)) * (0.7 + 0.3 * zn) * (1 - 0.45 * def * dof) * (0.88 + 0.12 * Math.sin(t * 0.0016 + i * 1.7));   // …and get dimmer, far dots fade, a faint twinkle
+      let lit = 1, base = 0.42 + 0.58 * Math.min(1, r / rRef);
+      if (NXa) {                                                                           // real lighting: turn the surface normal with the object, light it from the top left
+        const nx = NXa[i], ny = NYa[i], nz = NZa[i], n1x = nx * cyw + nz * syw, n1z = nz * cyw - nx * syw, n2y = ny * cp - n1z * sp, n2z = ny * sp + n1z * cp;
+        const sh = Math.max(0, n1x * -0.35 + n2y * -0.5 + n2z * 0.79), rim = 1 - Math.abs(n2z), b = 0.16 + 0.85 * sh + 0.5 * rim * rim;
+        lit = 0.45 + 0.9 * b; base = 0.3 + 0.7 * Math.min(1, b);
+      }
+      const rad = r * s * lit * (1 + def * dof * 0.9);                                    // out-of-focus dots swell into bokeh…
+      let a = base * (0.7 + 0.3 * zn) * (1 - 0.45 * def * dof) * (0.88 + 0.12 * Math.sin(t * 0.0016 + i * 1.7));   // …and get dimmer, far dots fade, a faint twinkle
       if (i >= dimFrom) a *= 0.38;                                                        // loose dust stays a faint backdrop
       if (a <= 0.05) { bk[i] = 255; continue; }
-      sx[i] = ox + x1 * s; sy[i] = oy + y2 * s; sr[i] = rad;
-      const q = Math.min(NB - 1, (a * NB) | 0); bk[i] = q; counts[q]++;
+      sx[i] = pxv + x1 * s; sy[i] = pyv + y2 * s; sr[i] = rad;
+      const q = Math.min(NB - 1, (a * NB) | 0), fr = hasFront && Z[i] > zFront ? 1 : 0; bk[i] = q; fb[i] = fr; counts[q + fr * NB]++;    // fr: this particle is in front of the phone
     }
-    const prev = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter';   // overlapping particles add up, like a glowing cloud
-    for (let q = 0; q < NB; q++) {
-      if (!counts[q]) continue;
-      ctx.fillStyle = 'rgba(255,255,255,' + ((q + 0.7) / NB) + ')'; ctx.beginPath();
-      for (let i = 0; i < n; i++) if (bk[i] === q) { ctx.moveTo(sx[i] + sr[i], sy[i]); ctx.arc(sx[i], sy[i], sr[i], 0, 6.2832); }
-      ctx.fill();
+    const prev = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'source-over';
+    for (let pass = 0; pass < (hasFront ? 2 : 1); pass++) {
+      const c2 = pass ? o.ctxFront : ctx;
+      for (let q = 0; q < NB; q++) {
+        if (!counts[q + pass * NB]) continue;
+        c2.fillStyle = 'rgba(255,255,255,' + ((q + 0.7) / NB) + ')'; c2.beginPath();
+        for (let i = 0; i < n; i++) if (bk[i] === q && fb[i] === pass) { c2.moveTo(sx[i] + sr[i], sy[i]); c2.arc(sx[i], sy[i], sr[i], 0, 6.2832); }
+        c2.fill();
+      }
     }
     ctx.globalCompositeOperation = prev;
   }
@@ -400,7 +521,7 @@ const PART = (() => {
     }
   }
   const angles = (amt, bias = 0) => FLAT ? { yaw: 0, pitch: 0 } : { yaw: cam.yaw * amt + bias, pitch: cam.pitch * amt * 0.7 };   // the same camera, for DOM layers that must follow it
-  return { draw, cam, makeDust, writeDust, angles };
+  return { draw, cam, makeDust, writeDust, angles, inflate, proj, rotVec };
 })();
 
 /* ======================= HERO: dots form the statue on load ======================= */
@@ -409,48 +530,42 @@ const PART = (() => {
     stiffness: 24, damping: 7.5, mouseRadius: 90, mouseForce: 1400, idleFloat: 0.35 };
   const canvas = document.getElementById('dots'), ctx = canvas.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, BUCKETS = 8;
-  let W, H, dpr, N = 0, tx, ty, px, py, vx, vy, delay, r, bucket, startR, order = [], t0 = 0, last = 0, visible = true, dust, zt, zs0, X3, Y3, Z3, R3, pvx = 0, pvy = 0, pr = 1, Sm = 1;
-  const mouse = { x: -9999, y: -9999 }, img = new Image();
+  let W, H, dpr, N = 0, tx, ty, px, py, vx, vy, delay, r, bucket, startR, order = [], t0 = 0, last = 0, visible = true, dust, zt, zs0, X3, Y3, Z3, R3, NX3, NY3, NZ3, zr = 300, pvx = 0, pvy = 0, pr = 1, Sm = 1;
+  const mouse = { x: -9999, y: -9999 };
 
   function layout() {
     dpr = Math.min(devicePixelRatio || 1, 2); W = canvas.clientWidth; H = canvas.clientHeight;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  let model = null;
   function build() {
-    const off = document.createElement('canvas'); off.width = Math.max(1, W | 0); off.height = Math.max(1, H | 0);
-    const o = off.getContext('2d', { willReadFrequently: true });
-    // fit the statue (≈52% of image width, top at ≈16% of image height) into the viewport instead of cropping
-    const s = Math.min(H * 1.05 / img.height, W * (W > H ? 0.75 : 1.0) / (0.52 * img.width)), dw = img.width * s, dh = img.height * s;
-    const ox = (W > H ? W * 0.72 : W * 0.5) - 0.69 * dw;
-    const oy = H * 0.12 - 0.16 * dh;
-    o.fillStyle = '#000'; o.fillRect(0, 0, off.width, off.height); o.drawImage(img, ox, oy, dw, dh);
-    const data = o.getImageData(0, 0, off.width, off.height).data;
-    const sp = (W < 700 ? CFG.spacing * 0.9 : CFG.spacing) * 1.35, xs = [], ys = [], rs = [], bs = [], ls = [];   // finer grid = more detail
-    const sp0 = sp;   // grid pitch
-    for (let y = 0; y < H; y += sp) for (let x = 0; x < W; x += sp) {
-      const jx = x + sp / 2, jy = y + sp / 2;                 // dots sit on a regular grid, like the ring section
-      const k = ((Math.min(off.height - 1, jy | 0)) * off.width + Math.min(off.width - 1, jx | 0)) * 4;
-      let l = (0.2126 * data[k] + 0.7152 * data[k + 1] + 0.0722 * data[k + 2]) / 255;
-      if (l < CFG.threshold) continue;
-      l = Math.pow((l - CFG.threshold) / (1 - CFG.threshold), CFG.gamma);
-      const rd = sp * 0.56 * Math.pow(l, 1.2); if (rd < 0.25) continue;     // dot size carries the brightness
-      xs.push(jx); ys.push(jy); rs.push(rd); ls.push(l); bs.push(Math.min(BUCKETS - 1, (rd / (sp * 0.56) * BUCKETS) | 0));
+    if (!model) {                                                                          // a real 3D bust: points on a sculpted surface, with normals (baked by tools/bake-david.js)
+      const D = window.DAVID_MODEL, bin = atob(D.data), n = D.n, rd = (o, k) => bin.charCodeAt(o + k) | bin.charCodeAt(o + k + 1) << 8, sb = v => v > 127 ? v - 256 : v, by = (o) => bin.charCodeAt(o);
+      model = { n, x: new Float32Array(n), y: new Float32Array(n), z: new Float32Array(n), nx: new Float32Array(n), ny: new Float32Array(n), nz: new Float32Array(n), hd: new Uint8Array(n) };
+      for (let i = 0; i < n; i++) { const o = i * 10; model.x[i] = rd(o, 0) / 10 + 600; model.y[i] = rd(o, 2) / 10; model.z[i] = rd(o, 4) / 10 - 400; model.nx[i] = sb(by(o + 6)) / 127; model.ny[i] = sb(by(o + 7)) / 127; model.nz[i] = sb(by(o + 8)) / 127; model.hd[i] = by(o + 9); }
     }
-    N = xs.length; tx = Float32Array.from(xs); ty = Float32Array.from(ys); r = Float32Array.from(rs); bucket = Uint8Array.from(bs);
-    px = new Float32Array(N); py = new Float32Array(N); vx = new Float32Array(N); vy = new Float32Array(N);
-    Sm = Math.min(W, H); pr = sp * 0.56; zt = new Float32Array(N); zs0 = new Float32Array(N); X3 = new Float32Array(N); Y3 = new Float32Array(N); Z3 = new Float32Array(N); R3 = new Float32Array(N);
-    for (let i = 0; i < N; i++) { zt[i] = (ls[i] - 0.5) * Sm * 0.42 + (Math.random() - 0.5) * Sm * 0.05; zs0[i] = (Math.random() - 0.5) * Sm * 1.3; }   // brighter = nearer, so the face has relief
-    delay = new Float32Array(N); startR = new Float32Array(N);
-    const fx = ox + 0.64 * dw, fy = oy + 0.33 * dh; pvx = fx; pvy = fy; let maxD = 1;
+    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.5) / 845, W * (W > H ? 0.56 : 0.98) / 910), ox = (W > H ? W * 0.72 : W * 0.5) - 1195 * s, oy = H * (W > H ? 0.13 : 0.5) - 165 * s;
+    const keep = [], nFront = M.n * 0.8 / (W < 700 ? 2 : 1);
+    const step = W < 700 ? 2 : 1; for (let i = 0; i < M.n; i += step) if (M.y[i] < 1008) keep.push(i);
+    N = keep.length; tx = new Float32Array(N); ty = new Float32Array(N); r = new Float32Array(N); zt = new Float32Array(N); zs0 = new Float32Array(N);
+    X3 = new Float32Array(N); Y3 = new Float32Array(N); Z3 = new Float32Array(N); R3 = new Float32Array(N); NX3 = new Float32Array(N); NY3 = new Float32Array(N); NZ3 = new Float32Array(N);
+    px = new Float32Array(N); py = new Float32Array(N); vx = new Float32Array(N); vy = new Float32Array(N); delay = new Float32Array(N); startR = new Float32Array(N);
+    const sp = Math.sqrt(910 * 845 * 0.6 * s * s / nFront), base = Math.max(0.35, sp * 0.34); Sm = Math.min(W, H); pr = base;
+    let cxm = 0, cym = 0;
+    for (let k = 0; k < N; k++) {
+      const i = keep[k], fade = 1 - Math.max(0, Math.min(1, (M.y[i] - 850) / 158));                      // the bust dissolves at the bottom edge
+      tx[k] = ox + M.x[i] * s; ty[k] = oy + M.y[i] * s; zt[k] = M.z[i] * s; NX3[k] = M.nx[i]; NY3[k] = M.ny[i]; NZ3[k] = M.nz[i];
+      r[k] = base * (M.hd[i] ? 0.8 : 1.12) * (0.8 + 0.4 * Math.random()) * (0.25 + 0.75 * fade); zs0[k] = (Math.random() - 0.5) * Sm * 1.3; cxm += tx[k]; cym += ty[k];
+    }
+    pvx = cxm / N; pvy = cym / N; zr = 330 * s;
+    const fx = ox + 1150 * s, fy = oy + 400 * s; let maxD = 1;                           // the face is where the statue forms first
     for (let i = 0; i < N; i++) maxD = Math.max(maxD, Math.hypot(tx[i] - fx, ty[i] - fy));
     for (let i = 0; i < N; i++) {
       delay[i] = Math.hypot(tx[i] - fx, ty[i] - fy) / maxD * CFG.formDuration + Math.random() * 0.5;
-      const a = Math.random() * 6.2832, rad = (0.25 + Math.random() * 0.9) * Math.max(W, H) * 0.35;
-      px[i] = tx[i] + Math.cos(a) * rad; py[i] = ty[i] + Math.sin(a) * rad;
-      startR[i] = Math.hypot(px[i] - tx[i], py[i] - ty[i]);
+      const an = Math.random() * 6.2832, rad = (0.25 + Math.random() * 0.9) * Math.max(W, H) * 0.35;
+      px[i] = tx[i] + Math.cos(an) * rad; py[i] = ty[i] + Math.sin(an) * rad; startR[i] = Math.hypot(px[i] - tx[i], py[i] - ty[i]);
       if (reduce) { px[i] = tx[i]; py[i] = ty[i]; delay[i] = 0; }
     }
-    order = Array.from({ length: BUCKETS }, () => []); for (let i = 0; i < N; i++) order[bucket[i]].push(i);
   }
   function frame(now) {
     requestAnimationFrame(frame);
@@ -470,225 +585,152 @@ const PART = (() => {
       const p = 1 - Math.min(1, Math.hypot(px[i] - tx[i], py[i] - ty[i]) / (startR[i] + 1));
       X3[i] = px[i]; Y3[i] = py[i]; Z3[i] = zs0[i] + (zt[i] - zs0[i]) * p; R3[i] = r[i] * (0.35 + 0.65 * p);
     }
-    PART.draw({ ctx, time: now, n: N, X: X3, Y: Y3, Z: Z3, R: R3, rRef: pr, ox: pvx, oy: pvy, amt: 0.3, f: Math.max(W, H) * 1.1, zRange: Sm * 0.35, defocus: 0.5, drift: 0.45 });
+    PART.draw({ ctx, time: now, n: N, X: X3, Y: Y3, Z: Z3, R: R3, NX: NX3, NY: NY3, NZ: NZ3, rRef: pr, ox: pvx, oy: pvy, amt: 0.45, f: Math.max(W, H) * 1.1, zRange: zr, defocus: 0.15, drift: 0.2 });
   }
   addEventListener('pointermove', e => { const b = canvas.getBoundingClientRect(); mouse.x = e.clientX - b.left; mouse.y = e.clientY - b.top; });
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); build(); t0 = 0; }, 200); });
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(document.getElementById('hero'));
   window.replayDots = () => { build(); t0 = 0; };
-  img.onload = () => { layout(); build(); requestAnimationFrame(frame); }; img.src = window.HERO_IMG;
+  layout(); setTimeout(() => { build(); requestAnimationFrame(frame); }, 30);
 })();
 
-/* ======================= STEPS: one dot system that morphs between scenes ======================= */
+/* ======================= STEPS: real 3D hands, a syringe and a phone, made of particles, morphing between poses ======================= */
+/* The hands are a skinned 3D hand model (hand3d.js). Every dot is a fixed spot on the skin, so as the pose changes, the fingers really bend and the
+   dots follow. The doctor's hand grips a 3D syringe. The veins are 3D paths on the back of the hand. The phone is a real 3D slab. */
 (() => {
   const $ = id => document.getElementById(id);
-  const cam3d = $('cam3d'), veinEl = $('veinlines'), sec = $('steps'), stage = sec.querySelector('.stage'), canvas = $('scene'), phoneEl = $('phone'), ctx = canvas.getContext('2d');
+  const sec = $('steps'), stage = sec.querySelector('.stage'), canvas = $('scene'), canvas2 = $('scene2'), phoneEl = $('phone'), ctx = canvas.getContext('2d'), ctx2 = canvas2.getContext('2d');
   const s1 = $('s1'), s2 = $('s2'), s3 = $('s3'), prog = [...document.querySelectorAll('.progress i')];
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const ss = (v, a, b) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
   const win = (v, a, b, c, d) => ss(v, a, b) * (1 - ss(v, c, d));
+  const H3 = window.Hand3D;
 
-  const CFG = { spacing: 2.6, maxDots: 38000, dotMin: 0.4, dotMax: 1.3, threshold: 0.07, gamma: 0.6,
-    spread: 0.5,        // how staggered the dots are while a picture morphs (0 = all together)
-    swirl: 12,          // random px each dot wanders sideways while morphing
-    arc: 0.22,          // shared curve of the travel path — this is what makes the hand look like it rotates
-    veinLum: 0.78,      // brightness above which a pixel of the vein image counts as "vein"
+  const CFG = { hands: 24000, arm: 3400, syringe: 3000, details: 480,    // particles per hand, per forearm, on the syringe (at a 1200px-wide screen)
+    spread: 0.32,       // how staggered the dots are while a pose morphs (0 = all together)
+    swirl: 10,          // random px each dot wanders sideways while morphing
+    arc: 0.2,           // shared curve of the travel path
     apart: 0.16,        // how far apart the hands start (fraction of screen width)
     mouseRadius: 80, mouseForce: 26 };
 
-  /* Scenes: 0 scattered · 1 hands apart · 2 hands touching · 3 vein-hand pose · 4 pose of the last image (hand only, no phone)
-     type 'move' = the whole picture slides rigidly; 'morph' = dots flow & rotate into the next picture. */
+  /* Scenes: 0 scattered · 1 hands apart · 2 hands touching (the doctor offers the syringe) · 3 the hand turns to show its back and veins · 4 the hand turns to hold the phone
+     type 'move' = the whole scene slides rigidly; 'morph' = every dot flows to its place in the next pose. */
   const SEGS = [
     { p0: 0.00, p1: 0.10, a: 0, b: 1, type: 'morph' },   // dots gather into two hands
-    { p0: 0.10, p1: 0.34, a: 1, b: 2, type: 'move'  },   // hands slowly move together until they touch
-    { p0: 0.34, p1: 0.52, a: 2, b: 3, type: 'morph' },   // right hand rotates into the vein-hand pose (no veins yet)
-    { p0: 0.52, p1: 0.70, a: 3, b: 3, type: 'hold'  },   // normal dotted hand, then x-ray: skin dots fade while the vein lines draw in
-    { p0: 0.70, p1: 0.84, a: 3, b: 4, type: 'morph' },   // hand rotates into the last pose, veins fade out
-    { p0: 0.84, p1: 1.00, a: 4, b: 4, type: 'hold'  }    // phone slides up onto the hand
+    { p0: 0.10, p1: 0.34, a: 1, b: 2, type: 'move'  },   // hands slowly move together
+    { p0: 0.34, p1: 0.52, a: 2, b: 3, type: 'morph' },   // the user's hand turns over; the doctor's hand drifts away
+    { p0: 0.52, p1: 0.70, a: 3, b: 3, type: 'hold'  },   // x-ray: skin fades, veins draw in
+    { p0: 0.70, p1: 0.84, a: 3, b: 4, type: 'morph' },   // the hand turns into the last pose, veins fade
+    { p0: 0.84, p1: 1.00, a: 4, b: 4, type: 'hold'  }    // the phone slides up onto the hand
   ];
   const veinAmt = p => ss(p, 0.56, 0.68) * (1 - ss(p, 0.72, 0.82));   // 0 = normal hand, 1 = x-ray view
   const phoneAmt = p => ss(p, 0.84, 0.97);
 
-  const BANDS = 44, BUCKETS = 8;
-  const CROPS = {                         // x, y, w, h in the 744px-wide layout image
-    handL: { x: 40,  y: 685,  w: 290, h: 225 },
-    handR: { x: 372, y: 650,  w: 290, h: 155 },
-    veins: { x: 30,  y: 1032, w: 300, h: 495 },
-    phone: { x: 440, y: 1500, w: 245, h: 455 }
-  };
-  const PHONE_ASPECT = 0.495;   // width / height of assets/phone.webp
-  const PHONE = { x: 456, y: 1510, w: 152, h: 285, r: 18 };   // the phone body inside the layout image (shown as a picture, not dots)
-
-  const img = new Image(), veinImg = new Image(), handImg = new Image();
-  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, swz, zs, dust, zS = 100, jz = 5, Smin = 600, VT, xs, ys, rs, bk, visible = false, k = 1, phoneBox = null, veinMove = [0, 0];
-  let target = 0, cur = 0, lastNow = 0;
+  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, swz, xs, ys, zs, rs, nxs, nys, nzs, PXa, PYa, visible = false, k = 1, Smin = 600, rb = 2, fz = 1000;
+  let veinLines = [], veinDorsal = [0, 0, 1], veinMove = [0, 0], phoneBox = { slide: 800, z: 20 }, target = 0, cur = 0, lastNow = 0;
   const mouse = { x: -9999, y: -9999 };
 
   function layout() {
     dpr = Math.min(devicePixelRatio || 1, 2); W = stage.clientWidth; H = stage.clientHeight;
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvas.width = canvas2.width = Math.round(W * dpr); canvas.height = canvas2.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // halve a large picture step by step so fine halftone averages into smooth grey instead of aliasing into noise
-  function shrink(im, x, y, w, h, cw, ch) {
-    let src = im;
-    while (w / 2 > cw) {
-      const nw = Math.ceil(w / 2), nh = Math.ceil(h / 2), t = document.createElement('canvas'); t.width = nw; t.height = nh;
-      const g = t.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(src, x, y, w, h, 0, 0, nw, nh);
-      src = t; x = 0; y = 0; w = nw; h = nh;
+  /* ---------------- poses ---------------- */
+  const fingers = a => ({ index: [a * 0.6, a * 0.9, a * 0.6], middle: [a * 0.85, a * 1.1, a * 0.75], ring: [a * 1.1, a * 1.3, a * 0.85], pinky: [a * 1.35, a * 1.45, a * 0.9] });
+  const POSE = {
+    reach: Object.assign(fingers(-0.7),  { thumb: [-0.2, -0.3, -0.3], spread: { index: -0.1, middle: 0, ring: 0.06, pinky: 0.14 } }),            // a loose, cupped hand reaching out, seen from the back at three quarters
+    vein:  Object.assign(fingers(-0.36), { thumb: [-0.2, -0.35, -0.25], spread: { index: -0.05, middle: 0, ring: 0.05, pinky: 0.1 } }),          // relaxed, back of the hand to us
+    hold:  Object.assign(fingers(-0.8),  { thumb: [0.4, 0.3, 0.2], spread: { index: -0.08, middle: -0.02, ring: 0.03, pinky: 0.1 } }),     // fingers wrapped around the phone
+    fist:  { index: [-1.0, -1.25, -0.85], middle: [-1.0, -1.3, -0.9], ring: [-1.0, -1.35, -0.9], pinky: [-1.05, -1.4, -0.9], thumb: [-0.1, -0.3, -0.2] }   // the doctor's grip
+  };
+  const PIVOT = [0.03, 0, 0.01];                               // palm centre, in model metres
+
+  /* Catmull-Rom smoothing for the veins, with a little organic wobble */
+  function smooth(pts, per, seed) {
+    const out = [], n = pts.length;
+    for (let i = 0; i < n - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n - 1, i + 2)];
+      for (let j = 0; j < per; j++) {
+        const t = j / per, t2 = t * t, t3 = t2 * t, q = [0, 0, 0];
+        for (let c = 0; c < 3; c++) q[c] = 0.5 * ((2 * p1[c]) + (-p0[c] + p2[c]) * t + (2 * p0[c] - 5 * p1[c] + 4 * p2[c] - p3[c]) * t2 + (-p0[c] + 3 * p1[c] - 3 * p2[c] + p3[c]) * t3);
+        const wob = Math.sin((i * per + j) * 0.9 + seed * 2.3) * 1.4; q[0] += wob * 0.6; q[1] += wob * 0.5;
+        out.push(q);
+      }
     }
-    return { src, x, y, w, h };
-  }
-
-  function sample(c, kk, sp, skip, im = img, sc = img.naturalWidth / 744, cap = 0, remap = null) {   // c is in source units; sc = natural px per unit
-    const cw = Math.max(2, Math.round(c.w * kk)), ch = Math.max(2, Math.round(c.h * kk));
-    const off = document.createElement('canvas'); off.width = cw; off.height = ch;
-    const o = off.getContext('2d', { willReadFrequently: true });
-    o.fillStyle = '#000'; o.fillRect(0, 0, cw, ch); const s = shrink(im, c.x * sc, c.y * sc, c.w * sc, c.h * sc, cw, ch);
-    o.imageSmoothingQuality = 'high'; o.drawImage(s.src, s.x, s.y, s.w, s.h, 0, 0, cw, ch);
-    const d = o.getImageData(0, 0, cw, ch).data, pts = [];
-    for (let y = 0; y < ch; y += sp) for (let x = 0; x < cw; x += sp) {
-      const jx = x + sp / 2, jy = y + sp / 2;                 // regular grid, like the ring section
-      if (skip && skip(c.x + jx / kk, c.y + jy / kk)) continue;
-      const q = ((Math.min(ch - 1, jy | 0)) * cw + Math.min(cw - 1, jx | 0)) * 4;
-      let l0 = (0.2126 * d[q] + 0.7152 * d[q + 1] + 0.0722 * d[q + 2]) / 255;
-      if (cap) l0 = Math.min(l0, cap);                       // cap = flatten veins into the skin tone
-      if (remap) l0 = remap(l0);                             // remap = e.g. cut a grey background away
-      if (l0 < CFG.threshold) continue;
-      const l = Math.pow((l0 - CFG.threshold) / ((cap || 1) - CFG.threshold), CFG.gamma);
-      if (radius(l) < 0.25) continue;
-      pts.push({ x: jx - cw / 2, y: jy - ch / 2, l, l0 });
-    }
-    return pts;
-  }
-
-  function order(pts) {
-    let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-    for (const p of pts) { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); }
-    const hh = maxY - minY || 1, ww = maxX - minX || 1;
-    for (const p of pts) { p.ny = (p.y - minY) / hh; p.key = Math.floor(p.ny * BANDS) * 10 + (p.x - minX) / ww; }
-    return pts.sort((a, b) => a.key - b.key);
-  }
-  let gp = 3.5;                                                  // grid pitch of the current sampling pass
-  const radius = l => gp * 0.56 * Math.pow(l, 1.2);              // dot size carries the brightness (same as the ring)
-
-  // fill slots [lo, hi) of a scene with an ordered point list; spare slots stay idle (radius 0)
-  function fill(S, lo, hi, pts, fn, veins) {
-    const n = pts.length, cnt = hi - lo; let prev = -1;
-    for (let s = 0; s < cnt; s++) {
-      const i = lo + s, j = Math.min(n - 1, Math.floor(s * n / cnt)), p = pts[j], [x, y] = fn(p, j);
-      const first = j !== prev; prev = j;
-      S.X[i] = x; S.Y[i] = y; S.R[i] = first ? radius(p.l) : 0; S.Z[i] = (p.l - 0.5) * zS + (Math.random() - 0.5) * jz;   // brighter = nearer
-      if (veins) {
-        const isVein = p.l0 > CFG.veinLum;
-        S.Rh[i] = !first ? 0 : isVein ? (Math.random() < 0.9 ? 0 : radius(0.45)) : S.R[i];
-        VT[i] = isVein ? 0.6 * p.ny + 0.4 * Math.random() : 0;
-        S.veins = true;
-      } else S.Rh[i] = S.R[i];
-    }
-  }
-  const blank = () => ({ X: new Float32Array(N), Y: new Float32Array(N), R: new Float32Array(N), Rh: new Float32Array(N), Z: new Float32Array(N), veins: false });
-
-  // the vein hand comes from its own full-resolution image, drawn about 500 layout-px tall
-  const VEIN_CROP = () => ({ x: 0, y: 0, w: veinImg.naturalWidth, h: veinImg.naturalHeight });
-  const k_v = () => 500 * k / veinImg.naturalHeight;
-  // the wrist / arm fades out: toward the bottom of a hand picture the dots get smaller and sparser, until they vanish
-  const FADE_FROM = 0.68;
-  const fadeAt = f => 1 - ss(f, FADE_FROM, 1.0);
-  const fadeBottom = (pts, hpx) => pts.map(p => ({ ...p, l: p.l * fadeAt(p.y / hpx + 0.5) }));   // dots shrink away toward the wrist
-  const sampleVeins = sp => fadeBottom(sample(VEIN_CROP(), k_v(), sp, null, veinImg, 1, CFG.veinLum - 0.12).map(p => ({ ...p, l: Math.pow(p.l, 1.4) * 0.95 })), 500 * k);   // a normal dotted hand, veins flattened out
-
-  // veins as real lines: keep only the bright vein pixels of the image as a white line layer, revealed from the fingertips
-  function buildVeinLines(cx, cy) {
-    const w = veinImg.naturalWidth, hgt = veinImg.naturalHeight, c = document.createElement("canvas"); c.width = w; c.height = hgt;
-    const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(veinImg, 0, 0);
-    const im = g.getImageData(0, 0, w, hgt), d = im.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const l = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
-      const a = clamp((l - CFG.veinLum + 0.08) / 0.2);
-      const row = ((i / 4) / w) | 0;
-      d[i] = d[i + 1] = d[i + 2] = 255; d[i + 3] = a * a * 255 * fadeAt(row / hgt);
-    }
-    g.putImageData(im, 0, 0);
-    veinEl.width = w; veinEl.height = hgt; veinEl.getContext("2d").drawImage(c, 0, 0);
-    const dh = 500 * k, dw = dh * w / hgt;
-    Object.assign(veinEl.style, { width: dw + "px", height: dh + "px", left: cx - dw / 2 + "px", top: cy - dh / 2 + "px" });
-  }
-
-  // the hand under the phone has a hole where the phone was; fill it with palm-textured dots so the hand reads as whole
-  function palmFill(pts, kk) {
-    const c = CROPS.phone, cx = c.x + c.w / 2, cy = c.y + c.h / 2;
-    const ref = pts.filter(p => { const sx = cx + p.x / kk, sy = cy + p.y / kk; return sy > 1810 && sy < 1900 && sx > 470 && sx < 640; });
-    if (!ref.length) return [];
-    const density = ref.length / (170 * 90), X0 = 436, X1 = 636, Y0 = 1655, Y1 = 1830, CR = 95, out = [];
-    const inside = (x, y) => {                                   // rectangle with rounded top corners
-      if (y < Y0 + CR) { const dx = x < X0 + CR ? X0 + CR - x : x > X1 - CR ? x - (X1 - CR) : 0; if (dx > 0 && Math.hypot(dx, Y0 + CR - y) > CR) return false; }
-      return true;
-    };
-    for (let n = Math.round(density * (X1 - X0) * (Y1 - Y0)), t = 0; t < n; t++) {
-      const sx = X0 + Math.random() * (X1 - X0), sy = Y0 + Math.random() * (Y1 - Y0);
-      if (!inside(sx, sy)) continue;
-      const r = ref[(Math.random() * ref.length) | 0];
-      out.push({ x: (sx - cx) * kk, y: (sy - cy) * kk, l: r.l, l0: r.l0 });
-    }
-    return out;
+    out.push(pts[n - 1].slice()); return out;
   }
 
   function build() {
-    k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760; Smin = Math.min(W, H); zS = Smin * 0.42; jz = Smin * 0.05;
-    const at = {
-      handL: [W * 0.25, H * (m ? 0.66 : 0.60)], handR: [W * 0.69, H * (m ? 0.60 : 0.54)],
-      veins: [W * (m ? 0.30 : 0.24), H * (m ? 0.66 : 0.54)], phone: [W * (m ? 0.70 : 0.76), H * (m ? 0.66 : 0.56)]
-    };
-    // the last-pose hand: its own image, placed so its palm sits under the phone
-    const kh = 500 * k / handImg.naturalHeight, hw = handImg.naturalWidth, hh = handImg.naturalHeight;
-    // ending frame: the phone sits on the hand with its centre at 51.6% / 44.1% of the hand image and is 68.6% as tall as it
-    const hc = [at.phone[0] - (0.516 * hw - hw / 2) * kh, at.phone[1] - (0.441 * hh - hh / 2) * kh];
-    const inPhone = (sx, sy) => sx > 446 && sx < 618 && sy > 1500 && sy < 1815;   // phone body + bezel in the layout image
-    // step 1 picture: the user's hand (left) and the doctor's gloved hand + syringe (right)
-    const iw = img.naturalWidth, ih = img.naturalHeight, ks = Math.min(W / iw, H * 0.95 / ih), bc = [W / 2, H * 0.53];
-    const splitX = (0.49 * iw - iw / 2) * ks;
-    const sampleBoth = sp => sample({ x: 0, y: 0, w: iw, h: ih }, ks, sp, null, img, 1).map(p => ({ ...p, l: Math.pow(p.l, 1.2) }));
-    let sp = (W < 700 ? CFG.spacing * 0.95 : CFG.spacing) * 1.35, P;
-    for (let pass = 0; pass < 3; pass++) {
-      gp = sp;
-      P = { both: sampleBoth(sp), veins: sampleVeins(sp), phone: fadeBottom(sample({ x: 0, y: 0, w: hw, h: hh }, kh, sp, null, handImg, 1).map(p => ({ ...p, l: Math.pow(p.l, 1.7) * 0.9 })), hh * kh) };   // more contrast so the shading shows
-      const uN = P.both.filter(p => p.x < splitX).length, tot = Math.max(uN, P.veins.length, P.phone.length) + (P.both.length - uN);
-      if (tot <= CFG.maxDots) break; sp *= Math.sqrt(tot / CFG.maxDots) * 1.05;
+    k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760; Smin = Math.min(W, H);
+    const U = 1540 * k, sc = Math.pow(U / 2200, 2), apart = W * CFG.apart;                          // U = pixels per metre
+    const NH = clamp(Math.round(CFG.hands * sc), 5000, 20000), NAr = clamp(Math.round(CFG.arm * sc), 1500, 5000), NSy = clamp(Math.round(CFG.syringe * sc), 1500, 4200), ND = clamp(Math.round(CFG.details * sc), 250, 650);
+    rb = Math.sqrt(0.05 * U * U / NH) * 0.18;                                                        // base particle radius: about half the spacing between particles
+    const at = { user: [W * (m ? 0.32 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.3 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.66 : 0.74), H * (m ? 0.62 : 0.56)] };
+
+    const smA = H3.samples(NH, 7), smB = H3.samples(NH, 19), armA = H3.arm(NAr, 11, 0.2), armB = H3.arm(NAr, 13, 0.2, { sleeve: 1.3 });                                  // the doctor wears a glove, so a rolled cuff and sleeve
+    NA = NH + NAr + ND; const NB = NH + NAr + NSy + ND; N = NA + NB;      // each hand: skin, forearm, then a few hundred detail points (nails and creases, or glove wrinkles)
+
+    // the doctor's grip and syringe, in the hand's own (model) space
+    const GR = H3.grip(55), Fd = H3.fk(GR.pose), skD = H3.skin(Fd);          // a pen grip: the thumb on top of the barrel, the fingers underneath
+    const syr = H3.syringe(NSy, 5, GR.P0, GR.d);
+    const ptsD = H3.points(smB, skD);
+
+    // one scene = where every particle of the carried hand (slots 0..NA) and of the doctor's hand + syringe (slots NA..N) sits
+    const blank = () => ({ X: new Float32Array(N), Y: new Float32Array(N), Z: new Float32Array(N), R: new Float32Array(N), NX: new Float32Array(N), NY: new Float32Array(N), NZ: new Float32Array(N), pv: [[W / 2, H / 2], [W / 2, H / 2]] });
+    const RM = new Float32Array(N);                                                                  // per-slot size: the forearm thins out, the syringe has its own sizes
+    const wy = H3.wristRing().y, thin = (arm, j) => 1 - 0.85 * Math.pow(clamp((arm.y[j] - wy + 0.004) / 0.2), 1.1);       // the forearm thins out towards the elbow
+    const kSkin = H3.details(H3.fk(POSE.vein), 'skin', ND, 5).k, kGlove = H3.details(Fd, 'glove', ND, 9).k;
+    for (let i = 0; i < NA; i++) RM[i] = i < NH ? 1 : i < NH + NAr ? thin(armA, i - NH) : kSkin[i - NH - NAr];
+    for (let i = 0; i < NB; i++) { const j = NA + i; RM[j] = i < NH ? 1.08 : i < NH + NAr ? thin(armB, i - NH) : i < NH + NAr + NSy ? (syr.k[i - NH - NAr] === 2 ? 1.1 : syr.k[i - NH - NAr] === 1 ? 0.5 : 0.8) : kGlove[i - NH - NAr - NSy]; }
+    const put = (S, off, pts, o, count) => { const q = H3.place(pts, o); for (let i = 0; i < count; i++) { const d = off + i; S.X[d] = q.x[i]; S.Y[d] = q.y[i]; S.Z[d] = q.z[i]; S.NX[d] = q.nx[i]; S.NY[d] = q.ny[i]; S.NZ[d] = q.nz[i]; S.R[d] = rb * RM[d]; } };
+    const user = (rot, pos) => ({ s: U, pos: [pos[0], pos[1], 0], pivot: PIVOT, rot, mirror: true });
+    const doc = (rot, pos) => ({ s: U, pos: [pos[0], pos[1], 0], pivot: PIVOT, rot, mirror: true });
+    const sceneUser = (pose, rot, pos) => { const S = blank(), F = H3.fk(pose), o = user(rot, pos); put(S, 0, H3.points(smA, H3.skin(F)), o, NH); put(S, NH, armA, o, NAr); put(S, NH + NAr, H3.details(F, 'skin', ND, 5), o, ND); S.pv[0] = [pos[0], pos[1]]; return { S, F, o }; };
+    const sceneDoc = (S, rot, pos) => { const o = doc(rot, pos); put(S, NA, ptsD, o, NH); put(S, NA + NH, armB, o, NAr); put(S, NA + NH + NAr, syr, o, NSy); put(S, NA + NH + NAr + NSy, H3.details(Fd, 'glove', ND, 9), o, ND); S.pv[1] = [pos[0], pos[1]]; };
+
+    const S0 = blank(); for (let i = 0; i < N; i++) { S0.X[i] = W / 2 + (Math.random() - 0.5) * W * 1.1; S0.Y[i] = H / 2 + (Math.random() - 0.5) * H * 1.1; S0.Z[i] = (Math.random() - 0.5) * Smin * 0.9; }
+    const a1 = sceneUser(POSE.reach, [30, 150, 70], [at.user[0] - apart, at.user[1] + H * 0.03]); sceneDoc(a1.S, [0, -90, -90], [at.doc[0] + apart, at.doc[1] - H * 0.03]);
+    const a2 = sceneUser(POSE.reach, [30, 150, 70], at.user); sceneDoc(a2.S, [0, -90, -90], at.doc);
+    const a3 = sceneUser(POSE.vein, [0, 180, -12], at.vein);
+    const a4 = sceneUser(POSE.hold, [0, 0, -68], at.fin);
+    // the doctor's hand drifts up and away from the touch, and stays hidden
+    for (const A of [a3.S, a4.S]) for (let i = NA; i < N; i++) {
+      const j = ((i - NA) * 7919) % 100 / 100, j2 = ((i - NA) * 104729) % 100 / 100;
+      A.X[i] = a2.S.X[i] + W * (0.1 + 0.08 * j); A.Y[i] = a2.S.Y[i] - H * (0.08 + 0.14 * j2); A.Z[i] = a2.S.Z[i]; A.NX[i] = a2.S.NX[i]; A.NY[i] = a2.S.NY[i]; A.NZ[i] = a2.S.NZ[i]; A.R[i] = 0;
+      A.pv[1] = a2.S.pv[1];
     }
-    const R = order(P.both.filter(p => p.x < splitX).map(p => ({ ...p, x: p.x + bc[0], y: p.y + bc[1] })));   // user's hand: carries on through the story
-    const L = order(P.both.filter(p => p.x >= splitX).map(p => ({ ...p, x: p.x + bc[0], y: p.y + bc[1] }))); // doctor's hand + syringe: drops away
-    const V = order(P.veins.map(p => ({ ...p, x: p.x + at.veins[0], y: p.y + at.veins[1] })));
-    const F = order(P.phone.map(p => ({ ...p, x: p.x + hc[0], y: p.y + hc[1] })));
-    NA = Math.max(R.length, V.length, F.length); N = NA + L.length; VT = new Float32Array(N);
+    scenes = [S0, a1.S, a2.S, a3.S, a4.S];
 
-    // slots [0, NA) = the hand that carries through the whole story · slots [NA, N) = the left hand, which drops away
-    const apart = W * CFG.apart, close = W * 0.012;
-    const S0 = blank(), S1 = blank(), S2 = blank(), S3 = blank(), S4 = blank();
-    for (let i = 0; i < N; i++) { S0.X[i] = W / 2 + (Math.random() - 0.5) * W * 1.1; S0.Y[i] = H / 2 + (Math.random() - 0.5) * H * 1.1; S0.Z[i] = (Math.random() - 0.5) * Smin * 1.2; }
-    fill(S1, 0, NA, R, p => [p.x - apart, p.y + H * 0.03]);          fill(S1, NA, N, L, p => [p.x + apart, p.y - H * 0.03]);
-    fill(S2, 0, NA, R, p => [p.x, p.y]);                              fill(S2, NA, N, L, p => [p.x, p.y]);
-    const drop = (p, j) => [p.x + W * (0.1 + 0.08 * ((j * 7919) % 100) / 100), p.y - H * (0.08 + 0.14 * ((j * 104729) % 100) / 100)];   // doctor's hand drifts up and away
-    fill(S3, 0, NA, V, p => [p.x, p.y]);                        fill(S3, NA, N, L, drop);
-    fill(S4, 0, NA, F, p => [p.x, p.y]);                              fill(S4, NA, N, L, drop);
-    for (const S of [S3, S4]) for (let i = NA; i < N; i++) { S.R[i] = 0; S.Rh[i] = 0; }
-    scenes = [S0, S1, S2, S3, S4];
-
+    // delays: a wipe from the top of the screen down, plus a little randomness; and each dot's own sideways / depth wobble while it travels
+    let y0 = 1e9, y1 = -1e9; for (let i = 0; i < N; i++) { y0 = Math.min(y0, a2.S.Y[i]); y1 = Math.max(y1, a2.S.Y[i]); }
     dly = new Float32Array(N); swx = new Float32Array(N); swy = new Float32Array(N); swz = new Float32Array(N);
     for (let i = 0; i < N; i++) {
-      dly[i] = CFG.spread * (0.55 * Math.random() + 0.45 * (i % NA) / NA);
-      const a = Math.random() * 6.2832, s = (0.3 + Math.random()) * CFG.swirl; swx[i] = Math.cos(a) * s; swy[i] = Math.sin(a) * s; swz[i] = (Math.random() - 0.5) * Smin * 0.3;
+      dly[i] = CFG.spread * (0.5 * Math.random() + 0.5 * clamp((a2.S.Y[i] - y0) / (y1 - y0 || 1)));
+      const a = Math.random() * 6.2832, s = (0.3 + Math.random()) * CFG.swirl; swx[i] = Math.cos(a) * s; swy[i] = Math.sin(a) * s; swz[i] = (Math.random() - 0.5) * Smin * 0.25;
     }
-    xs = new Float32Array(N); ys = new Float32Array(N); zs = new Float32Array(N); rs = new Float32Array(N); bk = new Uint8Array(N);
-    cam3d.style.transformOrigin = W / 2 + 'px ' + H / 2 + 'px';
+    xs = new Float32Array(N); ys = new Float32Array(N); zs = new Float32Array(N); rs = new Float32Array(N); nxs = new Float32Array(N); nys = new Float32Array(N); nzs = new Float32Array(N); PXa = new Float32Array(N); PYa = new Float32Array(N);
 
-    // the phone: a real picture cut from the layout, centred on the phone's place in the final pose
-    const ph = 0.686 * hh * kh, pw = ph * PHONE_ASPECT;
-    const pcx = at.phone[0], pcy = at.phone[1];
-    Object.assign(phoneEl.style, { width: pw + 'px', height: ph + 'px', left: pcx - pw / 2 + 'px', top: pcy - ph / 2 + 'px' });
-    buildVeinLines(at.veins[0], at.veins[1]);
-    veinMove = [hc[0] - at.veins[0], hc[1] - at.veins[1]];
-    phoneBox = { slide: H - (pcy - ph / 2) + 20 * k };
+    // veins: 3D paths over the back of the hand, anchored to the posed joints
+    const raw = H3.veins(a3.F, 0.2); veinLines = [];
+    const startT = c => c === 0 ? 0 : c === 1 ? 0.05 : c === 2 ? 0.4 : 0.55, spanT = c => c === 0 ? 0.6 : c === 1 ? 0.55 : c === 2 ? 0.3 : 0.5;
+    raw.forEach((line, li) => {
+      const q = H3.place({ n: line.length, x: line.map(p => p[0]), y: line.map(p => p[1]), z: line.map(p => p[2]), nx: new Float32Array(line.length), ny: new Float32Array(line.length), nz: new Float32Array(line.length) }, a3.o);
+      const sm = smooth(Array.from({ length: line.length }, (_, i) => [q.x[i], q.y[i], q.z[i]]), 9, li), n = sm.length;
+      const c = line.cls || 0, jitter = ((li * 37) % 10) / 10 * 0.08; veinLines.push({ P: sm, T: sm.map((_, i) => startT(c) + jitter + spanT(c) * i / (n - 1)) });
+    });
+    const d0 = H3.place({ n: 2, x: [PIVOT[0], PIVOT[0] + 0.01], y: [0, 0], z: [PIVOT[2], PIVOT[2]], nx: new Float32Array(2), ny: new Float32Array(2), nz: new Float32Array(2) }, Object.assign({}, a3.o, { pos: [0, 0, 0] }));
+    const dv = [d0.x[1] - d0.x[0], d0.y[1] - d0.y[0], d0.z[1] - d0.z[0]], dl = Math.hypot(...dv) || 1; veinDorsal = [dv[0] / dl, dv[1] / dl, dv[2] / dl];    // +X in the model is the back of the hand
+    veinMove = [at.fin[0] - at.vein[0], at.fin[1] - at.vein[1]];
+
+    // the phone: a real 3D slab (rounded slices for the edge, screen on the front, camera on the back), resting on the palm
+    const pw = 0.0745 * U, ph = 0.1525 * U, T = 0.0088 * U, pcx = at.fin[0] - 0.004 * U, pcy = at.fin[1] - 0.016 * U;
+    phoneEl.innerHTML = ''; phoneEl.style.setProperty('--pr', 0.14 * pw + 'px');
+    const layer = (cls, z, extra) => { const d = document.createElement('div'); d.className = cls; d.style.transform = 'translateZ(' + z + 'px)' + (extra || ''); phoneEl.appendChild(d); };
+    for (let i = 0; i < 9; i++) layer('ph-slice', -T / 2 + T * i / 8);
+    layer('ph-back', -T / 2 - 0.6, ' rotateY(180deg)'); layer('ph-front', T / 2 + 0.6);
+    Object.assign(phoneEl.style, { width: pw + 'px', height: ph + 'px', left: pcx - pw / 2 + 'px', top: pcy - ph / 2 + 'px', transformOrigin: (at.fin[0] - (pcx - pw / 2)) + 'px ' + (at.fin[1] - (pcy - ph / 2)) + 'px' });
+    phoneBox = { slide: H - (pcy - ph / 2) + 40 * k, z: 0.0165 * U + T / 2, front: 0.0165 * U + T + 0.008 * U };
+    fz = Math.max(W, H) * 1.3;
   }
 
   function locate(p) {
@@ -696,44 +738,62 @@ const PART = (() => {
     const l = SEGS[SEGS.length - 1]; return { a: l.a, b: l.b, type: 'hold', t: 0 };
   }
 
+  const AMT = 0.4;     // how far the camera swings (it follows the pointer and drifts on its own)
+
   function draw(p, time) {
     if (!N) return;
     const { a, b, type, t } = locate(p), A = scenes[a], B = scenes[b], hold = type === 'hold';
     const va = veinAmt(p), R = CFG.mouseRadius, mf = CFG.mouseForce, span = 1 - CFG.spread;
-    const rad = (S, i) => S.veins ? S.Rh[i] + (S.R[i] - S.Rh[i]) * clamp((va * 1.4 - VT[i]) / 0.4) : S.R[i];   // veins grow in from the fingertips
-
     for (let i = 0; i < N; i++) {
-      let x, y, z, r;
-      if (hold) { x = A.X[i]; y = A.Y[i]; z = A.Z[i]; r = rad(A, i); }
+      let x, y, z, r, nx, ny, nz, pt = 0;
+      if (hold) { x = A.X[i]; y = A.Y[i]; z = A.Z[i]; r = A.R[i]; nx = A.NX[i]; ny = A.NY[i]; nz = A.NZ[i]; }
       else if (type === 'move') {                          // rigid slide, no stagger
-        x = A.X[i] + (B.X[i] - A.X[i]) * t; y = A.Y[i] + (B.Y[i] - A.Y[i]) * t; r = A.R[i] + (B.R[i] - A.R[i]) * t; z = A.Z[i] + (B.Z[i] - A.Z[i]) * t;
+        x = A.X[i] + (B.X[i] - A.X[i]) * t; y = A.Y[i] + (B.Y[i] - A.Y[i]) * t; z = A.Z[i] + (B.Z[i] - A.Z[i]) * t; r = A.R[i] + (B.R[i] - A.R[i]) * t;
+        nx = A.NX[i] + (B.NX[i] - A.NX[i]) * t; ny = A.NY[i] + (B.NY[i] - A.NY[i]) * t; nz = A.NZ[i] + (B.NZ[i] - A.NZ[i]) * t; pt = t;
       } else {
-        const u = clamp((t - dly[i]) / span), e = u * u * (3 - 2 * u), w = Math.sin(Math.PI * e);
+        const u = clamp((t - dly[i]) / span), e = u * u * (3 - 2 * u), w = Math.sin(Math.PI * e); pt = e;
         const dx = B.X[i] - A.X[i], dy = B.Y[i] - A.Y[i];
         x = A.X[i] + dx * e - dy * CFG.arc * w + swx[i] * w; y = A.Y[i] + dy * e + dx * CFG.arc * w + swy[i] * w;
         z = A.Z[i] + (B.Z[i] - A.Z[i]) * e + swz[i] * w;                     // dots also arc through depth while they morph
-        const ra = rad(A, i), rb = rad(B, i); r = ra + (rb - ra) * e;
+        r = A.R[i] + (B.R[i] - A.R[i]) * e;
+        nx = A.NX[i] + (B.NX[i] - A.NX[i]) * e; ny = A.NY[i] + (B.NY[i] - A.NY[i]) * e; nz = A.NZ[i] + (B.NZ[i] - A.NZ[i]) * e;
       }
       const mx = x - mouse.x, my = y - mouse.y, d2 = mx * mx + my * my;
       if (d2 < R * R) { const d = Math.sqrt(d2) + 0.001, f = 1 - d / R; x += mx / d * f * f * mf; y += my / d * f * f * mf; }
-      xs[i] = x; ys[i] = y; zs[i] = z; rs[i] = r;
+      xs[i] = x; ys[i] = y; zs[i] = z; rs[i] = r; nxs[i] = nx; nys[i] = ny; nzs[i] = nz;
+      const g = i < NA ? 0 : 1, pa = A.pv[g], pb = B.pv[g]; PXa[i] = pa[0] + (pb[0] - pa[0]) * pt; PYa[i] = pa[1] + (pb[1] - pa[1]) * pt;     // every object turns about its own centre
     }
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalAlpha = 1 - 0.8 * va;                        // x-ray: the skin dots fade back while the veins come forward
-    const fz = Math.max(W, H) * 1.3, bias = (p - 0.5) * 0.14;
-    PART.draw({ ctx, time, n: N, X: xs, Y: ys, Z: zs, R: rs, rRef: gp * 0.56, ox: W / 2, oy: H / 2, amt: 0.09, yawBias: bias, f: fz, zRange: Smin * 0.4, defocus: 0.5, drift: 0.35 });
-    const an = PART.angles(0.09, bias);                     // the vein lines and the phone ride the same camera, so they stay glued to the hand
-    cam3d.style.transform = 'perspective(' + fz + 'px) rotateX(' + an.pitch + 'rad) rotateY(' + an.yaw + 'rad)';
-    ctx.globalAlpha = 1;
-    // veins: reveal from the fingertips down, then follow the hand as it rotates away while fading out
-    const rev = ss(p, 0.56, 0.68), fade = 1 - ss(p, 0.72, 0.82), tm = ss(p, 0.70, 0.84), edge = rev * 120 - 20;
-    const mask = `linear-gradient(to bottom, #000 ${edge}%, transparent ${edge + 20}%)`;
-    veinEl.style.display = rev > 0 && fade > 0 ? 'block' : 'none';
-    veinEl.style.opacity = fade; veinEl.style.maskImage = veinEl.style.webkitMaskImage = mask;
-    veinEl.style.transform = `translate(${veinMove[0] * tm}px, ${veinMove[1] * tm}px) rotate(${tm * 14}deg)`;
-    const pe = phoneAmt(p);                                // phone slides up from the bottom and settles on the hand
+    ctx.clearRect(0, 0, W, H); ctx2.clearRect(0, 0, W, H);
+    const bias = (p - 0.5) * 0.1;
+    ctx.globalAlpha = ctx2.globalAlpha = 1 - 0.8 * va;                        // x-ray: the skin dots fade back while the veins come forward
+    PART.draw({ ctx, ctxFront: ctx2, zFront: phoneBox.front, time, n: N, X: xs, Y: ys, Z: zs, R: rs, NX: nxs, NY: nys, NZ: nzs, rRef: rb * 1.6, PX: PXa, PY: PYa, ox: W / 2, oy: H / 2, amt: AMT, yawBias: bias, f: fz, zRange: 0.17 * 1540 * k * 0.6, defocus: 0.12, drift: 0.15 });
+    ctx.globalAlpha = ctx2.globalAlpha = 1;
+
+    // veins: 3D paths that draw in from the fingertips, riding the same camera as the hand
+    const rev = ss(p, 0.56, 0.68), fade = 1 - ss(p, 0.72, 0.82), tm = ss(p, 0.70, 0.84);
+    if (rev > 0.001 && fade > 0.001) {
+      const dn = PART.rotVec(veinDorsal[0], veinDorsal[1], veinDorsal[2]), facing = clamp((dn[2] + 0.12) * 2.4), mvx = veinMove[0] * tm, mvy = veinMove[1] * tm, pv = scenes[3].pv[0], reach = rev * 1.22;
+      if (facing > 0.02) {
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (const pass of [[10, 0.05], [5.5, 0.1], [2.8, 0.2], [1.2, 0.95]]) {                  // soft halos that add up, then the bright core
+          ctx.globalCompositeOperation = pass[1] < 0.5 ? 'lighter' : 'source-over'; ctx.lineWidth = pass[0]; ctx.strokeStyle = 'rgba(255,255,255,' + (pass[1] * fade * facing) + ')'; ctx.beginPath();
+          for (const L of veinLines) {
+            let pen = false;
+            for (let j = 0; j < L.P.length; j++) {
+              if (L.T[j] > reach) break;
+              const q = PART.proj(L.P[j][0] + mvx, L.P[j][1] + mvy, L.P[j][2], pv[0] + mvx, pv[1] + mvy);
+              if (!pen) { ctx.moveTo(q[0], q[1]); pen = true; } else ctx.lineTo(q[0], q[1]);
+            }
+          }
+          ctx.stroke();
+        }
+      }
+    }
+
+    // the phone slides up onto the hand and turns with it
+    const an = PART.angles(AMT, bias), pe = phoneAmt(p);
     phoneEl.style.display = pe > 0 ? 'block' : 'none';
-    phoneEl.style.transform = `translateY(${(1 - pe) * phoneBox.slide}px)`;
+    phoneEl.style.transform = 'translateY(' + (1 - pe) * phoneBox.slide + 'px) perspective(' + fz + 'px) rotateX(' + an.pitch + 'rad) rotateY(' + an.yaw + 'rad) translateZ(' + phoneBox.z + 'px)';
   }
 
   function text(p) {
@@ -759,10 +819,7 @@ const PART = (() => {
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); build(); read(); }, 200); });
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: '100px' }).observe(sec);
   window.jumpToScroll = () => { read(); cur = target; };      // skip the smoothing (handy for testing)
-  let pending = 3;
-  const ready = () => { if (--pending) return; layout(); build(); read(); cur = target; requestAnimationFrame(tick); };
-  img.onload = veinImg.onload = handImg.onload = ready;
-  img.src = window.TOUCH_IMG; veinImg.src = window.VEIN_IMG; handImg.src = window.HAND_IMG;
+  if (H3) { layout(); build(); read(); cur = target; requestAnimationFrame(tick); }
 })();
 
 /* ======================= HALFTONE GLOWS: light that spreads out from the centre (used by two sections) ======================= */
@@ -812,7 +869,7 @@ const PART = (() => {
       requestAnimationFrame(frame);
       if (!visible || !n) return;
       if (!t0) t0 = now;
-      const t = reduce ? 0 : (now - t0) / 1000, rMax = pitch * 0.56;
+      const t = reduce ? 0 : (now - t0) / 1000, rMax = pitch * 0.36;
       const lam = rEdge / CFG.bands, front = reduce ? 1e9 : (t / CFG.burst) * (rEdge * 1.25);   // front of the first burst, moving out
       const tilt = CFG.tilt + 0.25 * Math.sin(t * 0.13), lm = CFG.leanMin;
       for (let i = 0; i < n; i++) {
@@ -826,7 +883,7 @@ const PART = (() => {
       }
       ctx.clearRect(0, 0, CW, CH);
       PART.writeDust(dustR, now, px, py, zz, rad, n);
-      PART.draw({ ctx, time: now, n: n + RD, dimFrom: n, shimmer: 0, X: px, Y: py, Z: zz, R: rad, rRef: rMax, ox: pcx, oy: pcy, amt: 0.2, f: S * 1.5, zRange: S * 0.12, defocus: 0.35, drift: 0.3, zFocus: S * 0.03 });
+      PART.draw({ ctx, W: CW, H: CH, time: now, n: n + RD, dimFrom: n, shimmer: 0, X: px, Y: py, Z: zz, R: rad, rRef: rMax, ox: pcx, oy: pcy, amt: 0.2, f: S * 1.5, zRange: S * 0.12, defocus: 0.35, drift: 0.3, zFocus: S * 0.03 });
     }
 
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (e.isIntersecting) ring.classList.add('in'); }, { threshold: 0.12 }).observe(ring);

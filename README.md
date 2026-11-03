@@ -13,5 +13,6 @@ npx serve .
 ## Files
 
 - `index.html` — the whole page (HTML, CSS and JS)
-- `hero-image.js`, `touch-image.js`, `vein-hand-image.js`, `hand-image.js` — the artwork, embedded as data so the dots can be sampled from any server
+- `david-model.js` — the hero statue: a scan of Michelangelo's David baked into surface points (rebuild with `node tools/bake-stl.js David.stl`)
+- `hand-model.js`, `hand3d.js` — the 3D hand used in the scroll animation (posed and skinned in the browser), plus `assets/phone.webp` for the phone screen
 - `assets/phone.webp` — the phone image that slides onto the hand
