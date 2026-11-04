@@ -67,7 +67,8 @@
   #phone .ph-front { background: url(assets/phone.webp) center / 100% 100% no-repeat; }
   #phone .ph-back { background: radial-gradient(circle at 28% 16%, #3a3d42, #17181b 55%); box-shadow: inset 0 0 0 2px #8d939b; }
   #phone .ph-back::after { content: ""; position: absolute; left: 9%; top: 5%; width: 36%; height: 17%; border-radius: 22%; background: #0e0f11; box-shadow: inset 0 0 0 2px #555a61; }
-  #scene, #scene2 { -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 98%); mask-image: linear-gradient(to bottom, #000 80%, transparent 98%); }
+  #scene, #scene2 { -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 97%), linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%); -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, #000 74%, transparent 97%), linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%); mask-composite: intersect; }
   #scene2 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; pointer-events: none; }
   #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
@@ -232,9 +233,6 @@
 
   /* ---------- Footer ---------- */
   footer { border-top: 1px solid rgba(255,255,255,.12); padding: 0 clamp(20px, 11vw, 150px); background: #000; }
-  .foot-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 34px 0 36px; }
-  #outlive { display: block; width: 640px; max-width: 100%; height: 96px; opacity: 0; transition: opacity 1.2s ease; } #outlive.in { opacity: 1; }
-  .foot-top .btn { margin: 0; padding: 12px 22px; font-size: .8rem; }
   .foot-logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 1.35rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; margin: 22px 0 0 18px; }
   .foot-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; flex-wrap: wrap; padding: 36px 0 80px 18px; }
   .legal { max-width: 440px; font-size: .62rem; line-height: 1.4; color: #bdbdbd; }
@@ -251,6 +249,14 @@
   .pv-info h2 { font-size: clamp(1.5rem, 2.5vw, 2.05rem); }
   .faq-in h2 { font-size: clamp(1.3rem, 2.5vw, 1.95rem); }
   @media (max-width: 860px) { .ring-head h2, .m-head h2 { font-size: 1.7rem; } }
+
+  /* ---------- closing statement: the words themselves are made of glowing dots ---------- */
+  #closing { position: relative; background: #000; padding: 7vh clamp(20px, 11vw, 150px) 3vh calc(clamp(20px, 11vw, 150px) + 18px); overflow: hidden; }    /* the left edge matches the logo and the legal text below */
+  .cl-wrap { display: flex; align-items: center; justify-content: space-between; gap: 30px 40px; flex-wrap: wrap; }
+  .cl-text { position: relative; width: min(100%, 650px); aspect-ratio: 652 / 84; }                                  /* the letters' own box; the canvas bleeds a little beyond it for the halo */
+  #clglow { position: absolute; left: -3.7%; top: -21.4%; width: 107.4%; height: 142.9%; display: block; opacity: 0; transition: opacity 1.4s ease; } #clglow.in { opacity: 1; }
+  .cl-wrap .btn { margin: 0; flex: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -408,11 +414,15 @@
   </div>
 </section>
 
-<footer>
-  <div class="foot-top">
-    <canvas id="outlive" width="640" height="96" role="img" aria-label="Outlive Ordinary."></canvas>
+<section id="closing">
+  <div class="cl-wrap">
+    <h2 class="sr-only">Outlive Ordinary</h2>
+    <div class="cl-text"><canvas id="clglow" aria-hidden="true"></canvas></div>
     <a class="btn" href="#">Start Dayzero</a>
   </div>
+</section>
+
+<footer>
   <div class="foot-logo"><svg width="26" height="15" viewBox="0 0 235 139" fill="none" stroke="currentColor" stroke-width="11" aria-hidden="true"><path d="M23.0542 105.334C18.6114 86.1446 48.7118 55.2447 88.8616 32.509M88.8616 32.509C121.009 14.305 159.598 1.33501 192.058 3.80086C202.579 4.60013 209.954 7.0905 214.43 10.7805M4.97778 90.5973C3.82068 87.4789 3.3192 83.892 3.55781 79.8009C5.51978 46.1618 45.9247 33.3757 88.8616 32.509M88.8616 32.509C133.384 31.6103 180.629 43.5278 190.558 58.3013M190.558 58.3013C136.096 95.4481 19.426 129.536 4.97778 90.5973M190.558 58.3013C216.034 40.9254 225.963 22.4709 215.794 12.0328M4.97778 90.5973C4.09975 86.8489 3.65103 83.198 3.55781 79.8009M4.97778 90.5973C11.9381 120.312 45.8761 156.155 143.554 120.28C251.289 80.7123 237.281 32.4789 215.794 12.0328M214.43 10.7805C214.919 11.1838 215.374 11.6014 215.794 12.0328M214.43 10.7805C214.887 11.1854 215.342 11.603 215.794 12.0328"/></svg>VANTA</div>
   <div class="foot-bot">
     <p class="legal">Vanta HealthOS is a wellness product. It does not diagnose, treat or prevent any disease. Laboratory services are provided by an independent accredited partner. Always consult a qualified physician before acting on health information.<br>© 2026 Vanta LLP.</p>
@@ -654,7 +664,7 @@ const PART = (() => {
     for (let k = 0; k < N; k++) {
       const i = keep[k], fade = 1 - Math.max(0, Math.min(1, (M.y[i] - 850) / 158));                      // the bust dissolves at the bottom edge
       tx[k] = ox + M.x[i] * s; ty[k] = oy + M.y[i] * s; zt[k] = M.z[i] * s; NX3[k] = M.nx[i]; NY3[k] = M.ny[i]; NZ3[k] = M.nz[i];
-      r[k] = base * (M.hd[i] ? 0.8 : 1.12) * (0.8 + 0.4 * Math.random()) * (0.25 + 0.75 * fade); zs0[k] = (Math.random() - 0.5) * Sm * 1.3; cxm += tx[k]; cym += ty[k];
+      r[k] = base * (M.hd[i] ? 0.8 : 1.12) * (0.8 + 0.4 * Math.random()) * Math.pow(1 - (t => t * t * (3 - 2 * t))(Math.max(0, Math.min(1, (ty[k] - H * 0.6) / (H * 0.34)))), 1.1); zs0[k] = (Math.random() - 0.5) * Sm * 1.3; cxm += tx[k]; cym += ty[k];
     }
     pvx = cxm / N; pvy = cym / N; zr = 330 * s;
     const fx = ox + 1150 * s, fy = oy + 400 * s; let maxD = 1;                           // the face is where the statue forms first
@@ -816,7 +826,7 @@ const PART = (() => {
       const q = H3.place({ n: line.length, x: line.map(p => p[0]), y: line.map(p => p[1]), z: line.map(p => p[2]), nx: new Float32Array(line.length), ny: new Float32Array(line.length), nz: new Float32Array(line.length) }, a3.o);
       const sm = smooth(Array.from({ length: line.length }, (_, i) => [q.x[i], q.y[i], q.z[i]]), 9, li), n = sm.length;
       const c = line.cls || 0, jitter = ((li * 37) % 10) / 10 * 0.08, short = line.length <= 3;
-      const wf = u => c === 0 ? 0.5 + 1.5 * u : c === 1 ? 0.5 + 1.2 * u : c === 2 ? 0.9 + 0.8 * Math.sin(3.1416 * u) : short ? 0.85 : 2.6 - 1.1 * u;      // thin at the fingertips, thickening towards the trunks at the wrist
+      const wf = u => { const base = c === 0 ? 0.45 + 2.1 * Math.pow(u, 1.1) : c === 1 ? 0.5 + 1.9 * u : c === 2 ? 1.8 + 0.8 * Math.sin(3.1416 * u) : short ? 1.1 : 4.0 - 2.0 * u; return base * (1 + 0.15 * Math.sin(u * 11 + li * 1.9) + 0.07 * Math.sin(u * 27 + li)); };      // fine at the fingertips, swelling towards the trunks at the wrist and up the forearm, with the slight unevenness of a real vessel      // thin at the fingertips, thickening towards the trunks at the wrist
       const armFade = y => 1 - ss((y - wy) / 0.2, 0.4, 0.95), FA = sm.map((_, i) => { const r = i / 9, i0 = Math.min(line.length - 1, Math.floor(r)), i1 = Math.min(line.length - 1, i0 + 1); return armFade(line[i0][1] + (line[i1][1] - line[i0][1]) * (r - i0)); });
       veinLines.push({ P: sm, F: FA, T: sm.map((_, i) => startT(c) + jitter + spanT(c) * i / (n - 1)), W: sm.map((_, i) => wf(i / (n - 1)) * Math.max(0.8, U / 1540)) });
     });
@@ -834,8 +844,8 @@ const PART = (() => {
         let sx = ty * ND3[2] - tz * ND3[1], sy = tz * ND3[0] - tx * ND3[2], sz = tx * ND3[1] - ty * ND3[0]; const sl = Math.hypot(sx, sy, sz) || 1; sx /= sl; sy /= sl; sz /= sl;
         const sg = trnd() < 0.5 ? -1 : 1, ang = 0.45 + 0.7 * trnd(), ca = Math.cos(ang), sa = Math.sin(ang) * sg, len = (0.009 + 0.016 * trnd()) * U, dir = [tx * ca + sx * sa, ty * ca + sy * sa, tz * ca + sz * sa], pts = [];
         for (let m = 0; m <= 4; m++) { const u = m / 4, bend = Math.sin(u * 3 + q + li) * len * 0.08; pts.push([p0[0] + dir[0] * len * u + sx * bend, p0[1] + dir[1] * len * u + sy * bend, p0[2] + dir[2] * len * u + sz * bend]); }
-        const sm2 = smooth(pts, 5, li * 7 + q, 0.15), n2 = sm2.length, w0 = Math.min(0.9, L0.W[idx] * 0.5), t0 = L0.T[idx];
-        veinLines.push({ P: sm2, F: sm2.map(() => L0.F[idx]), T: sm2.map((_, i) => t0 + 0.02 + 0.16 * i / (n2 - 1)), W: sm2.map((_, i) => Math.max(0.28, w0 * (1 - 0.7 * i / (n2 - 1)))) });
+        const sm2 = smooth(pts, 5, li * 7 + q, 0.15), n2 = sm2.length, w0 = Math.min(1.5, L0.W[idx] * 0.55), t0 = L0.T[idx];
+        veinLines.push({ P: sm2, F: sm2.map(() => L0.F[idx]), T: sm2.map((_, i) => t0 + 0.02 + 0.16 * i / (n2 - 1)), W: sm2.map((_, i) => Math.max(0.25, w0 * (1 - 0.75 * i / (n2 - 1)))) });
       }
     }
     // the skeleton, shown first when the skin fades
@@ -923,7 +933,7 @@ const PART = (() => {
       const dn = PART.rotVec(veinDorsal[0], veinDorsal[1], veinDorsal[2]), facing = clamp((dn[2] + 0.12) * 2.4), reach = rev * 1.22;
       if (facing > 0.02) {
         ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        const NBK = 12, NAL = 5, bk = Array.from({ length: NBK * NAL }, () => []);                               // segments grouped by width, so a tapering vein costs a few strokes, not hundreds
+        const NBK = 22, NAL = 5, bk = Array.from({ length: NBK * NAL }, () => []);                               // segments grouped by width, so a tapering vein costs a few strokes, not hundreds
         for (const L of veinLines) {
           let prev = null;
           for (let j = 0; j < L.P.length; j++) {
@@ -933,10 +943,10 @@ const PART = (() => {
             prev = q;
           }
         }
-        for (const pass of [[7, 0.05], [3.6, 0.1], [1.9, 0.2], [1, 0.95]]) {                      // soft halos that add up, then the bright core
+        for (const pass of [[5.5, 0.05], [2.8, 0.1], [1.2, 0.2], [0, 0.95]]) {                      // soft halos that add up, then the bright core
           ctx.globalCompositeOperation = pass[1] < 0.5 ? 'lighter' : 'source-over'; ctx.strokeStyle = 'rgba(255,255,255,' + (pass[1] * fade * facing) + ')';
           for (let k = 0; k < NBK * NAL; k++) {
-            const bi = k % NBK, ai = (k / NBK) | 0, s = bk[k]; if (!s.length) continue; ctx.lineWidth = Math.max(0.35, bi * 0.28 * pass[0]); ctx.strokeStyle = 'rgba(255,255,255,' + (pass[1] * fade * facing * (ai + 0.6) / NAL) + ')'; ctx.beginPath();
+            const bi = k % NBK, ai = (k / NBK) | 0, s = bk[k]; if (!s.length) continue; ctx.lineWidth = Math.max(0.35, bi * 0.28 + pass[0]); ctx.strokeStyle = 'rgba(255,255,255,' + (pass[1] * fade * facing * (ai + 0.6) / NAL) + ')'; ctx.beginPath();
             for (let i = 0; i < s.length; i += 4) { ctx.moveTo(s[i], s[i + 1]); ctx.lineTo(s[i + 2], s[i + 3]); }
             ctx.stroke();
           }
@@ -1138,22 +1148,46 @@ const PART = (() => {
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { build(); requestAnimationFrame(frame); });
 })();
 
-/* footer: "Outlive Ordinary." as a halftone of dots */
+/* closing statement: the letters are built of dots, and a glow spreads out from their centre in bands, the way it does in "All of this." and "What is measured" */
 (() => {
-  const cv = document.getElementById('outlive'); if (!cv) return; const ctx = cv.getContext('2d');
-  function draw() {
-    const dpr = Math.min(devicePixelRatio || 1, 2), w = 640, hgt = 96; cv.width = w * dpr; cv.height = hgt * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const off = document.createElement('canvas'); off.width = w; off.height = hgt; const o = off.getContext('2d');
-    o.fillStyle = '#000'; o.fillRect(0, 0, w, hgt); o.fillStyle = '#fff'; o.textBaseline = 'middle'; let fs = 60; o.font = '700 ' + fs + 'px Organetto, Aeonik, Inter, sans-serif'; const tw = o.measureText('OUTLIVE ORDINARY').width; if (tw > w - 6) { fs = Math.floor(fs * (w - 6) / tw); o.font = '700 ' + fs + 'px Organetto, Aeonik, Inter, sans-serif'; } o.fillText('OUTLIVE ORDINARY', 2, hgt / 2 + 2);
-    const d = o.getImageData(0, 0, w, hgt).data, sp = 3; ctx.clearRect(0, 0, w, hgt); ctx.fillStyle = '#fff';
-    for (let y = sp / 2; y < hgt; y += sp) for (let x = sp / 2; x < w; x += sp) {
-      const l = d[((y | 0) * w + (x | 0)) * 4] / 255; if (l < 0.06) continue;
-      const r = sp * 0.5 * Math.pow(l, 0.8); ctx.globalAlpha = 0.35 + 0.45 * l; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+  const cv = document.getElementById('clglow'); if (!cv) return; const ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 700, H = 120, P = 2.1, NB = 12; let gx, gy, gl, gr, n = 0, vis = false, ready = false;
+  function build() {
+    const dpr = Math.min(devicePixelRatio || 1, 2); cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; }, off = mk(), o = off.getContext('2d');
+    o.fillStyle = '#fff'; o.textAlign = 'left'; o.textBaseline = 'middle'; const fam = 'Organetto, Aeonik, Inter, sans-serif'; let fs = 44; o.font = '700 ' + fs + 'px ' + fam;
+    const tw = o.measureText('OUTLIVE ORDINARY').width; if (tw > W - 48) { fs = Math.floor(fs * (W - 48) / tw); o.font = '700 ' + fs + 'px ' + fam; }
+    o.fillText('OUTLIVE ORDINARY', 24, H / 2 + 2);
+    const sharp = o.getImageData(0, 0, W, H).data, xs = [], ys = [], ls = [], rs = [], cx = W * 0.4, cy = H / 2, R = W * 0.55;
+    let A = new Float32Array(W * H); for (let i = 0; i < W * H; i++) A[i] = sharp[i * 4] / 255;                                  // a soft halo around the letters: a box blur, three times over
+    const blur1 = (src, rad, horiz) => { const out = new Float32Array(W * H), len = horiz ? W : H, cnt = horiz ? H : W, st = horiz ? 1 : W, ln = horiz ? W : 1;
+      for (let c = 0; c < cnt; c++) { const base = c * ln; let sum = 0; for (let i = -rad; i <= rad; i++) sum += src[base + Math.max(0, Math.min(len - 1, i)) * st]; for (let i = 0; i < len; i++) { out[base + i * st] = sum / (2 * rad + 1); sum += src[base + Math.min(len - 1, i + rad + 1) * st] - src[base + Math.max(0, i - rad) * st]; } } return out; };
+    for (let k = 0; k < 3; k++) { A = blur1(A, 4, true); A = blur1(A, 4, false); }
+    const soft = A;
+    for (let y = P / 2; y < H; y += P) for (let x = P / 2; x < W; x += P) {
+      const k = (y | 0) * W + (x | 0), l = Math.max(sharp[k * 4] / 255, Math.min(1, soft[k] * 2.8) * 0.55); if (l < 0.04) continue;
+      xs.push(x); ys.push(y); ls.push(l); rs.push(Math.hypot((x - cx) * 0.8, (y - cy) * 1.5) / R);
+    }
+    n = xs.length; gx = Float32Array.from(xs); gy = Float32Array.from(ys); gl = Float32Array.from(ls); gr = Float32Array.from(rs); ready = true;
+  }
+  function draw(now) {
+    const t = reduce ? 0 : now * 0.001; ctx.clearRect(0, 0, W, H);
+    const bk = Array.from({ length: NB }, () => []);
+    for (let i = 0; i < n; i++) {
+      const wave = Math.pow(0.5 + 0.5 * Math.cos(6.2832 * (gr[i] * 1.2 - t / 7)), 2.2), I = gl[i] * (0.5 + 0.5 * wave) * 1.15, r = P * 0.5 * Math.pow(Math.min(1.2, I), 0.62) * 1.05;   // bands of light travelling outwards
+      if (r < 0.2) continue; bk[Math.min(NB - 1, (Math.min(1, I) * NB) | 0)].push(gx[i], gy[i], r);
+    }
+    ctx.fillStyle = '#fff';
+    for (let q = 0; q < NB; q++) {
+      const s = bk[q]; if (!s.length) continue; ctx.globalAlpha = 0.28 + 0.72 * (q + 0.5) / NB; ctx.beginPath();
+      for (let i = 0; i < s.length; i += 3) { ctx.moveTo(s[i] + s[i + 2], s[i + 1]); ctx.arc(s[i], s[i + 1], s[i + 2], 0, 6.2832); }
+      ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
-  (document.fonts && document.fonts.load ? document.fonts.load('700 60px Organetto').catch(() => 0).then(() => document.fonts.ready) : Promise.resolve()).then(draw);
-  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { cv.classList.add('in'); io.disconnect(); } }, { threshold: 0.3 }).observe(cv);
+  function frame(now) { requestAnimationFrame(frame); if (!ready || !vis || reduce) return; draw(now); }
+  (document.fonts && document.fonts.load ? document.fonts.load('700 44px Organetto').catch(() => 0).then(() => document.fonts.ready) : Promise.resolve()).then(() => { build(); draw(0); requestAnimationFrame(frame); });
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (e.isIntersecting) cv.classList.add('in'); }, { threshold: 0.2 }).observe(cv);
 })();
 
 /* price gallery: click a thumbnail, or let it turn by itself until you do */
