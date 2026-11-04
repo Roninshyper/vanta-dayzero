@@ -69,7 +69,7 @@
   /* ---------- the biomarker list: title wheel on the left, the list on the right, pinned while you scroll through it ---------- */
   #bm { position: relative; background: #000; }
   .bm-pin { position: sticky; top: 0; height: 100vh; height: 100dvh; min-height: 600px; overflow: hidden; display: flex; flex-direction: column; padding: clamp(76px, 10vh, 108px) 0 clamp(18px, 3vh, 40px); }
-  .bm-head h2 { margin-left: 14.5vw; font-weight: 500; font-size: clamp(38px, min(5.6vw, 9vh), 96px); letter-spacing: -0.035em; line-height: 1; }
+  .bm-head h2 { margin-left: 14.5vw; font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(32px, min(4.6vw, 8vh), 80px); letter-spacing: 0; line-height: .98; }
   .bm-sub { display: grid; grid-template-columns: 31.5vw 1fr; gap: 3vw; align-items: center; margin: clamp(14px, 3vh, 36px) 6.5vw 0 14.5vw; }
   .bm-sub p { font-size: clamp(13px, 1.12vw, 20px); line-height: 1.25; color: #b8b8b8; }
   .bm-search { display: flex; align-items: center; gap: 14px; height: clamp(44px, 4vw, 68px); padding: 0 clamp(16px, 1.6vw, 28px); border-radius: 999px; border: 1px solid #2a2a2a; background: #0b0b0b; color: #cfcfcf; cursor: text; transition: border-color .2s; }
@@ -95,11 +95,11 @@
   .panel { position: absolute; left: 36.4vw; right: 6.5vw; top: 0; bottom: 0; display: flex; flex-direction: column; min-height: 0; }
   .p-head { display: flex; align-items: center; gap: clamp(14px, 1.6vw, 28px); flex: none; }
   .p-head .tile { --tile: clamp(48px, 5vw, 85px); }
-  .p-head h3 { font-weight: 500; font-size: clamp(22px, 2vw, 34px); letter-spacing: -0.02em; }
-  .p-head h3 em { font-style: normal; color: #8c8c8c; margin-left: .3em; font-weight: 400; }
+  .p-head h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(18px, 1.6vw, 28px); letter-spacing: 0; }
+  .p-head h3 em { font-style: normal; color: #8c8c8c; margin-left: .4em; }
   .p-intro { flex: none; margin-top: clamp(10px, 2vh, 28px); font-size: clamp(13px, 1.12vw, 19px); color: #c2c2c2; }
   .p-cols, .p-row .hd { display: grid; grid-template-columns: 52% 28% 1fr; align-items: center; }
-  .p-cols { flex: none; margin-top: clamp(14px, 3.2vh, 40px); height: clamp(34px, 5vh, 70px); border-bottom: 1px solid #2b2b2b; font-size: clamp(12px, 1.1vw, 19px); text-transform: uppercase; color: #cfcfcf; }
+  .p-cols { flex: none; margin-top: clamp(14px, 3.2vh, 40px); height: clamp(34px, 5vh, 70px); border-bottom: 1px solid #2b2b2b; font-family: var(--mono); letter-spacing: .14em; font-size: clamp(10px, .82vw, 14px); text-transform: uppercase; color: #cfcfcf; }
   .p-cols span:nth-child(2) { text-align: center; }
   .p-list { position: relative; flex: 1; min-height: 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 calc(100% - 64px), transparent); mask-image: linear-gradient(#000 calc(100% - 64px), transparent); }
   .p-list.free { overflow-y: auto; scrollbar-width: none; }
@@ -109,7 +109,7 @@
   .p-row .hd { height: var(--row, 64px); cursor: pointer; font-size: clamp(13px, 1.12vw, 19px); }
   .p-row .hd .nm { color: #fff; }
   .p-row .hd .nm small { display: block; font-size: .72em; color: #7c7c7c; margin-top: 2px; }
-  .p-row .hd .un { text-align: center; text-transform: uppercase; color: #a6a6a6; }
+  .p-row .hd .un { text-align: center; text-transform: uppercase; color: #a6a6a6; font-family: var(--mono); letter-spacing: .08em; font-size: .78em; }
   .p-row .hd .pl { justify-self: end; width: 20px; height: 20px; position: relative; margin-right: 6px; transition: transform .3s; }
   .p-row .hd .pl::before, .p-row .hd .pl::after { content: ""; position: absolute; left: 50%; top: 50%; width: 16px; height: 1.5px; background: #d8d8d8; transform: translate(-50%, -50%); }
   .p-row .hd .pl::after { transform: translate(-50%, -50%) rotate(90deg); }
@@ -132,18 +132,18 @@
   #hiw { position: relative; background: #000; padding: clamp(100px, 18vw, 160px) 0 clamp(70px, 9vw, 140px); overflow: hidden; }
   .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 3vw; }
   .hiw-l { flex: 0 0 37.6vw; }
-  .hiw-l .kick { font-size: clamp(14px, 1.17vw, 21px); color: #8a8a8a; }
-  .hiw-l h2 { margin-top: clamp(14px, 2vw, 34px); font-weight: 500; font-size: clamp(34px, 4.2vw, 76px); letter-spacing: -0.03em; line-height: 1.17; }
+  .hiw-l .kick { font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(10px, .82vw, 14px); color: #8a8a8a; }
+  .hiw-l h2 { margin-top: clamp(14px, 2vw, 34px); font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(28px, 3.5vw, 64px); letter-spacing: 0; line-height: 1.04; }
   .hiw-steps { margin-top: clamp(40px, 8.4vw, 150px); display: flex; flex-direction: column; gap: clamp(36px, 6.6vw, 118px); }
-  .hiw-steps h4 { font-weight: 500; font-size: clamp(24px, 2.7vw, 48px); letter-spacing: -0.025em; line-height: 1.22; }
-  .hiw-steps h4 span { display: inline-block; vertical-align: middle; margin-left: 1.8vw; padding: .5em 1em; border-radius: 99px; background: #2c2c2c; color: #f0f0f0; font-weight: 400; font-size: clamp(11px, .8vw, 14px); letter-spacing: 0; line-height: 1; white-space: nowrap; }
+  .hiw-steps h4 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(18px, 2vw, 36px); letter-spacing: 0; line-height: 1.08; }
+  .hiw-steps h4 span { display: inline-block; vertical-align: middle; margin-left: 1.8vw; padding: .5em 1em; border-radius: 99px; background: #2c2c2c; color: #f0f0f0; font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(9px, .68vw, 12px); letter-spacing: .1em; line-height: 1; vertical-align: middle; white-space: nowrap; }
   .hiw-steps p { margin-top: clamp(14px, 2vw, 34px); font-size: clamp(12px, .9vw, 16px); line-height: 1.22; color: #a8a8a8; text-align: justify; }
   .hiw-r { position: relative; flex: 0 0 42.7vw; aspect-ratio: 733 / 916; margin-top: clamp(40px, 5.6vw, 100px); }
   .hiw-card { position: absolute; inset: 0; border-radius: 9.5% / 7.6%; overflow: hidden; background: #111; }
   .hiw-card img { position: absolute; left: -116.1%; top: -24.236%; width: 234.1%; max-width: none; height: auto; opacity: 0; transition: opacity 1s ease, transform 5s ease; transform: scale(1.0); transform-origin: 50% 50%; user-select: none; -webkit-user-drag: none; }
   .hiw-card img.on { opacity: 1; }
-  .hiw-badge { position: absolute; right: -9.7%; top: -5.7%; width: 19.4%; aspect-ratio: 1; border-radius: 30%; display: grid; place-items: center; z-index: 3; background: linear-gradient(160deg, #6a6a6a, #2b2b2b 80%); border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 40px rgba(0,0,0,.5); font-size: clamp(30px, 3.2vw, 58px); color: #fff; letter-spacing: -0.02em; overflow: hidden; }
-  .hiw-badge b { grid-area: 1 / 1; font-weight: 400; transition: opacity .6s, transform .6s; opacity: 0; transform: translateY(10px); }
+  .hiw-badge { position: absolute; right: -9.7%; top: -5.7%; width: 19.4%; aspect-ratio: 1; border-radius: 30%; display: grid; place-items: center; z-index: 3; background: linear-gradient(160deg, #6a6a6a, #2b2b2b 80%); border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 40px rgba(0,0,0,.5); font-family: var(--display); font-size: clamp(26px, 2.8vw, 50px); color: #fff; letter-spacing: 0; overflow: hidden; }
+  .hiw-badge b { grid-area: 1 / 1; font-weight: 700; transition: opacity .6s, transform .6s; opacity: 0; transform: translateY(10px); }
   .hiw-badge b.on { opacity: 1; transform: none; }
   .hiw-dots { position: absolute; left: 50%; bottom: 2.6%; transform: translateX(-50%); display: flex; gap: 6.7%; z-index: 3; width: 14%; justify-content: space-between; }
   .hiw-dots i { width: clamp(9px, .8vw, 14px); aspect-ratio: 1; border-radius: 50%; background: #4a4a4a; cursor: pointer; transition: background .4s; box-shadow: 0 0 0 5px #0d0d0d; }
@@ -154,8 +154,8 @@
     .hiw-l, .hiw-r { flex: none; width: 100%; }
     .hiw-r { width: 84%; margin: 0 auto 0 0; }
     .hiw-badge { right: -6%; }
-    .hiw-steps h4 { font-size: 26px; } .hiw-steps h4 span { margin-left: 12px; } .hiw-steps p { font-size: 14px; }
-    .hiw-l h2 { font-size: 40px; } .hiw-steps { margin-top: 36px; gap: 34px; }
+    .hiw-steps h4 { font-size: 20px; } .hiw-steps h4 span { margin-left: 12px; } .hiw-steps p { font-size: 14px; }
+    .hiw-l h2 { font-size: 30px; } .hiw-steps { margin-top: 36px; gap: 34px; }
   }
 </style>
 </head>
@@ -226,8 +226,8 @@
 </section>
 
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw2dqwxx"></script>
-<script src="organs-model.js?v=mw2dqwxx"></script>
+<script src="david-model.js?v=mw2duxu7"></script>
+<script src="organs-model.js?v=mw2duxu7"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
