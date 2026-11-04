@@ -96,7 +96,7 @@
   .p-head { display: flex; align-items: center; gap: clamp(14px, 1.6vw, 28px); flex: none; }
   .p-head .tile { --tile: clamp(48px, 5vw, 85px); }
   .p-head h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(18px, 1.6vw, 28px); letter-spacing: 0; }
-  .p-head h3 em { font-style: normal; color: #8c8c8c; margin-left: .4em; }
+  .p-head h3 em { font-style: normal; font-family: var(--sans); font-weight: 400; font-size: 1.05em; letter-spacing: 0; color: #9a9a9a; margin-left: .45em; }
   .p-intro { flex: none; margin-top: clamp(10px, 2vh, 28px); font-size: clamp(13px, 1.12vw, 19px); color: #c2c2c2; }
   .p-cols, .p-row .hd { display: grid; grid-template-columns: 52% 28% 1fr; align-items: center; }
   .p-cols { flex: none; margin-top: clamp(14px, 3.2vh, 40px); height: clamp(34px, 5vh, 70px); border-bottom: 1px solid #2b2b2b; font-family: var(--mono); letter-spacing: .14em; font-size: clamp(10px, .82vw, 14px); text-transform: uppercase; color: #cfcfcf; }
@@ -234,7 +234,7 @@
   const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, ss = (v, a, b) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
   let skullC = [0, 0], W, H, dpr, n = 0, X, Y, Z, NX, NY, NZ, KD, R0, A0, DL, SX0, SY0, SZ0, heartC = [0, 0, 0], lungC = [0, 0, 0], s = 1, ox = 0, oy = 0, vis = true, t0 = 0;
   const mouse = { x: 0, y: 0, sx: 0, sy: 0 }, canHover = matchMedia('(hover: hover)').matches;
-  const HEADDBG = location.hash === '#head', DEBUG = location.hash === '#xray', FACE = -0.6, PIVX = 1121, PIVZ = 11, cf = Math.cos(FACE), sf = Math.sin(FACE);
+  const HEADDBG = location.hash === '#head', ARMDBG = location.hash === '#arms', DEBUG = location.hash === '#xray', FACE = -0.6, PIVX = 1121, PIVZ = 11, cf = Math.cos(FACE), sf = Math.sin(FACE);
 
   function decode(M, keep, kindOf) {                                                            // baked points: 16-bit positions, byte normals
     const bin = atob(M.data), out = [], rd = (o, k) => bin.charCodeAt(o + k) | bin.charCodeAt(o + k + 1) << 8, sb = v => v > 127 ? v - 256 : v;
@@ -264,8 +264,8 @@
     s = Math.min(H * 0.86 / 880, W * (W < 900 ? 1.0 : 0.7) / 900); ox = W / 2 - PIVX * s; oy = H * 0.05 - 165 * s; if (HEADDBG) { s *= 1.9; ox = W / 2 - skullC[0] * s; oy = H / 2 - skullC[1] * s; }
     const base = Math.max(0.35, Math.sqrt(900 * 880 * 0.5 * s * s / 60000) * 0.3);                // dot size from the spacing of the bust's dots
     for (let i = 0; i < n; i++) {
-      const k = KD[i]; R0[i] = base * (k === 3 ? 0.9 : k === 1 ? 1.05 : k === 2 ? 0.95 : (k === 4 || k === 10) ? 1.4 : k === 11 ? 0.8 : k === 8 ? 1.05 : k === 5 ? 0.8 : k === 6 ? 0.8 : k === 7 ? 0.7 : k === 9 ? 0.75 : 0.9) * (0.8 + 0.4 * rnd());
-      A0[i] = k === 3 ? 0.95 : k === 1 ? 1 : k === 2 ? 0.9 : (k === 4 || k === 10) ? 1 : k === 11 ? 0.8 : k === 8 ? 1 : k === 5 ? 0.9 : k === 6 ? 1 : k === 7 ? 0.65 : k === 9 ? 1 : 0.95;                                // the skin is dim, the organs glow
+      const k = KD[i]; R0[i] = base * (k === 3 ? 0.9 : k === 1 ? 1.25 : k === 2 ? 0.95 : (k === 4 || k === 10 || k === 12 || k === 13) ? 1.4 : k === 11 ? 0.8 : k === 8 ? 1.12 : k === 5 ? 0.66 : k === 6 ? 0.8 : k === 7 ? 0.7 : k === 9 ? 0.75 : 0.9) * (0.8 + 0.4 * rnd());
+      A0[i] = k === 3 ? 0.95 : k === 1 ? 1 : k === 2 ? 0.9 : (k === 4 || k === 10 || k === 12 || k === 13) ? 1 : k === 11 ? 0.8 : k === 8 ? 1 : k === 5 ? 0.85 : k === 6 ? 1 : k === 7 ? 0.65 : k === 9 ? 1 : 0.95;                                // the skin is dim, the organs glow
       DL[i] = Math.hypot(X[i] - heartC[0], (Y[i] - heartC[1]) * 0.8) / 600 * 1.5 + rnd() * 0.5;       // they form from the heart outwards
       const a = rnd() * 6.2832, d = (0.3 + rnd() * 0.9) * Math.max(W, H) * 0.4; SX0[i] = X[i] * s + ox + Math.cos(a) * d; SY0[i] = Y[i] * s + oy + Math.sin(a) * d * 0.8; SZ0[i] = (rnd() - 0.5) * 900;
     }
@@ -275,29 +275,30 @@
     requestAnimationFrame(frame); if (!vis) return; if (!t0) t0 = now; const t = (now - t0) / 1000, tm = reduce ? 0 : now * 0.001;
     mouse.sx += (mouse.x - mouse.sx) * 0.05; mouse.sy += (mouse.y - mouse.sy) * 0.05;
     // the lens: where the cursor is, the skin falls away and the inside shows. When nobody is pointing, it drifts over the chest by itself.
-    const idle = now - lens.last > 3500, demo = false;
+    const idle = lens.last < 0, demo = false;
     if (idle) { lens.tx = W * 0.5 + Math.sin(tm * 0.55) * W * 0.1; lens.ty = H * 0.5 + Math.cos(tm * 0.4) * H * 0.12 + Math.sin(tm * 0.9) * H * 0.03; }
-    if (lens.x < -9000) { lens.x = lens.tx; lens.y = lens.ty; } lens.x += (lens.tx - lens.x) * 0.14; lens.y += (lens.ty - lens.y) * 0.14; lens.on += ((idle ? (demo ? 0.85 : 0) : 1) - lens.on) * 0.06;
-    const LR = Math.max(150, Math.min(W, H) * 0.3) * (W < 900 ? 0.8 : 1);
-    const yaw = (reduce ? 0 : 0.2 * Math.sin(tm * 0.25)) + mouse.sx * 0.28, pitch = mouse.sy * 0.1, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), f = Math.max(W, H) * 1.25;
+    if (lens.x < -9000) { lens.x = lens.tx; lens.y = lens.ty; } lens.x = lens.tx; lens.y = lens.ty; lens.on = idle ? lens.on * 0.9 : 1;                     // the lens is where the pointer is, at once
+    const LR = Math.max(105, Math.min(W, H) * 0.2) * (W < 900 ? 0.8 : 1);                      // the hover lens is small
+    const yaw = mouse.sx * 0.28, pitch = mouse.sy * 0.1, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), f = Math.max(W, H) * 1.25;
     const ph = (tm % 0.95), beat = reduce ? 0 : Math.exp(-sq(ph - 0.08) / 0.0016) + 0.55 * Math.exp(-sq(ph - 0.3) / 0.003), breathe = reduce ? 0 : Math.sin(tm * 0.95) * 0.5 + 0.5;
     const cxm = W / 2, cym = H * 0.5; for (const b of bx) b.length = 0;
     for (let i = 0; i < n; i++) {
-      const k = KD[i]; if (HEADDBG && k !== 3 && k !== 8) continue; let x = X[i], y = Y[i], z = Z[i];
+      const k = KD[i]; if (HEADDBG && k !== 3 && k !== 8 && k !== 5) continue; if (ARMDBG && k !== 3 && k !== 12) continue; let x = X[i], y = Y[i], z = Z[i];
       if (k === 1) { const g = 1 + 0.045 * beat; x = heartC[0] + (x - heartC[0]) * g; y = heartC[1] + (y - heartC[1]) * g; z = heartC[2] + (z - heartC[2]) * g; }         // the heart beats
-      else if (k === 0) { const g = 1 + 0.022 * breathe; x = lungC[0] + (x - lungC[0]) * g; y = lungC[1] + (y - lungC[1]) * (1 + 0.03 * breathe); z = lungC[2] + (z - lungC[2]) * g; }  // and the lungs breathe
+      else if (k === 0) { const g = 1 + 0.05 * breathe, top = lungC[1] - 125; x = lungC[0] + (x - lungC[0]) * g; y = top + (y - top) * (1 + 0.07 * breathe); z = lungC[2] + (z - lungC[2]) * (1 + 0.04 * breathe); }   // the lungs fill and empty: they widen and the base drops, the top stays
+      else if (k === 10) { x = lungC[0] + (x - lungC[0]) * (1 + 0.012 * breathe); y -= 3 * breathe; }                  // and the ribs lift a little with them  // and the lungs breathe
       let px = x * s + ox, py = y * s + oy, pz = z * s;
       const e = reduce ? 1 : ss(t, DL[i], DL[i] + 1.5);                                         // flying in to form the bust
       if (e < 1) { const k2 = 1 - Math.pow(1 - e, 3); px = SX0[i] + (px - SX0[i]) * k2; py = SY0[i] + (py - SY0[i]) * k2; pz = SZ0[i] + (pz - SZ0[i]) * k2; }
       const dx = px - cxm, dy = py - cym, x1 = dx * cy + pz * sy, z1 = pz * cy - dx * sy, y2 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp, sc = f / (f - z2); if (sc > 2.5 || sc < 0.3) continue;
       const sxp = cxm + x1 * sc, syp = cym + y2 * sc, ld = Math.hypot(sxp - lens.x, (syp - lens.y) * 1.08) / LR;
-      const rv = DEBUG ? 1 : (1 - ss(ld, 0.4, 1)) * lens.on, edge = Math.exp(-sq((ld - 0.9) / 0.09)) * lens.on, zc = DEBUG ? 0 : ss(y, 620, 760) * (1 - ss(Math.abs(x - 1121), 140, 290)), zk = DEBUG ? 0 : ss(y, 420, 500) * (1 - ss(y, 640, 700)) * (1 - ss(Math.abs(x - 1121), 70, 150)), zb = DEBUG ? 0 : Math.max(zk, ss(y, 620, 760) * (1 - ss(Math.abs(x - 1121), 200, 380))), zn = Math.max(zc, zk), rvI = HEADDBG ? 1 : k === 10 ? zb * 0.85 : Math.max(rv, k === 4 ? zb * 0.92 : (k === 8 || k === 5 || k === 9 || k === 11) ? 0 : k === 7 ? zn * 0.3 : zn * 0.78), rvS = HEADDBG ? 0 : Math.max(rv, zn * 0.78);   // the chest is always an x-ray: lungs, heart, airways and vessels show through the skin; bones only faintly     // 1 under the cursor, falling to 0 at the lens's edge; and a bright rim
-      const inside = k !== 3;
-      if (inside && rvI < 0.02 && (k === 11 || (i % 3))) continue;                                                // out of the lens only a faint third of the inside shows
-      if (!inside && rvS > 0.985) continue;
+      const rv = DEBUG ? 1 : (1 - ss(ld, 0.4, 1)) * lens.on, edge = Math.exp(-sq((ld - 0.9) / 0.09)) * lens.on, zc = DEBUG ? 0 : ss(y, 560, 720) * (1 - ss(Math.abs(x - 1121), 140, 290)), zk = DEBUG ? 0 : ss(y, 420, 500) * (1 - ss(y, 640, 700)) * (1 - ss(Math.abs(x - 1121), 70, 150)), zb = DEBUG ? 0 : Math.max(zk, ss(y, 560, 720) * (1 - ss(Math.abs(x - 1121), 200, 380))), zn = Math.max(zc, zk), rvI = HEADDBG || (ARMDBG && k === 12) ? 1 : k === 10 ? zb * 0.85 : Math.max(rv, (k === 4 || k === 13) ? zb * 0.92 : (k === 8 || k === 5 || k === 9 || k === 11 || k === 12) ? 0 : (k === 7 || k === 14) ? zn * 0.3 : zn * 0.78), rvS = HEADDBG || ARMDBG ? 0 : Math.max(rv, zn * 0.78);   // the chest is always an x-ray: lungs, heart, airways and vessels show through the skin; bones only faintly     // 1 under the cursor, falling to 0 at the lens's edge; and a bright rim
+      const inside = k !== 3; if (k === 12 && rv < 0.03 && !ARMDBG) continue;                                  // the shoulder and arm bones show only under the lens
+      if (inside && rvI < 0.02 && (k === 11 || (k !== 7 && i % 3))) continue;                                                // out of the lens only a faint third of the inside shows
+      if (!inside && rvS > 5) continue;
       if (k >= 6) {                                                                                   // blood and nerve signals: pulses running along the paths
-        const u = NX[i], ph = NY[i], wv = k === 9 ? 0.22 + 0.78 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 5.5 - tm * 0.55 + ph)), 3) : k === 6 ? 0.3 + 0.7 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 1.6 - tm * 0.45 + ph) - 0), 3) * (1 + 0.6 * beat) : 0.14 + 0.86 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 2.4 - tm * 0.9 + ph)), 8);
-        const fy2 = 1 - ss(py, H * 0.8, H * 0.98), fa2 = clamp(e * 1.4) * fy2; if (fa2 < 0.03) continue; const a2 = A0[i] * fa2 * wv * (0.12 + 0.88 * rvI); if (a2 < 0.05) continue;
+        const u = NX[i], ph = NY[i], wv = k === 6 ? 0.5 : k === 7 ? 0.05 + 0.95 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 1.7 - tm * 0.5 + ph)), 9) : 0.36;
+        const fy2 = 1 - ss(py, H * 0.8, H * 0.98), fa2 = clamp(e * 1.4) * fy2; if (fa2 < 0.03) continue; const a2 = A0[i] * fa2 * wv * (k === 7 ? 0.7 + 0.3 * rvI : 0.12 + 0.88 * rvI) * (k === 14 ? 0.3 : 1); if (a2 < 0.05) continue;
         const r2 = R0[i] * sc * (k === 9 ? 0.95 : 0.55 + 0.7 * wv) * (0.45 + 0.55 * fy2) * (0.8 + 0.3 * rvI); if (r2 < 0.15) continue;
         bx[Math.min(NB - 1, (Math.min(1, a2) * NB) | 0) + NB].push(sxp, syp, r2); continue;
       }
@@ -305,8 +306,9 @@
       const sh = Math.max(0, nx * -0.35 + ny * -0.5 + nz * 0.79), rim = 1 - Math.abs(nz), b = 0.2 + 0.8 * sh + 0.45 * rim * rim;
       const fy = 1 - ss(py, H * 0.76, H * 0.94), fa = clamp(e * 1.4) * fy; if (fa < 0.03) continue;                       // the bust dissolves at the bottom
       let a;
-      if (inside) { const xr = (0.5 + 0.5 * Math.pow(rim, 1.2)) * ((k === 4 || k === 10) ? 0.85 + 0.15 * clamp(0.5 + z2 / (s * 260)) : 1); a = A0[i] * fa * (1 + (k <= 2 ? 0.6 * rv : 0)) * (k === 1 ? (0.45 + 0.55 * Math.min(1, b)) : k === 0 ? Math.min(1.2, 0.4 + 0.35 * Math.min(1, b) + 0.7 * Math.pow(rim, 1.5)) : xr) * (0.16 + 0.84 * rvI) * (k === 10 ? Math.pow(1 - rv, 1.6) * 0.92 + 0.08 : 1); if (k === 1) a = Math.min(1, a * (1 + 0.5 * beat)); }   // the inside glows where the lens is
-      else a = A0[i] * fa * (0.4 + 0.6 * Math.min(1, b)) * Math.pow(1 - rvS, 1.3) * (1 + 0.9 * edge);                                               // the skin falls away there, with a bright rim
+      if (inside) { const xr = (0.5 + 0.5 * Math.pow(rim, 1.2)) * ((k === 4 || k === 10 || k === 12 || k === 13) ? 0.85 + 0.15 * clamp(0.5 + z2 / (s * 260)) : 1); a = A0[i] * fa * (1 + (k <= 2 ? 0.6 * rv : 0)) * (k === 1 ? (0.45 + 0.55 * Math.min(1, b)) : k === 0 ? Math.min(1.2, 0.4 + 0.35 * Math.min(1, b) + 0.7 * Math.pow(rim, 1.5)) : xr) * (0.16 + 0.84 * rvI) * (k === 10 ? Math.pow(1 - rv, 1.6) * 0.92 + 0.08 : k === 13 ? 0.32 : 1) * ((k === 8 || k === 5) ? 0.2 + 0.8 * Math.pow(clamp(0.5 + z2 / (s * 130)), 1.4) : 1); if (k === 1) a = Math.min(1, a * (1 + 0.5 * beat)); }   // the inside glows where the lens is
+      else a = A0[i] * fa * (0.4 + 0.6 * Math.min(1, b)) * (0.12 + 0.88 * Math.pow(1 - rvS, 1.3)) * (1 + 0.9 * edge) * (ARMDBG ? 0.28 : HEADDBG ? 0.03 : 1);                                               // the skin falls away there, with a bright rim
+      if (k === 0 && z > heartC[2] - 10) { const hd = Math.hypot(x - heartC[0], (y - heartC[1]) * 0.8); a *= 0.22 + 0.78 * ss(hd, 45, 120); }                 // the lung in front of the heart steps aside so the heart can be seen
       if (a < 0.04) continue;
       const r = R0[i] * sc * (0.55 + 0.6 * Math.min(1, b)) * (e < 1 ? 0.4 + 0.6 * e : 1) * (k === 1 ? 1 + 0.1 * beat : 1) * (0.45 + 0.55 * fy) * (k === 10 ? 1 - 0.3 * rv : inside ? 0.75 + 0.35 * rvI : 1); if (r < 0.15) continue;
       const q = Math.min(NB - 1, (Math.min(1, a) * NB) | 0), arr = bx[q + (k === 3 ? 0 : NB)]; arr.push(sxp, syp, r);

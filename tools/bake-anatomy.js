@@ -1,7 +1,7 @@
 /* Sculpts a full anatomical x-ray to sit inside the David bust, from signed-distance shapes and curves, and writes organs-model.js.   run: node tools/bake-anatomy.js
    Everything is placed by anatomical landmarks (the jugular notch, the nipple line, the skull base), so the lungs, heart, ribs, spine and skull land where they would in a body.
    Local anatomy is in millimetres: x to the patient's left (the viewer's right), y down from the jugular notch, z forward.
-   Kinds: 0 lung, 1 heart and great vessels, 2 airways and oesophagus, 4 bone, 5 brain, 6 blood vessels (flowing), 7 nerves (flowing). Kinds 6 and 7 carry a path position and phase in the normal bytes. */
+   Kinds: 12 shoulder and arm bones (only the lens shows them), 0 lung, 1 heart and great vessels, 2 airways and oesophagus, 4 bone, 5 brain, 6 blood vessels (flowing), 7 nerves (flowing). Kinds 6 and 7 carry a path position and phase in the normal bytes. */
 const fs = require('fs'), path = require('path');
 const sq = v => v * v, clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t;
 const smin = (a, b, k) => { const h = clamp(0.5 + 0.5 * (b - a) / k, 0, 1); return b + (a - b) * h - k * h * (1 - h); }, smax = (a, b, k) => -smin(-a, -b, k);
@@ -89,10 +89,10 @@ const ribbon = (x, y, z, a, b, rw, rt) => {                                     
   const nn = cross(t, u), du = qx * u[0] + qy * u[1] + qz * u[2], dn = qx * nn[0] + qy * nn[1] + qz * nn[2];
   return (Math.sqrt(sq(du / rw) + sq(dn / rt)) - 1) * Math.min(rw, rt);
 };
-function group(prims, rib) {
+function group(prims, rib, vert) {
   let cx = 0, cy = 0, cz = 0, n = 0; for (const p of prims) for (const q of [p.a || p.c, p.b].filter(Boolean)) { cx += q[0]; cy += q[1]; cz += q[2]; n++; } cx /= n; cy /= n; cz /= n;
   let R = 0; for (const p of prims) { const m = Math.max(p.r1 || 0, p.r2 || 0, ...(p.rr || [0])); for (const q of [p.a || p.c, p.b].filter(Boolean)) R = Math.max(R, Math.hypot(q[0] - cx, q[1] - cy, q[2] - cz) + m + 6); }
-  groups.push({ c: [cx, cy, cz], R, prims, rib });
+  groups.push({ c: [cx, cy, cz], R, prims, rib, vert });
 }
 const C = (a, b, r1, r2) => ({ t: 0, a, b, r1, r2 }), E = (c, rr) => ({ t: 1, c, rr }), RB = (a, b, rw, rt) => ({ t: 2, a, b, r1: rw, r2: rw, rw, rt });
 const zsp = j => j <= 8 ? -105 - 9 * (j - 1) : -177 + 4 * (j - 8);               // where the spine lies at each thoracic level
@@ -105,22 +105,17 @@ for (let i = 1; i <= 12; i++) for (const side of [-1, 1]) {
   group(prims, true);
 }
 group([E([0, 22, 4], [28, 24, 7]), E([0, 98, 6], [16, 52, 6]), C([0, 150, 6], [0, 172, 4], 4.5, 2.5)]);        // the sternum: manubrium, body, xiphoid process
-for (let j = 1; j <= 12; j++) { const y = -30 + 22 * (j - 1), z = zsp(j); group([E([0, y, z], [22, 9, 17]), C([0, y, z - 12], [0, y + 14, z - 46], 4.2, 2.6), C([20, y, z - 4], [46, y - 4, z - 16], 5, 3.6), C([-20, y, z - 4], [-46, y - 4, z - 16], 5, 3.6)]); }   // thoracic vertebrae with their spinous and transverse processes
-for (const side of [-1, 1]) {
-  group([C([side * 12, 8, 4], [side * 76, 14, 20], 6.5, 5.8), C([side * 76, 14, 20], [side * 160, -4, -14], 5.8, 6.8)]);                  // the collarbone's gentle S
-  group([E([side * 132, 58, -150], [58, 66, 5]), C([side * 70, 10, -158], [side * 170, -10, -118], 6, 7.5)]);                              // the shoulder blade and its spine
-  group([E([side * 188, 6, -60], [26, 26, 26]), C([side * 194, 20, -58], [side * 206, 250, -50], 15, 12)]);                               // the head and shaft of the humerus
-}
-const bonesOf = want => (x, y, z) => {
+for (let j = 1; j <= 12; j++) { const y = -30 + 22 * (j - 1), z = zsp(j); group([E([0, y, z], [22, 9, 17]), C([0, y, z - 12], [0, y + 14, z - 46], 4.2, 2.6), C([20, y, z - 4], [46, y - 4, z - 16], 5, 3.6), C([-20, y, z - 4], [-46, y - 4, z - 16], 5, 3.6)], false, true); }   // thoracic vertebrae with their spinous and transverse processes
+const bonesOf = (want, vw) => (x, y, z) => {
   let d = 1e9;
   for (const g of groups) {
-    if (!!g.rib !== want) continue;
+    if (!!g.rib !== want || !!g.vert !== !!vw) continue;
     const dc = Math.hypot(x - g.c[0], y - g.c[1], z - g.c[2]) - g.R; if (dc > 30) { d = Math.min(d, dc); continue; }
     for (const p of g.prims) d = Math.min(d, p.t === 2 ? ribbon(x, y, z, p.a, p.b, p.rw, p.rt) : p.t ? ell(x, y, z, p.c[0], p.c[1], p.c[2], p.rr[0], p.rr[1], p.rr[2]) : cap(x, y, z, p.a, p.b, p.r1, p.r2));
   }
   return d;
 };
-const thorBones = bonesOf(false), thorRibs = bonesOf(true);
+const thorBones = bonesOf(false), thorRibs = bonesOf(true), thorVerts = bonesOf(false, true);
 
 /* ============ the neck, directly in statue pixels: the cervical spine from the first thoracic vertebra up to the skull base, and the upper airway ============ */
 const NECK_TOP = 396, NECK_BASE = 618;
@@ -134,6 +129,47 @@ const neckBones = (x, y, z) => {
   return d;
 };
 const neckAir = (x, y, z) => Math.min(cap(x, y, z, [XC, 505, 388], [XC, 560, 388], 15, 13.5), sph(x, y, z, XC, 520, 396, 18), cap(x, y, z, [XC, 452, 372], [XC, 470, 372], 20, 16)) + 1.1 * Math.sin(y * 0.55) * (y > 520 ? 1 : 0);   // the trachea, the larynx and the hyoid
+
+/* ============ the shoulders and arms, directly in statue pixels ============
+   The bust is not a stiff T-pose: the viewer's-left arm hangs at the side, the viewer's-right arm is held out and bent, the forearm brought up and forward to the shoulder with the hand at the collarbone.
+   The axes below were measured from the statue's own skin (the middle of every cross-section), so each bone runs down the middle of the limb. Kind 12: only the lens reveals them. */
+const agroups = [];
+function agroup(prims) { const q = []; for (const p of prims) { q.push(p.a || p.c); if (p.b) q.push(p.b); } let cx = 0, cy = 0, cz = 0; for (const p of q) { cx += p[0]; cy += p[1]; cz += p[2]; } cx /= q.length; cy /= q.length; cz /= q.length; let R = 0; for (const p of prims) { const m = Math.max(p.r1 || 0, p.r2 || 0, ...(p.rr || [0])); for (const v of [p.a || p.c, p.b].filter(Boolean)) R = Math.max(R, Math.hypot(v[0] - cx, v[1] - cy, v[2] - cz) + m + 6); } agroups.push({ c: [cx, cy, cz], R, prims }); }
+const chain = (P, r) => { for (let i = 0; i < P.length - 1; i++) agroup([C(P[i], P[i + 1], r[Math.min(i, r.length - 1)], r[Math.min(i + 1, r.length - 1)])]); };
+const ARM = {
+  L: { head: [738, 712, 372], shaft: [[738, 714, 372], [726, 724, 372], [705, 760, 373], [689, 800, 375], [675, 840, 379], [674, 880, 386], [672, 920, 394], [668, 960, 398], [662, 1000, 403], [658, 1046, 407]], clav: [[944, 672, 462], [900, 656, 455], [842, 642, 430], [790, 636, 402], [748, 634, 380]], blade: [812, 765, 266], spine: [[872, 708, 262], [830, 694, 266], [790, 676, 300], [760, 652, 350], [748, 634, 378]], neck: [[792, 742, 295], [742, 714, 362]] },
+  R: { head: [1192, 665, 334], shaft: [[1192, 667, 334], [1225, 690, 336], [1260, 720, 338], [1290, 760, 350], [1323, 800, 358], [1359, 840, 372], [1388, 880, 386], [1412, 920, 418], [1428, 958, 434]], clav: [[976, 672, 462], [1020, 656, 452], [1080, 640, 425], [1135, 632, 392], [1180, 628, 356]], blade: [1112, 742, 266], spine: [[1048, 698, 262], [1090, 686, 266], [1130, 670, 296], [1162, 648, 330], [1180, 628, 354]], neck: [[1130, 702, 290], [1192, 665, 334]] }
+};
+const FORE = [[1430, 962, 440], [1410, 935, 470], [1395, 915, 497], [1381, 880, 531], [1352, 840, 580], [1327, 800, 619], [1291, 760, 654], [1250, 722, 656], [1244, 692, 650]];   // the right forearm, from the elbow up to the wrist
+for (const key of ['L', 'R']) {
+  const A = ARM[key];
+  agroup([E(A.head, [25, 25, 25])]);                                               // the head of the humerus
+  chain(A.shaft, [16.5, 16, 15.5, 15, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5]);        // the shaft, down the middle of the upper arm
+  chain(A.clav, [6.5, 6, 6, 6.5, 7]);                                              // the collarbone's gentle S
+  agroup([E(A.blade, [58, 92, 6.5])]);                                             // the shoulder blade, lying on the back of the ribs
+  chain(A.spine, [5.5, 6, 7, 7.5, 8]);                                             // its spine, running out to the acromion
+  chain(A.neck, [9, 12]);                                                          // the neck of the blade, to the socket
+}
+{ const end = ARM.R.shaft[ARM.R.shaft.length - 1]; agroup([E([end[0] + 4, end[1] + 6, end[2] - 4], [21, 12, 15])]); }   // the condyles at the elbow
+agroup([E([1438, 976, 438], [14, 16, 14])]);                                     // the point of the elbow (olecranon)
+for (let i = 0; i < FORE.length - 1; i++) {                                        // the two bones of the forearm, side by side
+  const a = FORE[i], b = FORE[i + 1], d = nrm(sub(b, a)), o = nrm(cross(d, [0, 1, 0])), w = lerp(10, 8, i / (FORE.length - 2));
+  const off = (p, k) => [p[0] + o[0] * w * k, p[1] + o[1] * w * k, p[2] + o[2] * w * k];
+  agroup([C(off(a, 1), off(b, 1), lerp(8, 5, i / (FORE.length - 1)), lerp(8, 5, (i + 1) / (FORE.length - 1)))]);        // the ulna, thick at the elbow
+  agroup([C(off(a, -1), off(b, -1), lerp(5.5, 7, i / (FORE.length - 1)), lerp(5.5, 7, (i + 1) / (FORE.length - 1)))]);   // the radius, thick at the wrist
+}
+agroup([E([1240, 676, 648], [17, 13, 14])]);                                       // the wrist
+for (const [kx, kz] of [[1222, 640], [1210, 630], [1198, 622], [1186, 614]]) {     // the hand: four long bones to the knuckles, and the fingers curled up along the shoulder
+  chain([[1240, 676, 648], [kx, 640, kz + 6]], [3.6]); chain([[kx, 640, kz + 6], [kx - 8, 600, kz + 24], [kx - 14, 572, kz + 36]], [3, 2.6, 2.2]);
+}
+const armBones = (x, y, z) => {
+  let d = 1e9;
+  for (const g of agroups) {
+    const dc = Math.hypot(x - g.c[0], y - g.c[1], z - g.c[2]) - g.R; if (dc > 30) { d = Math.min(d, dc); continue; }
+    for (const p of g.prims) d = Math.min(d, p.t ? ell(x, y, z, p.c[0], p.c[1], p.c[2], p.rr[0], p.rr[1], p.rr[2]) : cap(x, y, z, p.a, p.b, p.r1, p.r2));
+  }
+  return d;
+};
 
 /* ============ the head, in head millimetres: skull and brain ============ */
 const HC = [949.4, 314.6, 437.7], HS = 1.367, YAW = 29.9 * Math.PI / 180, PIT = 6.9 * Math.PI / 180,   // found by tools/fit-skull.js: the skull sits just under the statue's face
@@ -163,14 +199,23 @@ function skull(x, y, z) {
   return d;
 }
 const teeth = (x, y, z) => { let d = 1e9; for (const row of [[63, 0.8], [83, 0.0]]) for (let k = -7; k <= 7; k++) { const cx = k * 3.9, cz = 58 - 0.7 * k * k * 0.5 - row[1] * 2; d = Math.min(d, ell(x, y, z, cx, row[0], cz, 3.5, 7, 3.2)); } return d; };
+// winding ridges and grooves, like the surface of a brain: a field whose zero lines are the sulci
+const gyri = (x, y, z) => Math.sin(0.2 * x + 2.1 * Math.sin(0.13 * y + 0.11 * z)) + Math.sin(0.17 * y + 2.1 * Math.sin(0.12 * z + 0.1 * x)) + Math.sin(0.15 * z + 2.1 * Math.sin(0.14 * x + 0.12 * y));
 function brain(x, y, z) {
   let d = 1e9;
-  for (const sg of [-1, 1]) d = Math.min(d, ell(x, y, z, sg * 36, -26, -12, 38, 52, 78));       // the two cerebral hemispheres
-  d = smax(d, -cap(x, y, z, [0, -90, -90], [0, 30, 70], 2.4, 2.4), 2);           // the fissure between them
-  d = smin(d, ell(x, y, z, 0, 14, -66, 46, 24, 30), 8);                          // the cerebellum
-  d = smin(d, cap(x, y, z, [0, 10, -34], [0, 82, -52], 14, 9.5), 6);             // the brain stem
-  return d + 3 * Math.sin(x * 0.36 + 0.7) * Math.sin(y * 0.31) * Math.sin(z * 0.33 + 1) + 1.6 * Math.sin(x * 0.7 + y * 0.5) * Math.sin(z * 0.62 + 0.3) + 1.1 * Math.sin(x * 1.05 - z * 0.8 + y * 0.4);   // folds
+  for (const sg of [-1, 1]) {
+    d = Math.min(d, ell(x, y, z, sg * 35, -28, -10, 40, 51, 82));                 // each cerebral hemisphere, longer than it is wide
+    d = smin(d, ell(x, y, z, sg * 47, 8, -6, 24, 20, 40), 14);                     // the temporal lobe, bulging low at the side
+    d = smax(d, -cap(x, y, z, [sg * 60, -4, 28], [sg * 78, -16, -26], 1.7, 1.7), 1.6);   // the lateral sulcus, between the temporal and frontal lobes
+  }
+  d = smax(d, -cap(x, y, z, [0, -96, -96], [0, 24, 64], 2.3, 2.3), 1.6);          // the longitudinal fissure
+  const cb = smin(d, ell(x, y, z, 0, 18, -72, 52, 22, 30), 8);                    // the cerebellum, tucked under the back
+  d = smin(cb, cap(x, y, z, [0, 10, -34], [0, 84, -52], 13, 9), 6);               // the brain stem
+  const fold = y > 6 && z < -50 ? 1.1 * Math.sin(y * 1.15) : 1.0 * gyri(x, y, z);    // fine parallel ridges under the back, winding gyri elsewhere
+  return d + fold;
 }
+const brainKeep = (x, y, z) => { if (y > 6 && z < -50) return 0.7; return 0.16 + 0.84 * smoothstepB(Math.abs(gyri(x, y, z)), 0.12, 0.85); };
+function smoothstepB(v, a, b) { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
 
 /* ============ sampling ============ */
 function sample(sdf, box, count, kind, cell, map, jac, keepP) {
@@ -206,15 +251,19 @@ for (const sg of [-1, 1]) {
   addCurve([T(sg * 10, 8, -40), T(sg * 18, -20, -50), nk(40, 600, 372), nk(42, 520, 380), nk(40, 450, 392)], 6, 2.2);   // the internal carotid, up to the base of the brain
   addCurve([T(sg * 24, 6, -34), nk(54, 600, 360), nk(54, 520, 366), nk(52, 450, 378)], 6, 2.4);                                                       // the jugular vein
   addCurve([nk(36, 440, 384), nk(36, 450, 380), nk(36, 520, 372), nk(36, 600, 362), T(sg * 30, 20, -62), T(sg * 32, 70, -96), T(sg * 40, 118, -100), T(sg * 28, 168, -110)], 7, 1.2);           // the vagus nerve, beside the carotid and down into the chest
-  addCurve([nk(26, 560, 316), T(sg * 44, 0, -88), T(sg * 100, 6, -88), T(sg * 160, 4, -70), T(sg * 188, 50, -58), T(sg * 198, 140, -52), T(sg * 204, 250, -50)], 7, 1.4);                        // the brachial plexus, and the nerve down the arm
-  addCurve([T(sg * 14, 24, -50), T(sg * 70, 12, -40), T(sg * 150, 8, -40), T(sg * 184, 56, -52), T(sg * 194, 150, -50), T(sg * 200, 250, -48)], 6, 2.6);                                         // the subclavian and brachial artery
-  addCurve([T(sg * 20, 32, -44), T(sg * 80, 22, -34), T(sg * 156, 20, -30), T(sg * 190, 70, -46), T(sg * 208, 160, -40), T(sg * 212, 250, -42)], 6, 2);                                         // and the vein beside it
+  {
+    const A = ARM[sg < 0 ? 'L' : 'R'], sh = A.shaft, mx = -sg * 11, mz = 17, along = sh.map(p => [p[0] + mx, p[1], p[2] + mz]), vv = sh.map(p => [p[0] + mx * 1.4, p[1], p[2] + mz * 1.5]), vn = sh.map(p => [p[0] - mx * 0.8, p[1], p[2] + mz * 1.9]);
+    addCurve([nk(26, 560, 316), T(sg * 44, 0, -88), [along[0][0] + sg * 14, along[0][1] - 18, along[0][2] - 10], ...along], 7, 1.4);      // the brachial plexus, and the nerve down the arm
+    addCurve([T(sg * 14, 24, -50), T(sg * 70, 12, -40), [vv[0][0] + sg * 24, vv[0][1] - 24, vv[0][2] + 4], ...vv], 6, 2.6);                // the subclavian and brachial artery
+    addCurve([T(sg * 20, 32, -44), T(sg * 80, 22, -34), [vn[0][0] + sg * 28, vn[0][1] - 14, vn[0][2] + 14], ...vn], 6, 2);                 // and the vein beside it
+    if (sg > 0) { addCurve([along[along.length - 1], ...FORE.slice(1, 7).map(p => [p[0] + 9, p[1], p[2] + 10])], 7, 1.2); addCurve([vv[vv.length - 1], ...FORE.slice(1, 7).map(p => [p[0] - 8, p[1], p[2] + 12])], 6, 2); }   // on down the forearm
+  }                        // the brachial plexus, and the nerve down the arm
   for (let i = 1; i <= 0; i++) {                                                 // (the intercostal nerves are left out: beside the ribs they read as extra lines)
     const pts = []; for (let k = 0; k <= 8; k++) { const p = ribPoint(i, sg, 0.1 + 0.86 * k / 8); pts.push(T(p[0] * 0.97, p[1] + 7, p[2] * 0.97)); }
     addCurve(pts, 7, 0.9); if (i % 2 === 0) addCurve(pts.map(p => [p[0], p[1] + 5, p[2]]), 6, 1.1);
   }
 }
-addCurve([[XC - 4, 408, 352], [XC - 4, 430, 346], [XC - 4, 520, 320], [XC - 4, 600, 292], ...Array.from({ length: 12 }, (_, i) => T(0, -24 + i * 22, zsp(i + 1) + 4)), T(0, 250, -180)], 7, 2.4);    // the spinal cord
+addCurve([[XC - 4, 408, 352], [XC - 4, 430, 346], [XC - 4, 520, 320], [XC - 4, 600, 292], ...Array.from({ length: 12 }, (_, i) => T(0, -24 + i * 22, zsp(i + 1) + 4)), T(0, 250, -180)], 14, 2.4);    // the spinal cord
 for (let j = 1; j <= 12; j++) for (const sg of [-1, 1]) addCurve([T(0, -24 + (j - 1) * 22, zsp(j) + 2), T(sg * 24, -20 + (j - 1) * 22, zsp(j) - 8), T(sg * 52, -12 + (j - 1) * 22, zsp(j) - 6)], 7, 1);   // and its nerve roots
 addCurve([T(24, 90, -124), T(26, 140, -130), T(28, 200, -134), T(28, 300, -134)], 6, 3);                                                                                                           // the aorta's long descent
 // the venous network just under the skin of the chest and shoulders, grown as branching trees over the statue's own surface
@@ -240,11 +289,15 @@ function nerveTree(p, dir, len, depth, w) {                                    /
   }
   addCurve(pts, 7, Math.max(0.7, w));
 }
-for (let j = 1; j <= 12; j += 2) for (const sg of [-1, 1]) {
+for (let j = 1; j <= 12; j += 1) for (const sg of [-1, 1]) {
   const root = T(sg * 14, -24 + (j - 1) * 22, zsp(j) - 6);
-  nerveTree(root, nrm([sg * 1, 0.25, 0.55]), 8, 1, 1.1);
+  nerveTree(root, nrm([sg * 1, 0.25, 0.55]), 9, 2, 1.1);
 }
-for (const sg of [-1, 1]) for (let k = 0; k < 2; k++) nerveTree(T(sg * 40, -6 + k * 8, -92), nrm([sg * 1, 0.3, 0.2]), 12, 1, 1.2);              // the shoulders' nerves
+for (const sg of [-1, 1]) for (let k = 0; k < 4; k++) nerveTree(T(sg * 40, -6 + k * 8, -92), nrm([sg * 1, 0.3, 0.2]), 12, 2, 1.2);
+// nerves branching off along both arms, the right forearm and the hand, and up the neck: signals run through the whole body
+for (const key of ['L', 'R']) { const sh = ARM[key].shaft, dirx = key === 'L' ? -1 : 1; for (let i = 1; i < sh.length - 1; i++) nerveTree([sh[i][0] + dirx * 8, sh[i][1], sh[i][2] + 14], nrm([dirx * 0.7, 0.35, 0.5]), 7, 1, 1.0); }
+for (let i = 1; i < FORE.length - 1; i++) nerveTree([FORE[i][0] + 6, FORE[i][1], FORE[i][2] + 12], nrm([0.4, -0.3, 0.6]), 6, 1, 0.9);
+for (const sg of [-1, 1]) for (let k = 0; k < 4; k++) nerveTree([XC + sg * 40, 560 - k * 42, 372 - k * 6], nrm([sg * 0.8, -0.1, 0.5]), 7, 1, 1.0);              // the shoulders' nerves
 // (nothing moves inside the head: the skull and the folded brain stay still)
 
 function curvePoints(cv, spacing) {
@@ -262,13 +315,16 @@ const pts = [].concat(
   sample(lungs, [-170, 170, -20, 240, -180, 8], 26000, 0, 4, T, jacT),
   sample(heart, [-60, 130, 10, 230, -140, 30], 5200, 1, 3.4, T, jacT),
   sample(airways, [-100, 120, -100, 260, -160, -20], 4200, 2, 3.2, T, jacT),
-  sample(thorBones, [-230, 230, -40, 270, -190, 40], 8000, 4, 3.6, T, jacT),
+  sample(thorBones, [-230, 230, -40, 270, -190, 40], 3200, 4, 3.6, T, jacT),
+  sample(thorVerts, [-230, 230, -40, 270, -190, 40], 5000, 13, 3.4, T, jacT),
   sample(thorRibs, [-230, 230, -40, 270, -190, 40], 12000, 10, 3.2, T, jacT, (x, y, z) => z > -92 ? 1 : 0.2),
+  sample(armBones, [570, 1500, 590, 1050, 200, 720], 30000, 12, 4.2, ID, null),
   sample(neckBones, [XC - 80, XC + 80, 360, 640, 240, 380], 2200, 4, 5, ID, null),
   sample(neckAir, [XC - 40, XC + 40, 430, 570, 340, 440], 1100, 2, 4, ID, null),
-  sample(skull, [-100, 100, -110, 150, -120, 110], 17000, 8, 3.2, H2, null, (x, y, z) => (y < -6 && z < 46 && Math.abs(x) < 78) ? 0.3 : 1),
+  sample(skull, [-100, 100, -110, 150, -120, 110], 17000, 8, 3.2, H2, null, (x, y, z) => (y < -6 && z < 46 && Math.abs(x) < 78) ? 0.26 : 1),
+  sample(skull, [-100, 100, -20, 150, -40, 110], 9000, 8, 3, H2, null, (x, y, z) => (y > -2 || z > 52) ? 1 : 0),   // the face: orbits, cheekbones, nose, jaws, a little denser so they read as bone
   sample(teeth, [-50, 50, 55, 100, 30, 70], 2400, 8, 2.2, H2, null),
-  sample(brain, [-90, 90, -90, 100, -120, 100], 10000, 5, 3.2, H2, null));
+  sample(brain, [-90, 90, -96, 100, -120, 100], 16000, 5, 2.6, H2, null, brainKeep));
 let nCurve = 0;
 for (const cv of curves) { const cp2 = curvePoints(cv, cv.kind === 7 ? 3.2 : cv.kind === 9 ? 2.2 : 3); for (const p of cp2) pts.push(p); nCurve += cp2.length; }
 console.log('points', pts.length, '(of which on curves', nCurve + ')');
