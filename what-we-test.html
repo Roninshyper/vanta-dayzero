@@ -318,6 +318,18 @@
     #hiw { padding: clamp(110px, 10vw, 170px) 0 clamp(80px, 8vw, 130px); }
     #pn { padding: clamp(70px, 7vw, 110px) 0 clamp(100px, 10vw, 170px); }
   }
+
+  /* ---------- the closing photo, with live text ---------- */
+  .cta2 { position: relative; height: min(52vw, 86vh); min-height: 460px; overflow: hidden; background: #000; }
+  .cta2 img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; display: block; }
+  .cta2-shade { position: absolute; inset: 0; background: radial-gradient(ellipse 55% 45% at 50% 55%, rgba(0,0,0,.28), rgba(0,0,0,0) 70%); }
+  .cta2-box { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); width: min(760px, 88vw); text-align: center; }
+  .cta2-box h2 { font-family: var(--sans); font-weight: 400; font-size: clamp(1.35rem, 1rem + 1.2vw, 2.15rem); line-height: 1.2; letter-spacing: -0.02em; color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,.35); }
+  .cta2-btns { margin-top: 26px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .cb { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 22px; border-radius: 999px; font-size: .875rem; font-weight: 500; text-decoration: none; transition: transform .2s, background .2s, border-color .2s; }
+  .cb.a { background: #fff; color: #000; } .cb.a:hover { transform: translateY(-1px); background: #f0f0f0; }
+  .cb.b { background: rgba(10,10,10,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); } .cb.b:hover { border-color: rgba(255,255,255,.45); }
+  @media (max-width: 900px) { .cta2 { height: 70vh; } .cta2-box { top: 58%; } }
 </style>
 </head>
 <body>
@@ -395,12 +407,14 @@
 </section>
 
 <section id="cta" aria-label="Start with Day Zero">
-  <div class="cta-clip"><div class="cta-in">
-    <img src="assets/cta.webp" alt="A young man in profile, half in shadow, with the line: one draw, a doctor, a twenty-page report, and ninety days of HealthOS.">
-    <h2>One draw, a doctor, a twenty-page report, and ninety days of HealthOS.</h2>
-    <a class="a" href="index.html#steps" aria-label="Start with Day Zero"></a>
-    <a class="b" href="#" aria-label="See Concierge"></a>
-  </div></div>
+  <div class="cta2">
+    <img src="assets/cta.webp" alt="" loading="lazy">
+    <div class="cta2-shade"></div>
+    <div class="cta2-box">
+      <h2>One draw, a doctor, a twenty-page report, and ninety days of HealthOS.</h2>
+      <div class="cta2-btns"><a class="cb a" href="index.html#steps">Start with Day Zero</a><a class="cb b" href="#">See Concierge</a></div>
+    </div>
+  </div>
 </section>
 
 <section id="closing">
@@ -419,8 +433,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw2ju0ch"></script>
-<script src="organs-model.js?v=mw2ju0ch"></script>
+<script src="david-model.js?v=mw2k2fmj"></script>
+<script src="organs-model.js?v=mw2k2fmj"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
