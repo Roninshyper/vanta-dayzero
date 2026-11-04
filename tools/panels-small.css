@@ -1,0 +1,16 @@
+
+  /* the other panels, a size smaller */
+  .pn-head h2 { font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem); }
+  .pn-arrows button { width: 40px; } .pn-arrows { gap: 10px; }
+  .pn-track { margin-top: 24px; gap: 12px; }
+  .pn-card { flex-basis: clamp(205px, 16vw, 245px); padding: 10px 10px 9px; border-radius: 20px; }
+  .pn-img { margin-top: 8px; border-radius: 15px; aspect-ratio: 1 / 1.02; }
+  .pn-top { height: 16px; font-size: .625rem; padding: 0 3px; white-space: nowrap; overflow: hidden; }
+  .pn-top span:last-child { font-size: .9em; letter-spacing: .04em; }
+  .pn-txt { left: 11px; right: 11px; bottom: 9px; }
+  .pn-txt h3 { font-size: .9375rem; } .pn-txt p { font-size: .625rem; margin-top: 4px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .pn-foot { margin-top: 8px; padding: 9px 4px 0; } .pn-foot b { font-size: 1.0625rem; } .pn-foot b.soon { font-size: .75rem; } .pn-foot span { font-size: .5938rem; }
+  @media (min-width: 901px) { #pn { padding: clamp(60px, 6vw, 90px) 0 clamp(80px, 8vw, 130px); } }
+  @media (max-width: 900px) { .pn-card { flex-basis: 64vw; } }
+
+  .pn-card { min-width: 0; } .pn-top span:first-child { flex: none; } .pn-top span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

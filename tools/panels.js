@@ -5,7 +5,7 @@
   const track = document.getElementById('pnTrack'), prev = document.getElementById('pnPrev'), next = document.getElementById('pnNext');
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const plural = { Vitamin: 'Vitamins', Hormone: 'Hormones', Infectious: 'Infectious', Screening: 'Screening' };
-  const count = p => p.soon ? 'Coming soon' : p.variants ? p.variants.map(v => v.label + ' ' + v.markers).join(' · ') + ' Markers' : p.markers + ' ' + (p.unit ? p.unit[0].toUpperCase() + p.unit.slice(1) : 'Markers');
+  const count = p => p.soon ? 'Coming soon' : p.variants ? p.variants.map(v => v.label[0] + ' ' + v.markers).join(' · ') + ' Markers' : p.markers + ' ' + (p.unit ? p.unit[0].toUpperCase() + p.unit.slice(1) : 'Markers');
   track.innerHTML = D.items.map((p, i) => {
     const inner = '<div class="pn-top"><span>' + esc(plural[p.cat] || p.cat) + '</span><span>' + esc(count(p)) + '</span></div>' +
       '<div class="pn-img"><canvas data-i="' + i + '"></canvas><div class="pn-txt"><h3>' + esc(p.name) + '</h3><p>' + esc(p.body || p.line) + '</p></div></div>' +
