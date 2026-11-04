@@ -330,6 +330,19 @@
   .cb.a { background: #fff; color: #000; } .cb.a:hover { transform: translateY(-1px); background: #f0f0f0; }
   .cb.b { background: rgba(10,10,10,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); } .cb.b:hover { border-color: rgba(255,255,255,.45); }
   @media (max-width: 900px) { .cta2 { height: 70vh; } .cta2-box { top: 58%; } }
+
+  /* the footer, a step smaller */
+  .cl-text { width: clamp(200px, 24vw, 340px); }
+  #closing { padding-top: 32px; padding-bottom: 14px; }
+  .foot-logo { font-size: 1.25rem; margin-top: 4px; }
+  .legal { font-size: .6875rem; max-width: 460px; }
+  .foot-links a, .foot-bot .foot-links a { font-size: .875rem; }
+  .foot-bot { padding-top: 24px; padding-bottom: 40px; } .foot-bot .foot-links { margin-top: 32px; gap: 10px 22px; }
+
+  /* footer text at the reference size: 14px legal and links */
+  .legal { font-size: .875rem; line-height: 1.55; max-width: 540px; color: #a3a3a3; }
+  .foot-links a, .foot-bot .foot-links a { font-size: .875rem; color: #a3a3a3; }
+  .foot-links a:hover { color: #fff; }
 </style>
 </head>
 <body>

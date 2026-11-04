@@ -1,0 +1,8 @@
+
+  /* the footer, a step smaller */
+  .cl-text { width: clamp(200px, 24vw, 340px); }
+  #closing { padding-top: 32px; padding-bottom: 14px; }
+  .foot-logo { font-size: 1.25rem; margin-top: 4px; }
+  .legal { font-size: .6875rem; max-width: 460px; }
+  .foot-links a, .foot-bot .foot-links a { font-size: .875rem; }
+  .foot-bot { padding-top: 24px; padding-bottom: 40px; } .foot-bot .foot-links { margin-top: 32px; gap: 10px 22px; }
