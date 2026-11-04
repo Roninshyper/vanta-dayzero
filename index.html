@@ -257,6 +257,29 @@
   #clglow { position: absolute; left: -3.7%; top: -21.4%; width: 107.4%; height: 142.9%; display: block; opacity: 0; transition: opacity 1.4s ease; } #clglow.in { opacity: 1; }
   .cl-wrap .btn { margin: 0; flex: none; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ================= one type scale for the whole site (the same on every page) =================
+     16px body, 14px secondary, 12px captions and labels, 18-22px card titles, 24-36px display headings; fixed ceilings so a large monitor shows the same page, not a bigger one. */
+  :root { --fs-xs: .75rem; --fs-sm: .875rem; --fs-md: 1rem; --fs-lg: 1.125rem; --fs-xl: 1.375rem; --fs-2xl: 1.75rem; --fs-display: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem); }
+  /* the price section fits inside one screen */
+  #price { padding: clamp(60px, 9vh, 110px) clamp(16px, 5vw, 70px); }
+  .pv { width: min(1100px, 100%); }
+  .pv-info { padding: 26px 32px 16px; }
+  .pv-info h2 { font-size: var(--fs-display); }
+  .pv-sub { font-size: var(--fs-sm); margin-top: 8px; }
+  .pv-price { font-size: 2rem; margin-top: 20px; }
+  .pv-list { margin-top: 12px; }
+  .pv-list li { padding: clamp(7px, 1.25vh, 12px) 0; font-size: var(--fs-sm); }
+  .pv-cta { margin-top: 18px; padding: 13px 20px; font-size: var(--fs-sm); }
+  .pv-note { margin-top: 10px; font-size: .6875rem; }
+  .pv-photo { min-height: 0; }
+  /* headings and footer on the same scale */
+  .cmp-head h2, .faq-in h2 { font-size: var(--fs-display); }
+  .cmp-head p { font-size: var(--fs-sm); }
+  .cl-text { width: clamp(220px, 30vw, 440px); }
+  .foot-logo { font-size: var(--fs-2xl); }
+  .legal { font-size: var(--fs-xs); line-height: 1.5; max-width: 520px; }
+  .foot-links a { font-size: var(--fs-md); }
 </style>
 </head>
 <body>

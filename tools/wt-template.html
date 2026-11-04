@@ -248,6 +248,76 @@
   /* more air between the sections */
   @media (min-width: 901px) { #hiw { padding: clamp(150px, 15vw, 280px) 0 clamp(110px, 11vw, 200px); } #pn { padding: clamp(90px, 9vw, 160px) 0 clamp(150px, 15vw, 270px); } }
   @media (max-width: 900px) { #hiw { padding: 130px 0 90px; } #pn { padding: 70px 0 120px; } }
+
+  /* ================= one type scale for the whole site =================
+     Sizes follow what is normal on the web: 16px body, 14px secondary, 12px captions and labels, 18-24px for card titles,
+     and 24-36px for the display (Organetto) headings. Nothing grows with the width of the screen beyond these ceilings,
+     and content never runs wider than 1240px, so a large monitor shows the same page, not a bigger one. */
+  :root {
+    --fs-xs: .75rem; --fs-sm: .875rem; --fs-md: 1rem; --fs-lg: 1.125rem; --fs-xl: 1.375rem; --fs-2xl: 1.75rem;
+    --fs-display: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);          /* section headings, in the display face */
+    --gut: max(5vw, calc((100vw - 1240px) / 2));
+  }
+  @media (max-width: 900px) { :root { --gut: 6vw; } }
+  .mono-label { font-family: var(--mono); letter-spacing: .12em; text-transform: uppercase; font-size: var(--fs-xs); }
+
+  /* ----- the biomarker list ----- */
+  .bm-head h2 { font-size: var(--fs-display); }
+  .bm-sub p { font-size: var(--fs-sm); line-height: 1.45; }
+  .bm-search { height: 48px; } .bm-search input { font-size: var(--fs-sm); }
+  .p-head h3 { font-size: var(--fs-xl); } .p-head .tile { --tile: 56px; }
+  .p-intro { font-size: var(--fs-sm); }
+  .p-cols { font-size: var(--fs-xs); height: 40px; }
+  .p-row .hd { font-size: var(--fs-sm); } .p-row .bd { font-size: var(--fs-xs); }
+  .p-foot { font-size: var(--fs-xs); }
+  @media (min-width: 901px) {
+    .wheel { width: calc(var(--gut) + min(24vw, 380px)); }
+    .panel { left: calc(var(--gut) + min(27vw, 430px)); right: var(--gut); }
+  }
+
+  /* ----- how it works ----- */
+  .hiw-l .kick, .pn-head .kick { font-size: var(--fs-xs); }
+  .hiw-l h2, .pn-head h2 { font-size: var(--fs-display); }
+  .hiw-steps h4 { font-size: var(--fs-xl); }
+  .hiw-steps h4 span { font-size: var(--fs-xs); }
+  .hiw-steps p { font-size: var(--fs-sm); line-height: 1.5; }
+  .hiw-badge { font-family: var(--sans); font-weight: 500; font-size: 1.5rem; letter-spacing: -0.02em; }
+  .hiw-badge b { font-weight: 500; }
+  @media (min-width: 901px) {
+    .hiw-l { flex: 0 1 min(40vw, 540px); }
+    .hiw-r { flex: 0 0 min(30vw, 420px); }
+    .hiw-steps { margin-top: 36px; gap: 36px; }
+    .hiw-l h2 { font-size: var(--fs-display); }
+    .hiw-steps h4 { font-size: var(--fs-xl); } .hiw-steps p { font-size: var(--fs-sm); }
+  }
+
+  /* ----- the other panels ----- */
+  .pn-arrows button { width: 48px; }
+  .pn-card { flex-basis: clamp(250px, 20vw, 310px); padding: 14px 12px 12px; border-radius: 26px; }
+  .pn-img { border-radius: 20px; margin-top: 10px; }
+  .pn-top { font-size: .6875rem; padding: 0 4px; }
+  .pn-txt { left: 14px; right: 14px; bottom: 12px; }
+  .pn-txt h3 { font-size: var(--fs-lg); } .pn-txt p { font-size: var(--fs-xs); margin-top: 6px; line-height: 1.4; }
+  .pn-foot { margin-top: 10px; padding: 12px 6px 0; } .pn-foot b { font-size: var(--fs-xl); } .pn-foot b.soon { font-size: var(--fs-sm); } .pn-foot span { font-size: .6875rem; }
+  .pn-head { align-items: flex-end; }
+
+  /* ----- the closing photo: it fills the width but never taller than the screen ----- */
+  .cta-clip { position: relative; height: min(62vw, 90vh); overflow: hidden; }
+  .cta-clip .cta-in { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: max(100%, calc(min(62vw, 90vh) * 1.617)); }
+
+  /* ----- the footer ----- */
+  .cl-text { width: clamp(220px, 30vw, 440px); }
+  .foot-logo { font-size: var(--fs-2xl); }
+  .legal { font-size: var(--fs-xs); max-width: 520px; line-height: 1.5; }
+  .foot-bot .foot-links a, .foot-links a { font-size: var(--fs-md); }
+  .foot-bot { padding-bottom: 56px; } .foot-bot .foot-links { margin-top: 44px; }
+  #closing { padding-top: 40px; }
+
+  /* ----- sections: calmer spacing ----- */
+  @media (min-width: 901px) {
+    #hiw { padding: clamp(110px, 10vw, 170px) 0 clamp(80px, 8vw, 130px); }
+    #pn { padding: clamp(70px, 7vw, 110px) 0 clamp(100px, 10vw, 170px); }
+  }
 </style>
 </head>
 <body>
@@ -325,12 +395,12 @@
 </section>
 
 <section id="cta" aria-label="Start with Day Zero">
-  <div class="cta-in">
+  <div class="cta-clip"><div class="cta-in">
     <img src="assets/cta.webp" alt="A young man in profile, half in shadow, with the line: one draw, a doctor, a twenty-page report, and ninety days of HealthOS.">
     <h2>One draw, a doctor, a twenty-page report, and ninety days of HealthOS.</h2>
     <a class="a" href="index.html#steps" aria-label="Start with Day Zero"></a>
     <a class="b" href="#" aria-label="See Concierge"></a>
-  </div>
+  </div></div>
 </section>
 
 <section id="closing">
@@ -524,7 +594,7 @@
     const bw = wheel.clientWidth, bh = wheel.clientHeight, R = Math.min(bw * 0.84, bh * 0.66);
     G = { R, cx: bw - R - R * 0.69 + R * 0.69 - R * 0.0 - (bw - R * 0.69) + (bw - R * 0.69) - R * 0.31 * 0 , cy: bh * 0.5, step: 13 * Math.PI / 180 };
     G.cx = -0.31 * R + (bw * 0.0); G.edge = G.cx + R;
-    wheel.style.setProperty('--wf', Math.max(15, Math.min(26, R * 0.052)) + 'px'); wheel.style.setProperty('--tile', Math.max(46, R * 0.17) + 'px');
+    wheel.style.setProperty('--wf', Math.max(14, Math.min(20, R * 0.046)) + 'px'); wheel.style.setProperty('--tile', Math.max(44, Math.min(64, R * 0.16)) + 'px');
     const svg = wheel.querySelector('svg.ring'); ring.setAttribute('cx', G.cx); ring.setAttribute('cy', G.cy); ring.setAttribute('r', R);
     const vp = list.clientHeight, slack = 150; plan = []; total = 0;
     S.forEach((s, i) => { const ovf = Math.max(0, s.markers.length * rowH - vp + (s.markers.length * rowH > vp ? slack : 0)), turn = i < N - 1 ? TURN() : 0; plan.push({ ovf, hold: HOLD(), turn, start: total }); total += ovf + HOLD() + turn; });
