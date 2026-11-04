@@ -665,7 +665,7 @@
   const R_GAP = () => G.R * 0.073, R_TILE = () => G.R * 0.16;
   const selLabel = document.createElement('div'); selLabel.className = 'wl'; selLabel.style.cursor = 'default'; wheel.appendChild(selLabel);
   // the selected title sits on the arc at the wheel's middle row, next to the pill
-  const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + (G.cy - selLabel.offsetHeight / 2) + 'px,0)'; };
+  const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + G.cy + 'px,0) translateY(-50%)'; };
   const _frame = frame; // keep the selected label glued to the arc
   labels.forEach((el, i) => el.addEventListener('click', () => { const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
 

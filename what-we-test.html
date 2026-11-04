@@ -446,8 +446,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw2kef6q"></script>
-<script src="organs-model.js?v=mw2kef6q"></script>
+<script src="david-model.js?v=mw2kjaon"></script>
+<script src="organs-model.js?v=mw2kjaon"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -665,7 +665,7 @@
   const R_GAP = () => G.R * 0.073, R_TILE = () => G.R * 0.16;
   const selLabel = document.createElement('div'); selLabel.className = 'wl'; selLabel.style.cursor = 'default'; wheel.appendChild(selLabel);
   // the selected title sits on the arc at the wheel's middle row, next to the pill
-  const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + (G.cy - selLabel.offsetHeight / 2) + 'px,0)'; };
+  const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + G.cy + 'px,0) translateY(-50%)'; };
   const _frame = frame; // keep the selected label glued to the arc
   labels.forEach((el, i) => el.addEventListener('click', () => { const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
 
