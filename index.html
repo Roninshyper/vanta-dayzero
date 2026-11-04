@@ -652,6 +652,8 @@ const PART = (() => {
       const D = window.DAVID_MODEL, bin = atob(D.data), n = D.n, rd = (o, k) => bin.charCodeAt(o + k) | bin.charCodeAt(o + k + 1) << 8, sb = v => v > 127 ? v - 256 : v, by = (o) => bin.charCodeAt(o);
       model = { n, x: new Float32Array(n), y: new Float32Array(n), z: new Float32Array(n), nx: new Float32Array(n), ny: new Float32Array(n), nz: new Float32Array(n), hd: new Uint8Array(n) };
       for (let i = 0; i < n; i++) { const o = i * 10; model.x[i] = rd(o, 0) / 10 + 600; model.y[i] = rd(o, 2) / 10; model.z[i] = rd(o, 4) / 10 - 400; model.nx[i] = sb(by(o + 6)) / 127; model.ny[i] = sb(by(o + 7)) / 127; model.nz[i] = sb(by(o + 8)) / 127; model.hd[i] = by(o + 9); }
+      const FACE = -0.6, cf = Math.cos(FACE), sf = Math.sin(FACE);                          // turn the bust about its own vertical axis, so he looks at you
+      for (let i = 0; i < n; i++) { const x = model.x[i] - 1195, z = model.z[i], nx = model.nx[i], nz = model.nz[i]; model.x[i] = 1195 + x * cf + z * sf; model.z[i] = -x * sf + z * cf; model.nx[i] = nx * cf + nz * sf; model.nz[i] = -nx * sf + nz * cf; }
     }
     const M = model, s = Math.min(H * (W > H ? 0.92 : 0.5) / 845, W * (W > H ? 0.56 : 0.98) / 910), ox = (W > H ? W * 0.72 : W * 0.5) - 1195 * s, oy = H * (W > H ? 0.13 : 0.5) - 165 * s;
     const keep = [], nFront = M.n * 0.8 / (W < 700 ? 2 : 1);
