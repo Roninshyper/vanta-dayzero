@@ -1,0 +1,33 @@
+
+  /* ---------- the other panels: a carousel you move by hand ---------- */
+  #pn { position: relative; background: #000; padding: clamp(60px, 9vw, 150px) 0 clamp(80px, 10vw, 170px); overflow: hidden; }
+  .pn-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 0 11.6vw 0 11.4vw; gap: 24px; }
+  .pn-head .kick { font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(10px, .82vw, 14px); color: #8a8a8a; }
+  .pn-head h2 { margin-top: clamp(12px, 1.6vw, 28px); font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(26px, 3.4vw, 62px); letter-spacing: 0; line-height: 1.02; }
+  .pn-arrows { display: flex; gap: clamp(10px, 1.5vw, 28px); flex: none; }
+  .pn-arrows button { width: clamp(44px, 5.1vw, 88px); aspect-ratio: 1; border-radius: 50%; border: 1px solid #2a2a2a; background: #111; color: #fff; cursor: pointer; display: grid; place-items: center; transition: opacity .25s, border-color .25s, background .25s; }
+  .pn-arrows button:hover:not(:disabled) { border-color: #5a5a5a; background: #181818; }
+  .pn-arrows button:disabled { opacity: .35; cursor: default; }
+  .pn-arrows svg { width: 42%; height: auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .pn-track { margin-top: clamp(26px, 3.8vw, 66px); display: flex; gap: clamp(12px, 1.45vw, 26px); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 11.4vw; padding: 0 11.4vw 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 9vw), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 9vw), transparent); }
+  .pn-track::-webkit-scrollbar { display: none; }
+  .pn-track.end { -webkit-mask-image: none; mask-image: none; }
+  .pn-card { flex: 0 0 clamp(270px, 22.6vw, 430px); scroll-snap-align: start; display: flex; flex-direction: column; padding: 1.5vw 1.1vw 1.2vw; border-radius: 2.35vw; background: #101010; border: 1px solid rgba(255,255,255,.06); color: inherit; text-decoration: none; transition: border-color .3s, transform .4s cubic-bezier(.2,.7,.2,1); }
+  a.pn-card:hover { border-color: rgba(255,255,255,.22); transform: translateY(-4px); }
+  .pn-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 .35vw; font-family: var(--mono); font-size: clamp(9px, .72vw, 12px); letter-spacing: .1em; text-transform: uppercase; color: #bdbdbd; }
+  .pn-top span:last-child { color: #8f8f8f; text-align: right; white-space: nowrap; font-size: .9em; letter-spacing: .06em; }
+  .pn-img { position: relative; margin-top: clamp(10px, 1.1vw, 18px); aspect-ratio: 348 / 372; border-radius: 2.1vw; overflow: hidden; background: #222; }
+  .pn-img canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pn-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(0,0,0,.78) 100%); }
+  .pn-txt { position: absolute; left: 1.4vw; right: 1.4vw; bottom: 1.2vw; z-index: 2; }
+  .pn-txt h3 { font-weight: 500; font-size: clamp(15px, 1.28vw, 22px); letter-spacing: -0.01em; line-height: 1.15; }
+  .pn-txt p { margin-top: .7vw; font-size: clamp(10px, .7vw, 12.5px); line-height: 1.34; color: #e2e2e2; text-align: justify; }
+  .pn-foot { margin-top: clamp(10px, 1.1vw, 18px); border-top: 1px solid #262626; padding: clamp(10px, 1.1vw, 18px) .6vw 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .pn-foot b { font-weight: 500; font-size: clamp(16px, 1.42vw, 25px); letter-spacing: -0.01em; }
+  .pn-foot b.soon { font-size: clamp(12px, 1vw, 17px); color: #b5b5b5; font-weight: 400; }
+  .pn-foot span { font-family: var(--mono); font-size: clamp(9px, .78vw, 13px); letter-spacing: .1em; text-transform: uppercase; color: #9d9d9d; }
+  @media (max-width: 900px) {
+    .pn-head { padding: 0 6vw; } .pn-track { padding: 0 6vw 4px; scroll-padding-left: 6vw; }
+    .pn-card { flex-basis: 78vw; padding: 16px 14px 14px; border-radius: 26px; } .pn-img { border-radius: 22px; } .pn-txt { left: 16px; right: 16px; bottom: 14px; } .pn-txt p { margin-top: 8px; }
+  }

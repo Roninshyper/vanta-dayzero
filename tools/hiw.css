@@ -1,15 +1,15 @@
 
   /* ---------- how it works: the left side stays, the pictures change on their own ---------- */
   #hiw { position: relative; background: #000; padding: clamp(100px, 18vw, 160px) 0 clamp(70px, 9vw, 140px); overflow: hidden; }
-  .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 3vw; }
-  .hiw-l { flex: 0 0 37.6vw; }
+  .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 4vw; }
+  .hiw-l { flex: 0 1 35vw; min-width: 0; }
   .hiw-l .kick { font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(10px, .82vw, 14px); color: #8a8a8a; }
   .hiw-l h2 { margin-top: clamp(14px, 2vw, 34px); font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(28px, 3.5vw, 64px); letter-spacing: 0; line-height: 1.04; }
   .hiw-steps { margin-top: clamp(40px, 8.4vw, 150px); display: flex; flex-direction: column; gap: clamp(36px, 6.6vw, 118px); }
-  .hiw-steps h4 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(18px, 2vw, 36px); letter-spacing: 0; line-height: 1.08; }
-  .hiw-steps h4 span { display: inline-block; vertical-align: middle; margin-left: 1.8vw; padding: .5em 1em; border-radius: 99px; background: #2c2c2c; color: #f0f0f0; font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(9px, .68vw, 12px); letter-spacing: .1em; line-height: 1; vertical-align: middle; white-space: nowrap; }
+  .hiw-steps h4 { font-family: var(--sans); font-weight: 500; text-transform: none; font-size: clamp(20px, 2.2vw, 40px); letter-spacing: -0.025em; line-height: 1.16; }
+  .hiw-steps h4 span { display: inline-block; vertical-align: .22em; margin-left: .9em; padding: .62em 1.15em .6em; border-radius: 99px; background: #2c2c2c; color: #ededed; font-family: var(--sans); font-weight: 400; text-transform: none; font-size: clamp(10px, .76vw, 13px); letter-spacing: 0; line-height: 1; white-space: nowrap; }
   .hiw-steps p { margin-top: clamp(14px, 2vw, 34px); font-size: clamp(12px, .9vw, 16px); line-height: 1.22; color: #a8a8a8; text-align: justify; }
-  .hiw-r { position: relative; flex: 0 0 42.7vw; aspect-ratio: 733 / 916; margin-top: clamp(40px, 5.6vw, 100px); }
+  .hiw-r { position: relative; flex: 0 0 40vw; aspect-ratio: 733 / 916; margin-top: clamp(30px, 4vw, 70px); margin-right: 1.4vw; }
   .hiw-card { position: absolute; inset: 0; border-radius: 9.5% / 7.6%; overflow: hidden; background: #111; }
   .hiw-card img { position: absolute; left: -116.1%; top: -24.236%; width: 234.1%; max-width: none; height: auto; opacity: 0; transition: opacity 1s ease, transform 5s ease; transform: scale(1.0); transform-origin: 50% 50%; user-select: none; -webkit-user-drag: none; }
   .hiw-card img.on { opacity: 1; }
@@ -19,7 +19,7 @@
   .hiw-dots { position: absolute; left: 50%; bottom: 2.6%; transform: translateX(-50%); display: flex; gap: 6.7%; z-index: 3; width: 14%; justify-content: space-between; }
   .hiw-dots i { width: clamp(9px, .8vw, 14px); aspect-ratio: 1; border-radius: 50%; background: #4a4a4a; cursor: pointer; transition: background .4s; box-shadow: 0 0 0 5px #0d0d0d; }
   .hiw-dots i.on { background: #fff; }
-  @media (min-width: 901px) { .hiw-in { zoom: .82; } #hiw { padding: clamp(130px, 14vw, 240px) 0 clamp(56px, 7vw, 110px); } }
+  @media (min-width: 901px) { #hiw { padding: clamp(120px, 12vw, 220px) 0 clamp(56px, 7vw, 110px); } .hiw-l h2 { font-size: clamp(26px, 3.1vw, 56px); } .hiw-steps { gap: clamp(30px, 5vw, 90px); margin-top: clamp(34px, 6vw, 110px); } .hiw-steps p { font-size: clamp(12px, .84vw, 15px); } }
   @media (max-width: 900px) {
     .hiw-in { flex-direction: column; padding: 0 6vw; gap: 40px; }
     .hiw-l, .hiw-r { flex: none; width: 100%; }

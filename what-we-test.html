@@ -130,15 +130,15 @@
 
   /* ---------- how it works: the left side stays, the pictures change on their own ---------- */
   #hiw { position: relative; background: #000; padding: clamp(100px, 18vw, 160px) 0 clamp(70px, 9vw, 140px); overflow: hidden; }
-  .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 3vw; }
-  .hiw-l { flex: 0 0 37.6vw; }
+  .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 4vw; }
+  .hiw-l { flex: 0 1 35vw; min-width: 0; }
   .hiw-l .kick { font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(10px, .82vw, 14px); color: #8a8a8a; }
   .hiw-l h2 { margin-top: clamp(14px, 2vw, 34px); font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(28px, 3.5vw, 64px); letter-spacing: 0; line-height: 1.04; }
   .hiw-steps { margin-top: clamp(40px, 8.4vw, 150px); display: flex; flex-direction: column; gap: clamp(36px, 6.6vw, 118px); }
-  .hiw-steps h4 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(18px, 2vw, 36px); letter-spacing: 0; line-height: 1.08; }
-  .hiw-steps h4 span { display: inline-block; vertical-align: middle; margin-left: 1.8vw; padding: .5em 1em; border-radius: 99px; background: #2c2c2c; color: #f0f0f0; font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(9px, .68vw, 12px); letter-spacing: .1em; line-height: 1; vertical-align: middle; white-space: nowrap; }
+  .hiw-steps h4 { font-family: var(--sans); font-weight: 500; text-transform: none; font-size: clamp(20px, 2.2vw, 40px); letter-spacing: -0.025em; line-height: 1.16; }
+  .hiw-steps h4 span { display: inline-block; vertical-align: .22em; margin-left: .9em; padding: .62em 1.15em .6em; border-radius: 99px; background: #2c2c2c; color: #ededed; font-family: var(--sans); font-weight: 400; text-transform: none; font-size: clamp(10px, .76vw, 13px); letter-spacing: 0; line-height: 1; white-space: nowrap; }
   .hiw-steps p { margin-top: clamp(14px, 2vw, 34px); font-size: clamp(12px, .9vw, 16px); line-height: 1.22; color: #a8a8a8; text-align: justify; }
-  .hiw-r { position: relative; flex: 0 0 42.7vw; aspect-ratio: 733 / 916; margin-top: clamp(40px, 5.6vw, 100px); }
+  .hiw-r { position: relative; flex: 0 0 40vw; aspect-ratio: 733 / 916; margin-top: clamp(30px, 4vw, 70px); margin-right: 1.4vw; }
   .hiw-card { position: absolute; inset: 0; border-radius: 9.5% / 7.6%; overflow: hidden; background: #111; }
   .hiw-card img { position: absolute; left: -116.1%; top: -24.236%; width: 234.1%; max-width: none; height: auto; opacity: 0; transition: opacity 1s ease, transform 5s ease; transform: scale(1.0); transform-origin: 50% 50%; user-select: none; -webkit-user-drag: none; }
   .hiw-card img.on { opacity: 1; }
@@ -148,7 +148,7 @@
   .hiw-dots { position: absolute; left: 50%; bottom: 2.6%; transform: translateX(-50%); display: flex; gap: 6.7%; z-index: 3; width: 14%; justify-content: space-between; }
   .hiw-dots i { width: clamp(9px, .8vw, 14px); aspect-ratio: 1; border-radius: 50%; background: #4a4a4a; cursor: pointer; transition: background .4s; box-shadow: 0 0 0 5px #0d0d0d; }
   .hiw-dots i.on { background: #fff; }
-  @media (min-width: 901px) { .hiw-in { zoom: .82; } #hiw { padding: clamp(130px, 14vw, 240px) 0 clamp(56px, 7vw, 110px); } }
+  @media (min-width: 901px) { #hiw { padding: clamp(120px, 12vw, 220px) 0 clamp(56px, 7vw, 110px); } .hiw-l h2 { font-size: clamp(26px, 3.1vw, 56px); } .hiw-steps { gap: clamp(30px, 5vw, 90px); margin-top: clamp(34px, 6vw, 110px); } .hiw-steps p { font-size: clamp(12px, .84vw, 15px); } }
   @media (max-width: 900px) {
     .hiw-in { flex-direction: column; padding: 0 6vw; gap: 40px; }
     .hiw-l, .hiw-r { flex: none; width: 100%; }
@@ -157,6 +157,97 @@
     .hiw-steps h4 { font-size: 20px; } .hiw-steps h4 span { margin-left: 12px; } .hiw-steps p { font-size: 14px; }
     .hiw-l h2 { font-size: 30px; } .hiw-steps { margin-top: 36px; gap: 34px; }
   }
+
+  /* ---------- the other panels: a carousel you move by hand ---------- */
+  #pn { position: relative; background: #000; padding: clamp(60px, 9vw, 150px) 0 clamp(80px, 10vw, 170px); overflow: hidden; }
+  .pn-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 0 11.6vw 0 11.4vw; gap: 24px; }
+  .pn-head .kick { font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; font-size: clamp(10px, .82vw, 14px); color: #8a8a8a; }
+  .pn-head h2 { margin-top: clamp(12px, 1.6vw, 28px); font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(26px, 3.4vw, 62px); letter-spacing: 0; line-height: 1.02; }
+  .pn-arrows { display: flex; gap: clamp(10px, 1.5vw, 28px); flex: none; }
+  .pn-arrows button { width: clamp(44px, 5.1vw, 88px); aspect-ratio: 1; border-radius: 50%; border: 1px solid #2a2a2a; background: #111; color: #fff; cursor: pointer; display: grid; place-items: center; transition: opacity .25s, border-color .25s, background .25s; }
+  .pn-arrows button:hover:not(:disabled) { border-color: #5a5a5a; background: #181818; }
+  .pn-arrows button:disabled { opacity: .35; cursor: default; }
+  .pn-arrows svg { width: 42%; height: auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .pn-track { margin-top: clamp(26px, 3.8vw, 66px); display: flex; gap: clamp(12px, 1.45vw, 26px); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 11.4vw; padding: 0 11.4vw 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 9vw), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 9vw), transparent); }
+  .pn-track::-webkit-scrollbar { display: none; }
+  .pn-track.end { -webkit-mask-image: none; mask-image: none; }
+  .pn-card { flex: 0 0 clamp(270px, 22.6vw, 430px); scroll-snap-align: start; display: flex; flex-direction: column; padding: 1.5vw 1.1vw 1.2vw; border-radius: 2.35vw; background: #101010; border: 1px solid rgba(255,255,255,.06); color: inherit; text-decoration: none; transition: border-color .3s, transform .4s cubic-bezier(.2,.7,.2,1); }
+  a.pn-card:hover { border-color: rgba(255,255,255,.22); transform: translateY(-4px); }
+  .pn-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 .35vw; font-family: var(--mono); font-size: clamp(9px, .72vw, 12px); letter-spacing: .1em; text-transform: uppercase; color: #bdbdbd; }
+  .pn-top span:last-child { color: #8f8f8f; text-align: right; white-space: nowrap; font-size: .9em; letter-spacing: .06em; }
+  .pn-img { position: relative; margin-top: clamp(10px, 1.1vw, 18px); aspect-ratio: 348 / 372; border-radius: 2.1vw; overflow: hidden; background: #222; }
+  .pn-img canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pn-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(0,0,0,.78) 100%); }
+  .pn-txt { position: absolute; left: 1.4vw; right: 1.4vw; bottom: 1.2vw; z-index: 2; }
+  .pn-txt h3 { font-weight: 500; font-size: clamp(15px, 1.28vw, 22px); letter-spacing: -0.01em; line-height: 1.15; }
+  .pn-txt p { margin-top: .7vw; font-size: clamp(10px, .7vw, 12.5px); line-height: 1.34; color: #e2e2e2; text-align: justify; }
+  .pn-foot { margin-top: clamp(10px, 1.1vw, 18px); border-top: 1px solid #262626; padding: clamp(10px, 1.1vw, 18px) .6vw 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .pn-foot b { font-weight: 500; font-size: clamp(16px, 1.42vw, 25px); letter-spacing: -0.01em; }
+  .pn-foot b.soon { font-size: clamp(12px, 1vw, 17px); color: #b5b5b5; font-weight: 400; }
+  .pn-foot span { font-family: var(--mono); font-size: clamp(9px, .78vw, 13px); letter-spacing: .1em; text-transform: uppercase; color: #9d9d9d; }
+  @media (max-width: 900px) {
+    .pn-head { padding: 0 6vw; } .pn-track { padding: 0 6vw 4px; scroll-padding-left: 6vw; }
+    .pn-card { flex-basis: 78vw; padding: 16px 14px 14px; border-radius: 26px; } .pn-img { border-radius: 22px; } .pn-txt { left: 16px; right: 16px; bottom: 14px; } .pn-txt p { margin-top: 8px; }
+  }
+
+  /* ---------- the closing call to action: the photograph with its line and two buttons ---------- */
+  #cta { position: relative; background: #000; }
+  .cta-in { position: relative; width: 100%; aspect-ratio: 1716 / 1061; overflow: hidden; }
+  .cta-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cta-in h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .cta-in a { position: absolute; top: 54.2%; height: 8.1%; width: 14.9%; border-radius: 99px; outline-offset: 3px; }
+  .cta-in a.a { left: 33.2%; } .cta-in a.b { left: 51.9%; }
+  .cta-in a:hover { background: rgba(255,255,255,.07); } .cta-in a.a:hover { background: rgba(0,0,0,.06); }
+  .cta-in a:focus-visible { outline: 2px solid #fff; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 0 clamp(20px, 11vw, 150px); background: #000; }
+  .foot-logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 1.35rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; margin: 22px 0 0 18px; }
+  .foot-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; flex-wrap: wrap; padding: 36px 0 80px 18px; }
+  .legal { max-width: 440px; font-size: .62rem; line-height: 1.4; color: #bdbdbd; }
+  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+  .foot-links a { color: #bcbcbc; text-decoration: none; font-size: 1rem; transition: color .2s; } .foot-links a:hover { color: #fff; }
+  /* ---------- closing statement: the words themselves are made of glowing dots ---------- */
+  #closing { position: relative; background: #000; border-top: 1px solid rgba(255,255,255,.12); padding: 52px clamp(20px, 11vw, 150px) 16px calc(clamp(20px, 11vw, 150px) + 18px); overflow: hidden; }    /* the left edge matches the logo and the legal text below */
+  .cl-wrap { display: flex; align-items: center; justify-content: space-between; gap: 30px 40px; flex-wrap: wrap; }
+  .cl-text { position: relative; width: clamp(250px, 37vw, 640px); max-width: 100%; aspect-ratio: 652 / 84; }                                  /* the letters' own box; the canvas bleeds a little beyond it for the halo */
+  #clglow { position: absolute; left: -3.7%; top: -21.4%; width: 107.4%; height: 142.9%; display: block; opacity: 0; transition: opacity 1.4s ease; } #clglow.in { opacity: 1; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* the footer on this page: the outlive-ordinary line, the logo, the legal text, and every link in one row */
+  .foot-logo svg { display: none; }
+  .foot-logo { font-size: clamp(1.4rem, 2.05vw, 2.2rem); margin-top: 8px; }
+  .foot-bot { display: block; padding: 36px 0 clamp(60px, 7vw, 110px) 18px; }
+  .foot-bot .foot-links { justify-content: center; gap: 12px clamp(14px, 1.6vw, 30px); margin-top: clamp(48px, 6vw, 96px); padding-left: 0; margin-left: -18px; }
+  .foot-bot .foot-links a { font-size: clamp(.9rem, 1.4vw, 1.5rem); }
+  #closing { padding-bottom: 28px; }
+
+  /* ---------- one left edge for every section: headings, text, cards and the footer all start on the same line ---------- */
+  :root { --gut: 11.4vw; }
+  @media (max-width: 900px) { :root { --gut: 6vw; } }
+  .bm-head h2 { margin-left: var(--gut); } .bm-sub { margin-left: var(--gut); margin-right: var(--gut); }
+  .hiw-in { padding-left: var(--gut); padding-right: var(--gut); }
+  .pn-head { padding-left: var(--gut); padding-right: var(--gut); }
+  .pn-track { padding-left: var(--gut); padding-right: var(--gut); scroll-padding-left: var(--gut); }
+  #closing { padding-left: var(--gut); padding-right: var(--gut); }
+  footer { padding-left: var(--gut); padding-right: var(--gut); }
+  .foot-logo { margin-left: 0; } .foot-bot { padding-left: 0; } .foot-bot .foot-links { margin-left: 0; }
+  @media (min-width: 901px) {
+    .bm-sub { grid-template-columns: 30vw 1fr; }
+    #hiw { padding: clamp(90px, 9vw, 160px) 0 clamp(50px, 6vw, 100px); }
+    .hiw-in { gap: 3vw; }
+    .hiw-l { flex: 0 1 40vw; }
+    .hiw-r { flex: 0 0 30vw; margin-top: clamp(24px, 2.6vw, 48px); margin-right: 0; }
+    .hiw-l h2 { font-size: clamp(24px, 2.7vw, 50px); }
+    .hiw-steps { margin-top: clamp(28px, 4vw, 72px); gap: clamp(26px, 3.6vw, 64px); }
+    .hiw-steps h4 { font-size: clamp(18px, 1.85vw, 34px); }
+    .hiw-steps p { margin-top: clamp(10px, 1.2vw, 20px); }
+  }
+
+  /* more air between the sections */
+  @media (min-width: 901px) { #hiw { padding: clamp(150px, 15vw, 280px) 0 clamp(110px, 11vw, 200px); } #pn { padding: clamp(90px, 9vw, 160px) 0 clamp(150px, 15vw, 270px); } }
+  @media (max-width: 900px) { #hiw { padding: 130px 0 90px; } #pn { padding: 70px 0 120px; } }
 </style>
 </head>
 <body>
@@ -225,9 +316,41 @@
   </div>
 </section>
 
+<section id="pn" aria-label="Our other panels">
+  <div class="pn-head">
+    <div><p class="kick">Our other panels</p><h2>Where Day Zero leads.</h2></div>
+    <div class="pn-arrows"><button type="button" id="pnPrev" aria-label="Previous panels"><svg viewBox="0 0 40 16"><path d="M38 8H3M9 2L3 8l6 6"/></svg></button><button type="button" id="pnNext" aria-label="Next panels"><svg viewBox="0 0 40 16"><path d="M2 8h35M31 2l6 6-6 6"/></svg></button></div>
+  </div>
+  <div class="pn-track" id="pnTrack"></div>
+</section>
+
+<section id="cta" aria-label="Start with Day Zero">
+  <div class="cta-in">
+    <img src="assets/cta.webp" alt="A young man in profile, half in shadow, with the line: one draw, a doctor, a twenty-page report, and ninety days of HealthOS.">
+    <h2>One draw, a doctor, a twenty-page report, and ninety days of HealthOS.</h2>
+    <a class="a" href="index.html#steps" aria-label="Start with Day Zero"></a>
+    <a class="b" href="#" aria-label="See Concierge"></a>
+  </div>
+</section>
+
+<section id="closing">
+  <div class="cl-wrap">
+    <h2 class="sr-only">Outlive Ordinary</h2>
+    <div class="cl-text"><canvas id="clglow" aria-hidden="true"></canvas></div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo"><svg width="26" height="15" viewBox="0 0 235 139" fill="none" stroke="currentColor" stroke-width="11" aria-hidden="true"><path d="M23.0542 105.334C18.6114 86.1446 48.7118 55.2447 88.8616 32.509M88.8616 32.509C121.009 14.305 159.598 1.33501 192.058 3.80086C202.579 4.60013 209.954 7.0905 214.43 10.7805M4.97778 90.5973C3.82068 87.4789 3.3192 83.892 3.55781 79.8009C5.51978 46.1618 45.9247 33.3757 88.8616 32.509M88.8616 32.509C133.384 31.6103 180.629 43.5278 190.558 58.3013M190.558 58.3013C136.096 95.4481 19.426 129.536 4.97778 90.5973M190.558 58.3013C216.034 40.9254 225.963 22.4709 215.794 12.0328M4.97778 90.5973C4.09975 86.8489 3.65103 83.198 3.55781 79.8009M4.97778 90.5973C11.9381 120.312 45.8761 156.155 143.554 120.28C251.289 80.7123 237.281 32.4789 215.794 12.0328M214.43 10.7805C214.919 11.1838 215.374 11.6014 215.794 12.0328M214.43 10.7805C214.887 11.1854 215.342 11.603 215.794 12.0328"/></svg>VANTA</div>
+  <div class="foot-bot">
+    <p class="legal">Vanta HealthOS is a wellness product. It does not diagnose, treat or prevent any disease. Laboratory services are provided by an independent accredited partner. Always consult a qualified physician before acting on health information.<br>© 2026 Vanta LLP.</p>
+    <div class="foot-links"><a href="#">HealthOS</a><a href="index.html">DayZero</a><a href="#">Concierge</a><a href="what-we-test.html">What we test</a><a href="#">About</a><a href="#">Society</a><a href="#">Store</a><a href="#">Contact</a><a href="#">TnC</a><a href="#">Privacy</a></div>
+  </div>
+</footer>
+<script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw2fsrpx"></script>
-<script src="organs-model.js?v=mw2fsrpx"></script>
+<script src="david-model.js?v=mw2jfvh4"></script>
+<script src="organs-model.js?v=mw2jfvh4"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -462,6 +585,112 @@
   const arm = () => { clearInterval(timer); if (vis && !reduce) timer = setInterval(() => go(k + 1), 4500); };
   dots.forEach((d, i) => d.addEventListener('click', () => { go(i); arm(); }));
   new IntersectionObserver(([e]) => { vis = e.isIntersecting; arm(); }, { threshold: 0.25 }).observe(sec);
+})();
+/* the other panels: cards drawn from the store's data, each with its own particle picture; the carousel moves by hand (arrows, swipe, trackpad) */
+(() => {
+  const D = window.PANELS; if (!D) return;
+  const track = document.getElementById('pnTrack'), prev = document.getElementById('pnPrev'), next = document.getElementById('pnNext');
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const plural = { Vitamin: 'Vitamins', Hormone: 'Hormones', Infectious: 'Infectious', Screening: 'Screening' };
+  const count = p => p.soon ? 'Coming soon' : p.variants ? p.variants.map(v => v.label + ' ' + v.markers).join(' · ') + ' Markers' : p.markers + ' ' + (p.unit ? p.unit[0].toUpperCase() + p.unit.slice(1) : 'Markers');
+  track.innerHTML = D.items.map((p, i) => {
+    const inner = '<div class="pn-top"><span>' + esc(plural[p.cat] || p.cat) + '</span><span>' + esc(count(p)) + '</span></div>' +
+      '<div class="pn-img"><canvas data-i="' + i + '"></canvas><div class="pn-txt"><h3>' + esc(p.name) + '</h3><p>' + esc(p.body || p.line) + '</p></div></div>' +
+      '<div class="pn-foot">' + (p.soon ? '<b class="soon">Coming soon</b>' : '<b>₹' + p.price.toLocaleString('en-IN') + '</b>') + '<span>At your door</span></div>';
+    return p.soon ? '<div class="pn-card">' + inner + '</div>' : '<a class="pn-card" href="' + D.linkBase + p.slug + '" target="_blank" rel="noopener">' + inner + '</a>';
+  }).join('');
+
+  // ---- the pictures: soft grey tiles with a white particle drawing of each panel's subject
+  let sd = 3; const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  function art(cv, i) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), W = 348, H = 372; cv.width = W * dpr; cv.height = H * dpr; const c = cv.getContext('2d'); c.scale(dpr, dpr); sd = 11 + i * 7;
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#6d6d6d'); g.addColorStop(0.55, '#3a3a3a'); g.addColorStop(1, '#161616'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    const gl = c.createRadialGradient(W * 0.5, H * 0.36, 10, W * 0.5, H * 0.36, W * 0.62); gl.addColorStop(0, 'rgba(255,255,255,.28)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+    const dot = (x, y, r, a) => { c.globalAlpha = Math.min(1, a); c.beginPath(); c.arc(x, y, r, 0, 6.2832); c.fill(); };
+    c.fillStyle = '#fff';
+    const line = (a, b, n, r, al) => { for (let k = 0; k < n; k++) { const t = k / n; dot(a[0] + (b[0] - a[0]) * t + (rnd() - .5) * 1.2, a[1] + (b[1] - a[1]) * t + (rnd() - .5) * 1.2, r * (.6 + rnd() * .8), al); } };
+    const ring = (x, y, rx, ry, n, r, al, rot = 0) => { for (let k = 0; k < n; k++) { const t = k / n * 6.2832, px = Math.cos(t) * rx, py = Math.sin(t) * ry; dot(x + px * Math.cos(rot) - py * Math.sin(rot) + (rnd() - .5), y + px * Math.sin(rot) + py * Math.cos(rot) + (rnd() - .5), r * (.6 + rnd() * .8), al); } };
+    const fill = (x, y, rx, ry, n, r, al, rot = 0) => { for (let k = 0; k < n; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()), px = Math.cos(a) * rx * d, py = Math.sin(a) * ry * d; dot(x + px * Math.cos(rot) - py * Math.sin(rot), y + px * Math.sin(rot) + py * Math.cos(rot), r * (.5 + rnd() * .8), al * (.35 + .65 * d)); } };
+    const path = (f, n, w, r, al) => { for (let k = 0; k < n; k++) { const t = k / n, p = f(t), a = rnd() * 6.2832, d = rnd() * w; dot(p[0] + Math.cos(a) * d, p[1] + Math.sin(a) * d, r * (.5 + rnd() * .9), al); } };
+    switch (i) {
+      case 0: // capsules and bubbles in a liquid
+        for (const b of [[110, 120, 74], [260, 90, 40], [300, 230, 54], [70, 260, 30], [200, 210, 24], [150, 40, 18]]) { ring(b[0], b[1], b[2], b[2], 110 + b[2] * 3, .9, .75); fill(b[0] - b[2] * .3, b[1] - b[2] * .35, b[2] * .22, b[2] * .15, 24, .8, .6); }
+        fill(205, 150, 46, 22, 700, 1, .9, -.55); ring(205, 150, 46, 22, 160, 1.1, 1, -.55); fill(110, 190, 42, 24, 600, 1, .85, .6); ring(110, 190, 42, 24, 150, 1.1, 1, .6); break;
+      case 1: // the thyroid: two lobes and a bridge, over the windpipe
+        for (let k = 0; k < 12; k++) ring(174, 40 + k * 22, 26, 5, 40, .9, .8);
+        for (const s of [-1, 1]) { fill(174 + s * 62, 170, 42, 78, 1800, 1, .8, s * -.28); ring(174 + s * 62, 170, 42, 78, 260, 1.2, 1, s * -.28); for (let k = 0; k < 40; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()); ring(174 + s * 62 + Math.cos(a) * 30 * d, 170 + Math.sin(a) * 60 * d, 6, 6, 8, .7, .55); } }
+        fill(174, 215, 26, 14, 300, 1, .9); break;
+      case 2: // test tubes, crossed
+        for (const [x, y, rot, L] of [[120, 175, -.95, 230], [215, 190, -.5, 240]]) { const dx = Math.cos(rot), dy = Math.sin(rot); line([x - dx * L / 2, y - dy * L / 2 - 17], [x + dx * L / 2, y + dy * L / 2 - 17], 150, 1, .9); line([x - dx * L / 2, y - dy * L / 2 + 17], [x + dx * L / 2, y + dy * L / 2 + 17], 150, 1, .9); ring(x + dx * L / 2, y + dy * L / 2, 17, 17, 40, 1, .9); fill(x - dx * L / 2, y - dy * L / 2, 20, 20, 160, 1.3, 1); for (let k = 0; k < 5; k++) { const t = .35 + k * .05; fill(x + dx * L * (t - .5), y + dy * L * (t - .5), 11, 14, 60, 1, .45); } }
+        break;
+      case 3: // a DNA double helix
+        for (let s = 0; s < 2; s++) path(t => [174 + Math.sin(t * 18 + s * Math.PI) * 62, 20 + t * 330], 1100, 1.6, 1.4, 1);
+        for (let k = 0; k < 30; k++) { const t = k / 30, a = Math.sin(t * 18) * 62; line([174 + a, 20 + t * 330], [174 - a, 20 + t * 330], 18, .9, .55); } break;
+      case 4: // the gut: a long folded tube
+        path(t => [174 + Math.sin(t * 22) * (110 - t * 40), 30 + t * 310 + Math.sin(t * 40) * 14], 2600, 15, 1.1, .85); path(t => [174 + Math.sin(t * 22) * (110 - t * 40), 30 + t * 310 + Math.sin(t * 40) * 14], 700, 1.5, 1.4, 1); break;
+      case 5: // a lattice of cells and crystals
+        for (let r = 0; r < 7; r++) for (let q = 0; q < 6; q++) { const x = 40 + q * 56 + (r % 2) * 28, y = 40 + r * 48, s = 22 * (.5 + rnd() * .6); ring(x, y, s, s, 6, 1.4, .9, rnd()); if (rnd() < .35) fill(x, y, s * .6, s * .6, 60, 1.1, .85); } break;
+      case 6: // a plate with food
+        ring(174, 175, 138, 138, 360, 1.1, .9); ring(174, 175, 98, 98, 260, 1, .6); for (const [x, y, r] of [[130, 140, 34], [215, 130, 26], [190, 215, 40], [120, 220, 22]]) { fill(x, y, r, r, 260, 1.1, .85); ring(x, y, r, r, 70, 1.2, 1); } break;
+      case 7: // many traces: a full read-out
+        for (let k = 0; k < 9; k++) path(t => [20 + t * 308, 50 + k * 34 + Math.sin(t * (9 + k) + k) * 9 + Math.sin(t * 31 + k * 2) * 3], 340, .6, 1.1, .95 - k * .05); break;
+      case 8: // a helix with its methyl marks, inside a clock face
+        ring(174, 175, 150, 150, 420, 1.1, .8); for (let k = 0; k < 12; k++) { const a = k / 12 * 6.2832; line([174 + Math.cos(a) * 138, 175 + Math.sin(a) * 138], [174 + Math.cos(a) * 150, 175 + Math.sin(a) * 150], 6, 1, .9); }
+        for (let s = 0; s < 2; s++) path(t => [174 + Math.sin(t * 12 + s * Math.PI) * 46, 55 + t * 240], 700, 1.4, 1.3, 1); for (let k = 0; k < 14; k++) { const t = k / 14, a = Math.sin(t * 12) * 46; dot(174 + a, 55 + t * 240, 4.2, 1); dot(174 - a, 55 + t * 240, 2.6, .8); } line([174, 175], [174, 95], 30, 1.2, 1); line([174, 175], [224, 200], 24, 1.2, 1); break;
+      default: { // a network of nodes inside a head
+        const nodes = []; for (let k = 0; k < 46; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()); nodes.push([174 + Math.cos(a) * 112 * d, 165 + Math.sin(a) * 92 * d]); }
+        ring(174, 165, 125, 104, 400, 1, .6); for (const a of nodes) for (const b of nodes) if (a !== b && Math.hypot(a[0] - b[0], a[1] - b[1]) < 56 && rnd() < .5) line(a, b, 9, .7, .55); for (const a of nodes) { fill(a[0], a[1], 4, 4, 14, 1.3, 1); } }
+    }
+    c.globalAlpha = 1;
+  }
+  const cvs = [...track.querySelectorAll('canvas')]; const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { art(e.target, +e.target.dataset.i); io.unobserve(e.target); } }), { rootMargin: '300px' }); cvs.forEach(c => io.observe(c));
+
+  // ---- by hand: arrows move one card, swiping or the trackpad move it freely
+  const step = () => { const c = track.querySelector('.pn-card'); return c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 20); };
+  const upd = () => { const m = track.scrollWidth - track.clientWidth; prev.disabled = track.scrollLeft < 4; next.disabled = track.scrollLeft > m - 4; track.classList.toggle('end', track.scrollLeft > m - 4); };
+  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' })); next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+  track.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+})();
+/* closing statement: the letters are built of dots, and a glow spreads out from their centre in bands, the way it does in "All of this." and "What is measured" */
+(() => {
+  const cv = document.getElementById('clglow'); if (!cv) return; const ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = 700, H = 120, P = 2.1, NB = 12; let gx, gy, gl, gr, n = 0, vis = false, ready = false;
+  function build() {
+    const dpr = Math.min(devicePixelRatio || 1, 2); cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; }, off = mk(), o = off.getContext('2d');
+    o.fillStyle = '#fff'; o.textAlign = 'left'; o.textBaseline = 'middle'; const fam = 'Organetto, Aeonik, Inter, sans-serif'; let fs = 44; o.font = '700 ' + fs + 'px ' + fam;
+    const tw = o.measureText('OUTLIVE ORDINARY').width; if (tw > W - 48) { fs = Math.floor(fs * (W - 48) / tw); o.font = '700 ' + fs + 'px ' + fam; }
+    o.fillText('OUTLIVE ORDINARY', 24, H / 2 + 2);
+    const sharp = o.getImageData(0, 0, W, H).data, xs = [], ys = [], ls = [], rs = [], cx = W * 0.4, cy = H / 2, R = W * 0.55;
+    let A = new Float32Array(W * H); for (let i = 0; i < W * H; i++) A[i] = sharp[i * 4] / 255;                                  // a soft halo around the letters: a box blur, three times over
+    const blur1 = (src, rad, horiz) => { const out = new Float32Array(W * H), len = horiz ? W : H, cnt = horiz ? H : W, st = horiz ? 1 : W, ln = horiz ? W : 1;
+      for (let c = 0; c < cnt; c++) { const base = c * ln; let sum = 0; for (let i = -rad; i <= rad; i++) sum += src[base + Math.max(0, Math.min(len - 1, i)) * st]; for (let i = 0; i < len; i++) { out[base + i * st] = sum / (2 * rad + 1); sum += src[base + Math.min(len - 1, i + rad + 1) * st] - src[base + Math.max(0, i - rad) * st]; } } return out; };
+    for (let k = 0; k < 3; k++) { A = blur1(A, 4, true); A = blur1(A, 4, false); }
+    const soft = A;
+    for (let y = P / 2; y < H; y += P) for (let x = P / 2; x < W; x += P) {
+      const k = (y | 0) * W + (x | 0), l = Math.max(sharp[k * 4] / 255, Math.min(1, soft[k] * 2.8) * 0.55); if (l < 0.04) continue;
+      xs.push(x); ys.push(y); ls.push(l); rs.push(Math.hypot((x - cx) * 0.8, (y - cy) * 1.5) / R);
+    }
+    n = xs.length; gx = Float32Array.from(xs); gy = Float32Array.from(ys); gl = Float32Array.from(ls); gr = Float32Array.from(rs); ready = true;
+  }
+  function draw(now) {
+    const t = reduce ? 0 : now * 0.001; ctx.clearRect(0, 0, W, H);
+    const bk = Array.from({ length: NB }, () => []);
+    for (let i = 0; i < n; i++) {
+      const wave = Math.pow(0.5 + 0.5 * Math.cos(6.2832 * (gr[i] * 1.2 - t / 7)), 2.2), I = gl[i] * (0.5 + 0.5 * wave) * 1.15, r = P * 0.5 * Math.pow(Math.min(1.2, I), 0.62) * 1.05;   // bands of light travelling outwards
+      if (r < 0.2) continue; bk[Math.min(NB - 1, (Math.min(1, I) * NB) | 0)].push(gx[i], gy[i], r);
+    }
+    ctx.fillStyle = '#fff';
+    for (let q = 0; q < NB; q++) {
+      const s = bk[q]; if (!s.length) continue; ctx.globalAlpha = 0.28 + 0.72 * (q + 0.5) / NB; ctx.beginPath();
+      for (let i = 0; i < s.length; i += 3) { ctx.moveTo(s[i] + s[i + 2], s[i + 1]); ctx.arc(s[i], s[i + 1], s[i + 2], 0, 6.2832); }
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function frame(now) { requestAnimationFrame(frame); if (!ready || !vis || reduce) return; draw(now); }
+  (document.fonts && document.fonts.load ? document.fonts.load('700 44px Organetto').catch(() => 0).then(() => document.fonts.ready) : Promise.resolve()).then(() => { build(); draw(0); requestAnimationFrame(frame); });
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (e.isIntersecting) cv.classList.add('in'); }, { threshold: 0.2 }).observe(cv);
 })();
 </script>
 </body>

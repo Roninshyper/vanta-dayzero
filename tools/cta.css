@@ -1,0 +1,10 @@
+
+  /* ---------- the closing call to action: the photograph with its line and two buttons ---------- */
+  #cta { position: relative; background: #000; }
+  .cta-in { position: relative; width: 100%; aspect-ratio: 1716 / 1061; overflow: hidden; }
+  .cta-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cta-in h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .cta-in a { position: absolute; top: 54.2%; height: 8.1%; width: 14.9%; border-radius: 99px; outline-offset: 3px; }
+  .cta-in a.a { left: 33.2%; } .cta-in a.b { left: 51.9%; }
+  .cta-in a:hover { background: rgba(255,255,255,.07); } .cta-in a.a:hover { background: rgba(0,0,0,.06); }
+  .cta-in a:focus-visible { outline: 2px solid #fff; }

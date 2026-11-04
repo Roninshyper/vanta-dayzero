@@ -1,0 +1,8 @@
+
+  /* ---------- Footer ---------- */
+  footer { padding: 0 clamp(20px, 11vw, 150px); background: #000; }
+  .foot-logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 1.35rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; margin: 22px 0 0 18px; }
+  .foot-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; flex-wrap: wrap; padding: 36px 0 80px 18px; }
+  .legal { max-width: 440px; font-size: .62rem; line-height: 1.4; color: #bdbdbd; }
+  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+  .foot-links a { color: #bcbcbc; text-decoration: none; font-size: 1rem; transition: color .2s; } .foot-links a:hover { color: #fff; }

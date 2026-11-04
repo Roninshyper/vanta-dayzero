@@ -1,0 +1,26 @@
+
+  /* ---------- one left edge for every section: headings, text, cards and the footer all start on the same line ---------- */
+  :root { --gut: 11.4vw; }
+  @media (max-width: 900px) { :root { --gut: 6vw; } }
+  .bm-head h2 { margin-left: var(--gut); } .bm-sub { margin-left: var(--gut); margin-right: var(--gut); }
+  .hiw-in { padding-left: var(--gut); padding-right: var(--gut); }
+  .pn-head { padding-left: var(--gut); padding-right: var(--gut); }
+  .pn-track { padding-left: var(--gut); padding-right: var(--gut); scroll-padding-left: var(--gut); }
+  #closing { padding-left: var(--gut); padding-right: var(--gut); }
+  footer { padding-left: var(--gut); padding-right: var(--gut); }
+  .foot-logo { margin-left: 0; } .foot-bot { padding-left: 0; } .foot-bot .foot-links { margin-left: 0; }
+  @media (min-width: 901px) {
+    .bm-sub { grid-template-columns: 30vw 1fr; }
+    #hiw { padding: clamp(90px, 9vw, 160px) 0 clamp(50px, 6vw, 100px); }
+    .hiw-in { gap: 3vw; }
+    .hiw-l { flex: 0 1 40vw; }
+    .hiw-r { flex: 0 0 30vw; margin-top: clamp(24px, 2.6vw, 48px); margin-right: 0; }
+    .hiw-l h2 { font-size: clamp(24px, 2.7vw, 50px); }
+    .hiw-steps { margin-top: clamp(28px, 4vw, 72px); gap: clamp(26px, 3.6vw, 64px); }
+    .hiw-steps h4 { font-size: clamp(18px, 1.85vw, 34px); }
+    .hiw-steps p { margin-top: clamp(10px, 1.2vw, 20px); }
+  }
+
+  /* more air between the sections */
+  @media (min-width: 901px) { #hiw { padding: clamp(150px, 15vw, 280px) 0 clamp(110px, 11vw, 200px); } #pn { padding: clamp(90px, 9vw, 160px) 0 clamp(150px, 15vw, 270px); } }
+  @media (max-width: 900px) { #hiw { padding: 130px 0 90px; } #pn { padding: 70px 0 120px; } }
