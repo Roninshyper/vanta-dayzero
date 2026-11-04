@@ -14,3 +14,7 @@
   @media (max-width: 900px) { .pn-card { flex-basis: 64vw; } }
 
   .pn-card { min-width: 0; } .pn-top span:first-child { flex: none; } .pn-top span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+  /* more air after the other panels, before the closing photo */
+  @media (min-width: 901px) { #pn { padding-bottom: clamp(150px, 14vw, 240px); } }
+  @media (max-width: 900px) { #pn { padding-bottom: 150px; } }
