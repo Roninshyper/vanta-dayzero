@@ -2,3 +2,4 @@
 assets/fonts/*
 !assets/fonts/Organetto-ExtBold.woff2
 !assets/fonts/AoiMono-Compact.woff2
+tools/source/

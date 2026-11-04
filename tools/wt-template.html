@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vanta — What we test</title>
+%%FAVICON%%
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: "Aeonik"; src: url("assets/fonts/Aeonik-Regular.woff2") format("woff2"), url("assets/fonts/Aeonik-Regular.otf") format("opentype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Aeonik"; src: url("assets/fonts/Aeonik-Medium.woff2") format("woff2"), url("assets/fonts/Aeonik-Medium.otf") format("opentype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Aoi Mono"; src: url("assets/fonts/AoiMono-Compact.woff2") format("woff2"), url("assets/fonts/AoiMono-Compact.otf") format("opentype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Organetto"; src: url("assets/fonts/Organetto-ExtBold.woff2") format("woff2"), url("assets/fonts/Organetto-ExtBold.otf") format("opentype"); font-weight: 700; font-display: swap; }
+  :root {
+    --sans: "Aeonik", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Aoi Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --display: "Organetto", "Aeonik", "Inter", system-ui, sans-serif;
+    --bg: #000; --fg: #f4f4f4; --muted: #9b9b9b; --faint: #6d6d6d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-synthesis: none; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+  /* ---------- nav (the same as the other page) ---------- */
+  nav { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 50; display: flex; align-items: center;
+    gap: clamp(14px, 3vw, 34px); padding: 7px 8px 7px 20px; border-radius: 999px; background: rgba(24,24,24,.72);
+    border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); font-size: 12px; }
+  nav .logo { display: flex; align-items: center; gap: 8px; font-family: var(--display); letter-spacing: 0; font-weight: 700; font-size: 12px; text-transform: uppercase; color: var(--fg); text-decoration: none; }
+  nav a { white-space: nowrap; color: var(--muted); text-decoration: none; transition: color .2s; }
+  nav a:hover, nav a.on { color: var(--fg); }
+  nav .join { background: #fff; color: #000; padding: 9px 16px; border-radius: 999px; font-weight: 500; }
+  nav .join:hover { color: #000; background: #ddd; }
+  @media (max-width: 560px) { nav .opt { display: none; } }
+  .mono { font-family: var(--mono); font-weight: 400; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* ---------- the x-ray ---------- */
+  #wt { position: relative; height: 100vh; height: 100dvh; min-height: 620px; overflow: hidden; background: #000; }
+  #xray { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage { position: absolute; left: 50%; top: 50%; width: min(100%, 1716px); aspect-ratio: 1716 / 1070; max-height: 100%; transform: translate(-50%, -48%); container-type: inline-size; pointer-events: none; }
+  .scroll-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 9px; color: var(--faint); z-index: 2; }
+
+  /* ---------- the live-metric cards ---------- */
+  .m { position: absolute; width: 15.4cqw; aspect-ratio: 3 / 2; container-type: inline-size; display: flex; flex-direction: column; justify-content: space-between; padding: 1.31cqw 1.31cqw 1.16cqw; border-radius: 1.45cqw; border: 1px solid rgba(255,255,255,.07); color: #fff; pointer-events: auto;
+    background: linear-gradient(160deg, #1d1d1d, #111 70%); box-shadow: 0 2cqw 5cqw rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+    opacity: 0; transform: translateY(18px); animation: mIn 1s cubic-bezier(.2,.7,.2,1) forwards, mFloat var(--fd, 8s) ease-in-out var(--fl, 0s) infinite alternate; animation-delay: var(--d, 1.2s), var(--fl, 0s); }
+  .m.lite { background: linear-gradient(150deg, rgba(255,255,255,.17), rgba(255,255,255,.05) 70%), #151515; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  @keyframes mIn { to { opacity: 1; transform: none; } }
+  @keyframes mFloat { 0% { translate: 0 0; } 50% { translate: .3cqw -.7cqw; } 100% { translate: -.25cqw .35cqw; } }
+  .m small { display: block; font-size: 5.3cqw; line-height: 1.1; color: #f0f0f0; }
+  .m b { display: block; font-weight: 500; font-size: 15.5cqw; letter-spacing: -0.03em; line-height: 1; }
+  .m b i { font-style: normal; font-size: .62em; letter-spacing: 0; margin-left: .14em; }
+  .m svg { display: block; width: 100%; height: 11cqw; overflow: visible; }
+  .m svg path { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .m.red svg path { stroke: #e5453f; }
+  .m p { display: flex; align-items: center; gap: 2.4cqw; font-size: 5cqw; line-height: 1; color: #ececec; white-space: nowrap; }
+  .m p em { font-style: normal; width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: #fff; flex: none; }
+  .m p u { text-decoration: none; }
+  .m p span { display: inline-flex; align-items: center; gap: 1.6cqw; }
+  .m p span::before { content: ""; border: solid transparent; border-width: 1.8cqw 1.6cqw 0; border-top-color: #fff; }
+  .m p span.up::before { border-width: 0 1.6cqw 1.8cqw; border-bottom-color: #fff; border-top-color: transparent; }
+  @media (max-width: 900px) {
+    .stage { aspect-ratio: auto; height: 100%; width: 100%; transform: translate(-50%, -50%); }
+    .m.hrv { left: 3%; top: 14%; } .m.hr { left: auto; right: 3%; top: 22%; } .m.steps { left: 3%; top: 60%; } .m.sleep { left: auto; right: 3%; top: 68%; }
+    .m { width: 24cqw; padding: 2.04cqw 2.04cqw 1.8cqw; border-radius: 2.2cqw; }
+  }
+  @media (prefers-reduced-motion: reduce) { .m { animation: none; opacity: 1; transform: none; } }
+
+  /* ---------- the biomarker list: title wheel on the left, the list on the right, pinned while you scroll through it ---------- */
+  #bm { position: relative; background: #000; }
+  .bm-pin { position: sticky; top: 0; height: 100vh; height: 100dvh; min-height: 600px; overflow: hidden; display: flex; flex-direction: column; padding: clamp(76px, 10vh, 108px) 0 clamp(18px, 3vh, 40px); }
+  .bm-head h2 { margin-left: 14.5vw; font-weight: 500; font-size: clamp(38px, min(5.6vw, 9vh), 96px); letter-spacing: -0.035em; line-height: 1; }
+  .bm-sub { display: grid; grid-template-columns: 31.5vw 1fr; gap: 3vw; align-items: center; margin: clamp(14px, 3vh, 36px) 6.5vw 0 14.5vw; }
+  .bm-sub p { font-size: clamp(13px, 1.12vw, 20px); line-height: 1.25; color: #b8b8b8; }
+  .bm-search { display: flex; align-items: center; gap: 14px; height: clamp(44px, 4vw, 68px); padding: 0 clamp(16px, 1.6vw, 28px); border-radius: 999px; border: 1px solid #2a2a2a; background: #0b0b0b; color: #cfcfcf; cursor: text; transition: border-color .2s; }
+  .bm-search:focus-within { border-color: #5a5a5a; }
+  .bm-search svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+  .bm-search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: #fff; font: inherit; font-size: clamp(14px, 1.1vw, 19px); }
+  .bm-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; height: 16px; width: 16px; cursor: pointer; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .bm-search .clr { display: none; flex: none; width: 22px; height: 22px; border: 0; background: none; cursor: pointer; padding: 0; position: relative; }
+  .bm-search.has .clr { display: block; }
+  .bm-search .clr::before, .bm-search .clr::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; border-radius: 2px; background: #fff; transform: translate(-50%, -50%) rotate(45deg); }
+  .bm-search .clr::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  .bm-search input::placeholder { color: #bdbdbd; }
+  .bm-body { position: relative; flex: 1; min-height: 0; margin-top: clamp(10px, 2vh, 30px); }
+  .wheel { position: absolute; left: 0; top: 0; bottom: 0; width: 36vw; pointer-events: none; }
+  .wheel svg.ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .wheel svg.ring circle { fill: none; stroke: rgba(255,255,255,.4); stroke-width: 1; }
+  .wheel .wl { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: var(--wf, 22px); font-weight: 500; color: #fff; pointer-events: auto; cursor: pointer; will-change: transform, opacity; transform-origin: 0 50%; }
+  .wheel .sel { position: absolute; left: 0; top: 0; display: flex; align-items: center; will-change: transform; }
+  .wheel .sel b { font-weight: 500; font-size: var(--wf, 22px); color: #fff; position: absolute; right: calc(100% + 1.4em); top: 50%; transform: translateY(-50%); }
+  .wheel .sel .pill { position: absolute; width: calc(var(--tile) * .64); height: calc(var(--tile) * .3); border-radius: 99px; background: linear-gradient(90deg, rgba(255,255,255,.1), #fff); top: 50%; transform: translateY(-50%); }
+  .tile { width: var(--tile, 72px); height: var(--tile, 72px); border-radius: 22%; display: grid; place-items: center; flex: none; background: linear-gradient(160deg, #2c2c2c, #141414 75%); border: 1px solid rgba(255,255,255,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.6); }
+  .tile svg { width: 52%; height: 52%; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .panel { position: absolute; left: 36.4vw; right: 6.5vw; top: 0; bottom: 0; display: flex; flex-direction: column; min-height: 0; }
+  .p-head { display: flex; align-items: center; gap: clamp(14px, 1.6vw, 28px); flex: none; }
+  .p-head .tile { --tile: clamp(48px, 5vw, 85px); }
+  .p-head h3 { font-weight: 500; font-size: clamp(22px, 2vw, 34px); letter-spacing: -0.02em; }
+  .p-head h3 em { font-style: normal; color: #8c8c8c; margin-left: .3em; font-weight: 400; }
+  .p-intro { flex: none; margin-top: clamp(10px, 2vh, 28px); font-size: clamp(13px, 1.12vw, 19px); color: #c2c2c2; }
+  .p-cols, .p-row .hd { display: grid; grid-template-columns: 52% 28% 1fr; align-items: center; }
+  .p-cols { flex: none; margin-top: clamp(14px, 3.2vh, 40px); height: clamp(34px, 5vh, 70px); border-bottom: 1px solid #2b2b2b; font-size: clamp(12px, 1.1vw, 19px); text-transform: uppercase; color: #cfcfcf; }
+  .p-cols span:nth-child(2) { text-align: center; }
+  .p-list { position: relative; flex: 1; min-height: 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 calc(100% - 64px), transparent); mask-image: linear-gradient(#000 calc(100% - 64px), transparent); }
+  .p-list.free { overflow-y: auto; scrollbar-width: none; }
+  .p-list.free::-webkit-scrollbar { display: none; }
+  .p-inner { will-change: transform; }
+  .p-row { border-bottom: 1px solid #222; }
+  .p-row .hd { height: var(--row, 64px); cursor: pointer; font-size: clamp(13px, 1.12vw, 19px); }
+  .p-row .hd .nm { color: #fff; }
+  .p-row .hd .nm small { display: block; font-size: .72em; color: #7c7c7c; margin-top: 2px; }
+  .p-row .hd .un { text-align: center; text-transform: uppercase; color: #a6a6a6; }
+  .p-row .hd .pl { justify-self: end; width: 20px; height: 20px; position: relative; margin-right: 6px; transition: transform .3s; }
+  .p-row .hd .pl::before, .p-row .hd .pl::after { content: ""; position: absolute; left: 50%; top: 50%; width: 16px; height: 1.5px; background: #d8d8d8; transform: translate(-50%, -50%); }
+  .p-row .hd .pl::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .p-row.open .hd .pl { transform: rotate(45deg); }
+  .p-row .bd { max-height: 0; overflow: hidden; transition: max-height .35s ease; color: #9d9d9d; font-size: clamp(12px, 1vw, 17px); line-height: 1.4; }
+  .p-row .bd > div { padding: 0 8% 16px 0; max-width: 62ch; }
+  .p-row .bd .rd { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .p-row .bd .rd i { font-style: normal; padding: 3px 9px; border: 1px solid #2f2f2f; border-radius: 99px; font-size: .86em; color: #bbb; }
+  .p-foot { flex: none; margin-top: clamp(10px, 2.4vh, 30px); font-size: clamp(11px, .98vw, 17px); line-height: 1.3; color: #9b9b9b; max-width: 62em; }
+  .p-empty { padding: 28px 0; color: #777; font-size: 15px; }
+  @media (max-width: 900px) {
+    .bm-head h2, .bm-sub { margin-left: 6vw; } .bm-sub { margin-right: 6vw; grid-template-columns: 1fr; gap: 12px; }
+    .wheel { display: none; }
+    .panel { left: 6vw; right: 6vw; }
+    .p-cols, .p-row .hd { grid-template-columns: 1fr 32% 34px; }
+    .p-foot { display: none; }
+  }
+
+  /* ---------- how it works: the left side stays, the pictures change on their own ---------- */
+  #hiw { position: relative; background: #000; padding: clamp(100px, 18vw, 160px) 0 clamp(70px, 9vw, 140px); overflow: hidden; }
+  .hiw-in { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 7.7vw 0 7.9vw; gap: 3vw; }
+  .hiw-l { flex: 0 0 37.6vw; }
+  .hiw-l .kick { font-size: clamp(14px, 1.17vw, 21px); color: #8a8a8a; }
+  .hiw-l h2 { margin-top: clamp(14px, 2vw, 34px); font-weight: 500; font-size: clamp(34px, 4.2vw, 76px); letter-spacing: -0.03em; line-height: 1.17; }
+  .hiw-steps { margin-top: clamp(40px, 8.4vw, 150px); display: flex; flex-direction: column; gap: clamp(36px, 6.6vw, 118px); }
+  .hiw-steps h4 { font-weight: 500; font-size: clamp(24px, 2.7vw, 48px); letter-spacing: -0.025em; line-height: 1.22; }
+  .hiw-steps h4 span { display: inline-block; vertical-align: middle; margin-left: 1.8vw; padding: .5em 1em; border-radius: 99px; background: #2c2c2c; color: #f0f0f0; font-weight: 400; font-size: clamp(11px, .8vw, 14px); letter-spacing: 0; line-height: 1; white-space: nowrap; }
+  .hiw-steps p { margin-top: clamp(14px, 2vw, 34px); font-size: clamp(12px, .9vw, 16px); line-height: 1.22; color: #a8a8a8; text-align: justify; }
+  .hiw-r { position: relative; flex: 0 0 42.7vw; aspect-ratio: 733 / 916; margin-top: clamp(40px, 5.6vw, 100px); }
+  .hiw-card { position: absolute; inset: 0; border-radius: 9.5% / 7.6%; overflow: hidden; background: #111; }
+  .hiw-card img { position: absolute; left: -116.1%; top: -24.236%; width: 234.1%; max-width: none; height: auto; opacity: 0; transition: opacity 1s ease, transform 5s ease; transform: scale(1.0); transform-origin: 50% 50%; user-select: none; -webkit-user-drag: none; }
+  .hiw-card img.on { opacity: 1; }
+  .hiw-badge { position: absolute; right: -9.7%; top: -5.7%; width: 19.4%; aspect-ratio: 1; border-radius: 30%; display: grid; place-items: center; z-index: 3; background: linear-gradient(160deg, #6a6a6a, #2b2b2b 80%); border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 40px rgba(0,0,0,.5); font-size: clamp(30px, 3.2vw, 58px); color: #fff; letter-spacing: -0.02em; overflow: hidden; }
+  .hiw-badge b { grid-area: 1 / 1; font-weight: 400; transition: opacity .6s, transform .6s; opacity: 0; transform: translateY(10px); }
+  .hiw-badge b.on { opacity: 1; transform: none; }
+  .hiw-dots { position: absolute; left: 50%; bottom: 2.6%; transform: translateX(-50%); display: flex; gap: 6.7%; z-index: 3; width: 14%; justify-content: space-between; }
+  .hiw-dots i { width: clamp(9px, .8vw, 14px); aspect-ratio: 1; border-radius: 50%; background: #4a4a4a; cursor: pointer; transition: background .4s; box-shadow: 0 0 0 5px #0d0d0d; }
+  .hiw-dots i.on { background: #fff; }
+  @media (min-width: 901px) { .hiw-in { zoom: .82; } #hiw { padding: clamp(130px, 14vw, 240px) 0 clamp(56px, 7vw, 110px); } }
+  @media (max-width: 900px) {
+    .hiw-in { flex-direction: column; padding: 0 6vw; gap: 40px; }
+    .hiw-l, .hiw-r { flex: none; width: 100%; }
+    .hiw-r { width: 84%; margin: 0 auto 0 0; }
+    .hiw-badge { right: -6%; }
+    .hiw-steps h4 { font-size: 26px; } .hiw-steps h4 span { margin-left: 12px; } .hiw-steps p { font-size: 14px; }
+    .hiw-l h2 { font-size: 40px; } .hiw-steps { margin-top: 36px; gap: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">%%LOGO%%VANTA</a>
+  <a class="opt" href="index.html#steps">Day Zero</a>
+  <a class="opt" href="#">Concierge</a>
+  <a class="on opt" href="what-we-test.html">What we test</a>
+  <a class="join" href="#">Join Concierge</a>
+</nav>
+
+<section id="wt">
+  <canvas id="xray" aria-label="An x-ray of a statue's chest: lungs, airways and a beating heart made of particles"></canvas>
+  <div class="stage">
+    <div class="m hrv" style="left:10.9%;top:max(9%,92px);--d:1.3s;--fd:8.4s;--fl:-1s;" data-lo="55" data-hi="115" data-dec="0" data-avg="78"><small>ApoB</small><b><span class="v"></span><i>mg/dL</i></b><svg viewBox="0 0 213 40" preserveAspectRatio="none"><path/></svg><p><span class="dl"></span><em></em><u class="av"></u></p></div>
+    <div class="m hr" style="left:66.3%;top:max(11%,110px);--d:1.5s;--fd:9.2s;--fl:-3s;" data-lo="4.9" data-hi="5.7" data-dec="1" data-avg="5.2"><small>HbA1c</small><b><span class="v"></span><i>%</i></b><svg viewBox="0 0 213 40" preserveAspectRatio="none"><path/></svg><p><span class="dl"></span><em></em><u class="av"></u></p></div>
+    <div class="m steps lite" style="left:18.5%;top:37.7%;--d:1.7s;--fd:7.6s;--fl:-2s;" data-lo="0.3" data-hi="1.4" data-dec="1" data-avg="0.6"><small>hs-CRP</small><b><span class="v"></span><i>mg/L</i></b><svg viewBox="0 0 213 40" preserveAspectRatio="none"><path/></svg><p><span class="dl"></span><em></em><u class="av"></u></p></div>
+    <div class="m sleep lite red" style="left:60%;top:41.2%;--d:1.9s;--fd:9.8s;--fl:-4.5s;" data-low="32" data-lo="24" data-hi="52" data-dec="0" data-avg="31"><small>Vitamin D</small><b><span class="v"></span><i>ng/mL</i></b><svg viewBox="0 0 213 40" preserveAspectRatio="none"><path/></svg><p><span class="dl"></span><em></em><u class="av"></u></p></div>
+  </div>
+  <div class="scroll-hint mono">Scroll</div>
+</section>
+
+
+<section id="bm" aria-label="Every biomarker we test">
+  <div class="bm-pin">
+    <div class="bm-head">
+      <h2>What we test.</h2>
+      <div class="bm-sub">
+        <p>141 biomarkers from one fasted draw at your door, read across 11 systems. Open any marker for what it tells you, and the unit it comes back in.</p>
+        <label class="bm-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="bmq" type="text" placeholder="Search biomarkers" autocomplete="off" spellcheck="false"><button class="clr" type="button" aria-label="Clear search"></button></label>
+      </div>
+    </div>
+    <div class="bm-body">
+      <div class="wheel" id="wheel" aria-hidden="true">
+        <svg class="ring"><circle/></svg>
+        <div class="sel"><b>Panel</b><span class="tile"></span><i class="pill"></i></div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><span class="tile" id="pIcon"></span><h3 id="pName"></h3></div>
+        <p class="p-intro" id="pIntro"></p>
+        <div class="p-cols"><span>Biomarker</span><span>Units</span><span></span></div>
+        <div class="p-list" id="pList"><div class="p-inner" id="pInner"></div></div>
+        <p class="p-foot">The screening shelf — antibodies, heavy metals, PSA and the urine study — is listed, not scored; a positive is routed to a doctor. Units are as the partner lab reports them. A wellness reading, not a diagnosis. Vanta HealthOS does not diagnose, treat or prevent any disease.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hiw" aria-label="How it works">
+  <div class="hiw-in">
+    <div class="hiw-l">
+      <p class="kick">How It Works</p>
+      <h2>One draw. A doctor.<br>Ninety days.</h2>
+      <div class="hiw-steps">
+        <div><h4>Home sample collection <span>Takes &lt;3 min</span></h4><p>A phlebotomist from the accredited partner lab comes to you in a morning slot you choose. Fasted, one arm, under three minutes. 141 biomarkers from one draw.</p></div>
+        <div><h4>Doctor consultation and protocol <span>Takes 30 min</span></h4><p>Within days the results land in Vanta HealthOS. A twenty-page report scores every marker against an optimal band; a doctor takes your history, walks you through it, and the protocol is written from both.</p></div>
+        <div><h4>Implementation through Vanta HealthOS <span>Takes 3 months</span></h4><p>The protocol runs inside the OS for ninety days: training, nutrition, supplementation, recovery, every action with its reason, tracked daily against your twin, with retests booked on their dates.</p></div>
+      </div>
+    </div>
+    <div class="hiw-r">
+      <div class="hiw-card"><img class="on" src="assets/hiw-1.png" alt="A Vanta blood collection tube"><img src="assets/hiw-2.png" alt="Biomarker results on a phone"><img src="assets/hiw-3.png" alt="An athlete with a ferritin trend card"></div>
+      <div class="hiw-badge"><b class="on">01</b><b>02</b><b>03</b></div>
+      <div class="hiw-dots"><i class="on"></i><i></i><i></i></div>
+    </div>
+  </div>
+</section>
+
+<script src="biomarkers-data.js"></script>
+<script src="david-model.js?v=%%V%%"></script>
+<script src="organs-model.js?v=%%V%%"></script>
+<script>
+(() => {
+  const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v, ss = (v, a, b) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+  let skullC = [0, 0], W, H, dpr, n = 0, X, Y, Z, NX, NY, NZ, KD, R0, A0, DL, SX0, SY0, SZ0, heartC = [0, 0, 0], lungC = [0, 0, 0], s = 1, ox = 0, oy = 0, vis = true, t0 = 0;
+  const mouse = { x: 0, y: 0, sx: 0, sy: 0 }, canHover = matchMedia('(hover: hover)').matches;
+  const HEADDBG = location.hash === '#head', DEBUG = location.hash === '#xray', FACE = -0.6, PIVX = 1121, PIVZ = 11, cf = Math.cos(FACE), sf = Math.sin(FACE);
+
+  function decode(M, keep, kindOf) {                                                            // baked points: 16-bit positions, byte normals
+    const bin = atob(M.data), out = [], rd = (o, k) => bin.charCodeAt(o + k) | bin.charCodeAt(o + k + 1) << 8, sb = v => v > 127 ? v - 256 : v;
+    for (let i = 0; i < M.n; i++) { const o = i * 10, f = bin.charCodeAt(o + 9); if (keep && !keep(i, f, rd(o, 2) / 10)) continue;
+      out.push([rd(o, 0) / 10 + 600, rd(o, 2) / 10, rd(o, 4) / 10 - 400, sb(bin.charCodeAt(o + 6)) / 127, sb(bin.charCodeAt(o + 7)) / 127, sb(bin.charCodeAt(o + 8)) / 127, kindOf(f)]); }
+    return out;
+  }
+  let sd = 9; const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  function load() {
+    const skin = decode(window.DAVID_MODEL, (i, f, y) => rnd() < (f ? 0.12 + 0.5 * ss(548 - y, 0, 150) : 0.27), () => 3);         // the bust, as a dim shell
+    const org = decode(window.ORGAN_MODEL, null, k => k);                                         // kinds 0 lung, 1 heart, 2 airways
+    const shell = skin.filter(() => rnd() < 0.33).map(p => [p[0] - p[3] * 14, p[1] - p[4] * 14, p[2] - p[5] * 14, p[3], p[4], p[5], 11]);   // a layer just under the skin, which only the lens shows
+    const all = skin.concat(org, shell); n = all.length;
+    X = new Float32Array(n); Y = new Float32Array(n); Z = new Float32Array(n); NX = new Float32Array(n); NY = new Float32Array(n); NZ = new Float32Array(n); KD = new Uint8Array(n);
+    let hc = [0, 0, 0, 0], lc = [0, 0, 0, 0];
+    all.forEach((p, i) => {                                                                       // turn the whole bust (and what is inside it) towards the viewer
+      const x = p[0] - PIVX, z = p[2] - PIVZ; X[i] = PIVX + x * cf + z * sf; Z[i] = PIVZ - x * sf + z * cf; Y[i] = p[1];
+      if (p[6] >= 6) { NX[i] = p[3]; NY[i] = p[4]; NZ[i] = 0; } else { NX[i] = p[3] * cf + p[5] * sf; NY[i] = p[4]; NZ[i] = -p[3] * sf + p[5] * cf; } KD[i] = p[6];
+      if (p[6] === 1) { hc[0] += X[i]; hc[1] += Y[i]; hc[2] += Z[i]; hc[3]++; } else if (p[6] === 0) { lc[0] += X[i]; lc[1] += Y[i]; lc[2] += Z[i]; lc[3]++; }
+    });
+    { let sx8 = 0, sy8 = 0, c8 = 0; for (let i = 0; i < n; i++) if (KD[i] === 8) { sx8 += X[i]; sy8 += Y[i]; c8++; } skullC = [sx8 / c8, sy8 / c8]; }
+    heartC = [hc[0] / hc[3], hc[1] / hc[3], hc[2] / hc[3]]; lungC = [lc[0] / lc[3], lc[1] / lc[3], lc[2] / lc[3]];
+    A0 = new Float32Array(n); R0 = new Float32Array(n); DL = new Float32Array(n); SX0 = new Float32Array(n); SY0 = new Float32Array(n); SZ0 = new Float32Array(n);
+  }
+  function layout() {
+    dpr = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    s = Math.min(H * 0.86 / 880, W * (W < 900 ? 1.0 : 0.7) / 900); ox = W / 2 - PIVX * s; oy = H * 0.05 - 165 * s; if (HEADDBG) { s *= 1.9; ox = W / 2 - skullC[0] * s; oy = H / 2 - skullC[1] * s; }
+    const base = Math.max(0.35, Math.sqrt(900 * 880 * 0.5 * s * s / 60000) * 0.3);                // dot size from the spacing of the bust's dots
+    for (let i = 0; i < n; i++) {
+      const k = KD[i]; R0[i] = base * (k === 3 ? 0.9 : k === 1 ? 1.05 : k === 2 ? 0.95 : (k === 4 || k === 10) ? 1.4 : k === 11 ? 0.8 : k === 8 ? 1.05 : k === 5 ? 0.8 : k === 6 ? 0.8 : k === 7 ? 0.7 : k === 9 ? 0.75 : 0.9) * (0.8 + 0.4 * rnd());
+      A0[i] = k === 3 ? 0.95 : k === 1 ? 1 : k === 2 ? 0.9 : (k === 4 || k === 10) ? 1 : k === 11 ? 0.8 : k === 8 ? 1 : k === 5 ? 0.9 : k === 6 ? 1 : k === 7 ? 0.65 : k === 9 ? 1 : 0.95;                                // the skin is dim, the organs glow
+      DL[i] = Math.hypot(X[i] - heartC[0], (Y[i] - heartC[1]) * 0.8) / 600 * 1.5 + rnd() * 0.5;       // they form from the heart outwards
+      const a = rnd() * 6.2832, d = (0.3 + rnd() * 0.9) * Math.max(W, H) * 0.4; SX0[i] = X[i] * s + ox + Math.cos(a) * d; SY0[i] = Y[i] * s + oy + Math.sin(a) * d * 0.8; SZ0[i] = (rnd() - 0.5) * 900;
+    }
+  }
+  const NB = 9, bx = Array.from({ length: NB * 2 }, () => []), lens = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, on: 0, last: -1e9 };
+  function frame(now) {
+    requestAnimationFrame(frame); if (!vis) return; if (!t0) t0 = now; const t = (now - t0) / 1000, tm = reduce ? 0 : now * 0.001;
+    mouse.sx += (mouse.x - mouse.sx) * 0.05; mouse.sy += (mouse.y - mouse.sy) * 0.05;
+    // the lens: where the cursor is, the skin falls away and the inside shows. When nobody is pointing, it drifts over the chest by itself.
+    const idle = now - lens.last > 3500, demo = false;
+    if (idle) { lens.tx = W * 0.5 + Math.sin(tm * 0.55) * W * 0.1; lens.ty = H * 0.5 + Math.cos(tm * 0.4) * H * 0.12 + Math.sin(tm * 0.9) * H * 0.03; }
+    if (lens.x < -9000) { lens.x = lens.tx; lens.y = lens.ty; } lens.x += (lens.tx - lens.x) * 0.14; lens.y += (lens.ty - lens.y) * 0.14; lens.on += ((idle ? (demo ? 0.85 : 0) : 1) - lens.on) * 0.06;
+    const LR = Math.max(150, Math.min(W, H) * 0.3) * (W < 900 ? 0.8 : 1);
+    const yaw = (reduce ? 0 : 0.2 * Math.sin(tm * 0.25)) + mouse.sx * 0.28, pitch = mouse.sy * 0.1, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), f = Math.max(W, H) * 1.25;
+    const ph = (tm % 0.95), beat = reduce ? 0 : Math.exp(-sq(ph - 0.08) / 0.0016) + 0.55 * Math.exp(-sq(ph - 0.3) / 0.003), breathe = reduce ? 0 : Math.sin(tm * 0.95) * 0.5 + 0.5;
+    const cxm = W / 2, cym = H * 0.5; for (const b of bx) b.length = 0;
+    for (let i = 0; i < n; i++) {
+      const k = KD[i]; if (HEADDBG && k !== 3 && k !== 8) continue; let x = X[i], y = Y[i], z = Z[i];
+      if (k === 1) { const g = 1 + 0.045 * beat; x = heartC[0] + (x - heartC[0]) * g; y = heartC[1] + (y - heartC[1]) * g; z = heartC[2] + (z - heartC[2]) * g; }         // the heart beats
+      else if (k === 0) { const g = 1 + 0.022 * breathe; x = lungC[0] + (x - lungC[0]) * g; y = lungC[1] + (y - lungC[1]) * (1 + 0.03 * breathe); z = lungC[2] + (z - lungC[2]) * g; }  // and the lungs breathe
+      let px = x * s + ox, py = y * s + oy, pz = z * s;
+      const e = reduce ? 1 : ss(t, DL[i], DL[i] + 1.5);                                         // flying in to form the bust
+      if (e < 1) { const k2 = 1 - Math.pow(1 - e, 3); px = SX0[i] + (px - SX0[i]) * k2; py = SY0[i] + (py - SY0[i]) * k2; pz = SZ0[i] + (pz - SZ0[i]) * k2; }
+      const dx = px - cxm, dy = py - cym, x1 = dx * cy + pz * sy, z1 = pz * cy - dx * sy, y2 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp, sc = f / (f - z2); if (sc > 2.5 || sc < 0.3) continue;
+      const sxp = cxm + x1 * sc, syp = cym + y2 * sc, ld = Math.hypot(sxp - lens.x, (syp - lens.y) * 1.08) / LR;
+      const rv = DEBUG ? 1 : (1 - ss(ld, 0.4, 1)) * lens.on, edge = Math.exp(-sq((ld - 0.9) / 0.09)) * lens.on, zc = DEBUG ? 0 : ss(y, 620, 760) * (1 - ss(Math.abs(x - 1121), 140, 290)), zk = DEBUG ? 0 : ss(y, 420, 500) * (1 - ss(y, 640, 700)) * (1 - ss(Math.abs(x - 1121), 70, 150)), zb = DEBUG ? 0 : Math.max(zk, ss(y, 620, 760) * (1 - ss(Math.abs(x - 1121), 200, 380))), zn = Math.max(zc, zk), rvI = HEADDBG ? 1 : k === 10 ? zb * 0.85 : Math.max(rv, k === 4 ? zb * 0.92 : (k === 8 || k === 5 || k === 9 || k === 11) ? 0 : k === 7 ? zn * 0.3 : zn * 0.78), rvS = HEADDBG ? 0 : Math.max(rv, zn * 0.78);   // the chest is always an x-ray: lungs, heart, airways and vessels show through the skin; bones only faintly     // 1 under the cursor, falling to 0 at the lens's edge; and a bright rim
+      const inside = k !== 3;
+      if (inside && rvI < 0.02 && (k === 11 || (i % 3))) continue;                                                // out of the lens only a faint third of the inside shows
+      if (!inside && rvS > 0.985) continue;
+      if (k >= 6) {                                                                                   // blood and nerve signals: pulses running along the paths
+        const u = NX[i], ph = NY[i], wv = k === 9 ? 0.22 + 0.78 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 5.5 - tm * 0.55 + ph)), 3) : k === 6 ? 0.3 + 0.7 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 1.6 - tm * 0.45 + ph) - 0), 3) * (1 + 0.6 * beat) : 0.14 + 0.86 * Math.pow(0.5 + 0.5 * Math.sin(6.2832 * (u * 2.4 - tm * 0.9 + ph)), 8);
+        const fy2 = 1 - ss(py, H * 0.8, H * 0.98), fa2 = clamp(e * 1.4) * fy2; if (fa2 < 0.03) continue; const a2 = A0[i] * fa2 * wv * (0.12 + 0.88 * rvI); if (a2 < 0.05) continue;
+        const r2 = R0[i] * sc * (k === 9 ? 0.95 : 0.55 + 0.7 * wv) * (0.45 + 0.55 * fy2) * (0.8 + 0.3 * rvI); if (r2 < 0.15) continue;
+        bx[Math.min(NB - 1, (Math.min(1, a2) * NB) | 0) + NB].push(sxp, syp, r2); continue;
+      }
+      const nx = NX[i] * cy + NZ[i] * sy, nz1 = NZ[i] * cy - NX[i] * sy, ny = NY[i] * cp - nz1 * sp, nz = NY[i] * sp + nz1 * cp;
+      const sh = Math.max(0, nx * -0.35 + ny * -0.5 + nz * 0.79), rim = 1 - Math.abs(nz), b = 0.2 + 0.8 * sh + 0.45 * rim * rim;
+      const fy = 1 - ss(py, H * 0.76, H * 0.94), fa = clamp(e * 1.4) * fy; if (fa < 0.03) continue;                       // the bust dissolves at the bottom
+      let a;
+      if (inside) { const xr = (0.5 + 0.5 * Math.pow(rim, 1.2)) * ((k === 4 || k === 10) ? 0.85 + 0.15 * clamp(0.5 + z2 / (s * 260)) : 1); a = A0[i] * fa * (1 + (k <= 2 ? 0.6 * rv : 0)) * (k === 1 ? (0.45 + 0.55 * Math.min(1, b)) : k === 0 ? Math.min(1.2, 0.4 + 0.35 * Math.min(1, b) + 0.7 * Math.pow(rim, 1.5)) : xr) * (0.16 + 0.84 * rvI) * (k === 10 ? Math.pow(1 - rv, 1.6) * 0.92 + 0.08 : 1); if (k === 1) a = Math.min(1, a * (1 + 0.5 * beat)); }   // the inside glows where the lens is
+      else a = A0[i] * fa * (0.4 + 0.6 * Math.min(1, b)) * Math.pow(1 - rvS, 1.3) * (1 + 0.9 * edge);                                               // the skin falls away there, with a bright rim
+      if (a < 0.04) continue;
+      const r = R0[i] * sc * (0.55 + 0.6 * Math.min(1, b)) * (e < 1 ? 0.4 + 0.6 * e : 1) * (k === 1 ? 1 + 0.1 * beat : 1) * (0.45 + 0.55 * fy) * (k === 10 ? 1 - 0.3 * rv : inside ? 0.75 + 0.35 * rvI : 1); if (r < 0.15) continue;
+      const q = Math.min(NB - 1, (Math.min(1, a) * NB) | 0), arr = bx[q + (k === 3 ? 0 : NB)]; arr.push(sxp, syp, r);
+    }
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff';
+    for (let pass = 0; pass < 2; pass++) {
+      ctx.globalCompositeOperation = pass ? 'lighter' : 'source-over';                           // the inside adds up into a glow
+      for (let q = 0; q < NB; q++) { const a = bx[q + pass * NB]; if (!a.length) continue; ctx.globalAlpha = (q + 0.6) / NB * (pass ? 0.95 : 0.85); ctx.beginPath(); for (let i = 0; i < a.length; i += 3) { ctx.moveTo(a[i] + a[i + 2], a[i + 1]); ctx.arc(a[i], a[i + 1], a[i + 2], 0, 6.2832); } ctx.fill(); }
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  }
+  function sq(v) { return v * v; }
+  addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; const r = cv.getBoundingClientRect(); lens.tx = e.clientX - r.left; lens.ty = e.clientY - r.top; lens.last = performance.now(); });
+  addEventListener('pointerleave', () => { lens.last = -1e9; }); document.addEventListener('pointerleave', () => { lens.last = -1e9; });
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 150); });
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(document.getElementById('wt'));
+  setTimeout(() => { load(); layout(); requestAnimationFrame(frame); }, 30);
+})();
+
+/* the live-metric sparklines: a line that draws itself in, then keeps moving as new readings arrive */
+(() => {
+  const cards = [...document.querySelectorAll('.m')], reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, N = 22; let sd = 4; const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+  const data = cards.map(() => { let v = 0.5; return Array.from({ length: N }, () => (v = Math.max(0.08, Math.min(0.92, v + (rnd() - 0.5) * 0.5)))); });
+  // each card is a blood marker: the line is its recent readings, the headline number is the latest one mapped into the marker's real range
+  const show = (c, d) => { const lo = +c.dataset.lo, hi = +c.dataset.hi, dec = +c.dataset.dec, av = +c.dataset.avg, val = lo + (hi - lo) * d[d.length - 1], diff = val - lo - (hi - lo) * d[d.length - 2];
+    c.querySelector('.v').textContent = val.toFixed(dec); if (c.dataset.low) c.classList.toggle('red', val < +c.dataset.low); const dl = c.querySelector('.dl'); dl.textContent = Math.abs(diff).toFixed(dec === 0 ? 1 : 2); dl.className = 'dl' + (diff >= 0 ? ' up' : ''); c.querySelector('.av').textContent = 'avg ' + av.toFixed(dec); };
+  const path = (d, el) => { const w = 213, h = 40; el.setAttribute('d', d.map((v, i) => (i ? 'L' : 'M') + (i / (N - 1) * w).toFixed(1) + ' ' + ((1 - v) * h).toFixed(1)).join(' ')); };
+  cards.forEach((c, i) => { const p = c.querySelector('path'); path(data[i], p); show(c, data[i]); if (!reduce) { const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; p.getBoundingClientRect(); p.style.transition = 'stroke-dashoffset 1.6s ease ' + (1.5 + i * 0.2) + 's'; p.style.strokeDashoffset = 0; setTimeout(() => { p.style.strokeDasharray = 'none'; }, 3600 + i * 200); } });
+  if (!reduce) setInterval(() => { if (document.hidden) return; cards.forEach((c, i) => { const d = data[i]; d.shift(); d.push(Math.max(0.08, Math.min(0.92, d[d.length - 1] + (rnd() - 0.5) * 0.5))); path(d, c.querySelector('path')); show(c, d); }); }, 1600);
+})();
+
+/* the biomarker section: the page is pinned and your scroll drives, in turn, the list on the right and the title wheel on the left */
+(() => {
+  const B = window.BIOMARKERS; if (!B) return;
+  const $ = id => document.getElementById(id), sec = $('bm'), pin = sec.querySelector('.bm-pin'), wheel = $('wheel'), list = $('pList'), inner = $('pInner'), q = $('bmq');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, S = B.systems, N = S.length, clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+  const IC = {
+    metabolic: '<path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-10z"/>',
+    cardiovascular: '<path d="M20.8 5a5.2 5.2 0 0 0-7.4 0L12 6.4 10.6 5A5.2 5.2 0 0 0 3.2 12.4l1.4 1.4L12 21l7.4-7.2 1.4-1.4a5.2 5.2 0 0 0 0-7.4z"/>',
+    hormonal: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>',
+    nutrients: '<path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>',
+    liver: '<path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.4 0z"/>',
+    thyroid: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+    kidney: '<path d="M22 3H2l8 9.5V19l4 2v-8.5z"/>',
+    immunity: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    inflammation: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+    'blood-health': '<path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+    'toxin-exposure': '<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>'
+  };
+  const icon = id => '<svg viewBox="0 0 24 24">' + (IC[id] || '') + '</svg>';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const cnt = s => s.markers.reduce((a, m) => a + (m.c || 1), 0);
+
+  // the wheel's titles
+  const labels = S.map(s => { const e = document.createElement('div'); e.className = 'wl'; e.textContent = s.name; wheel.appendChild(e); return e; });
+  const selEl = wheel.querySelector('.sel'), selTile = selEl.querySelector('.tile'), ring = wheel.querySelector('circle');
+  let G = { R: 400, cx: -120, cy: 300, step: 13 * Math.PI / 180 };
+
+  let shown = -1, free = false, searchW = null;
+  const rowHtml = (m, sub, si) => '<div class="p-row"' + (si != null ? ' data-s="' + si + '"' : '') + '><div class="hd"><span class="nm">' + esc(m.n) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span><span class="un">' + esc(m.u) + '</span><span class="pl"></span></div><div class="bd"><div>' + esc(m.w || '') + (m.r ? '<div class="rd">' + m.r.map(x => '<i>' + esc(x) + '</i>').join('') + '</div>' : '') + '</div></div></div>';
+  function render(i) {
+    shown = i; const s = S[i];
+    $('pIcon').innerHTML = icon(s.id); $('pName').innerHTML = esc(s.name) + '<em>' + cnt(s) + '</em>'; $('pIntro').textContent = s.intro;
+    inner.innerHTML = s.markers.map(m => rowHtml(m)).join('');
+    selTile.innerHTML = icon(s.id);
+  }
+  inner.addEventListener('click', e => {
+    const hd = e.target.closest('.hd'); if (!hd) return; const row = hd.parentNode, bd = row.querySelector('.bd'), open = row.classList.toggle('open');
+    bd.style.maxHeight = open ? bd.scrollHeight + 'px' : 0; measure();
+  });
+
+  // searching: one list across every system, scrolled by hand
+  let query = '';
+  function search() {
+    query = q.value.trim().toLowerCase(); free = !!query; list.classList.toggle('free', free); list.scrollTop = 0;
+    if (!query) { searchW = null; shown = -2; inner.style.transform = ''; return; }
+    const hits = []; S.forEach((s, si) => s.markers.forEach(m => { if ((m.n + ' ' + s.name).toLowerCase().includes(query)) hits.push([m, s.name, si]); }));
+    $('pName').innerHTML = 'Results<em>' + hits.length + '</em>'; $('pIntro').textContent = 'Across all ' + N + ' systems.'; $('pIcon').innerHTML = '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>';
+    searchW = hits.length ? hits[0][2] : null; inner.innerHTML = hits.length ? hits.map(h => rowHtml(h[0], h[1], h[2])).join('') : '<p class="p-empty">No biomarker matches “' + esc(q.value.trim()) + '”.</p>'; inner.style.transform = '';
+  }
+  list.addEventListener('scroll', () => { if (!free) return; for (const r of inner.querySelectorAll('.p-row[data-s]')) if (r.offsetTop + r.offsetHeight > list.scrollTop + 4) { searchW = +r.dataset.s; break; } });
+  q.addEventListener('input', () => { q.parentNode.classList.toggle('has', !!q.value); search(); });
+  q.parentNode.querySelector('.clr').addEventListener('click', () => { q.value = ''; q.dispatchEvent(new Event('input')); q.focus(); });
+
+  // geometry and the scroll plan: for each system, its list scrolls first, then it holds, then the wheel turns to the next one
+  let rowH = 64, vh = innerHeight, plan = [], total = 0, top0 = 0;
+  const HOLD = () => vh * 0.22, TURN = () => vh * 0.5;
+  function measure() {
+    vh = innerHeight; const cs = getComputedStyle(pin); rowH = Math.max(44, Math.min(70, vh * 0.075)); pin.style.setProperty('--row', rowH + 'px');
+    const bw = wheel.clientWidth, bh = wheel.clientHeight, R = Math.min(bw * 0.84, bh * 0.66);
+    G = { R, cx: bw - R - R * 0.69 + R * 0.69 - R * 0.0 - (bw - R * 0.69) + (bw - R * 0.69) - R * 0.31 * 0 , cy: bh * 0.5, step: 13 * Math.PI / 180 };
+    G.cx = -0.31 * R + (bw * 0.0); G.edge = G.cx + R;
+    wheel.style.setProperty('--wf', Math.max(15, Math.min(26, R * 0.052)) + 'px'); wheel.style.setProperty('--tile', Math.max(46, R * 0.17) + 'px');
+    const svg = wheel.querySelector('svg.ring'); ring.setAttribute('cx', G.cx); ring.setAttribute('cy', G.cy); ring.setAttribute('r', R);
+    const vp = list.clientHeight, slack = 150; plan = []; total = 0;
+    S.forEach((s, i) => { const ovf = Math.max(0, s.markers.length * rowH - vp + (s.markers.length * rowH > vp ? slack : 0)), turn = i < N - 1 ? TURN() : 0; plan.push({ ovf, hold: HOLD(), turn, start: total }); total += ovf + HOLD() + turn; });
+    sec.style.height = (pin.offsetHeight + total) + 'px'; top0 = sec.getBoundingClientRect().top + scrollY;
+  }
+
+  // scroll -> target wheel position and list offset
+  let wTarget = 0, wCur = 0, offTarget = 0, segI = 0, lastScroll = -1;
+  const ease = t => t * t * (3 - 2 * t);
+  function fromScroll() {
+    const y = clamp(scrollY - top0, 0, total); let i = N - 1;
+    for (let k = 0; k < N; k++) if (y < plan[k].start + plan[k].ovf + plan[k].hold + plan[k].turn || k === N - 1) { i = k; break; }
+    const p = plan[i], qy = y - p.start; segI = i;
+    wTarget = i + (p.turn ? ease(clamp((qy - p.ovf - p.hold) / p.turn)) : 0); offTarget = Math.min(qy, p.ovf);
+  }
+  function listOffset(ai) { const p = plan[ai]; if (!p) return 0; return segI === ai ? offTarget : segI < ai ? 0 : p.ovf; }
+
+  function frame() {
+    requestAnimationFrame(frame); if (!vis) return;
+    fromScroll(); if (free && searchW != null) wTarget = searchW; wCur += (wTarget - wCur) * (reduce ? 1 : 0.16); if (Math.abs(wTarget - wCur) < 0.0005) wCur = wTarget;
+    const ai = clamp(Math.round(wCur), 0, N - 1), d = Math.abs(wCur - ai);
+    if (!free && ai !== shown) render(ai);
+    if (!free) { const o = listOffset(ai); inner.style.transform = 'translate3d(0,' + (-o) + 'px,0)'; const f = clamp(1 - d * 2.4); $('pIcon').parentNode.style.opacity = $('pIntro').style.opacity = list.style.opacity = f; list.style.opacity = Math.max(f, 0); }
+    else list.style.opacity = 1;
+    // the wheel
+    const R = G.R + R_GAP(), cx = G.cx, cy = G.cy;
+    labels.forEach((el, i) => {
+      const dd = i - wCur, a = dd * G.step, ad = Math.abs(dd);
+      if (ad > 5.6) { el.style.opacity = 0; el.style.visibility = 'hidden'; return; }
+      el.style.visibility = ''; const x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+      el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + (y - el.offsetHeight / 2).toFixed(1) + 'px,0)';
+      el.style.opacity = (ad < 0.5 ? 0 : 0.5 / (0.9 + ad * 0.9)) * (ad < 1 ? 0.5 + ad * 0.5 : 1) * 1;
+      if (ad < 0.5) el.style.opacity = clamp(ad * 2) * 0.36;
+    });
+    const sy = cy - selTile.offsetHeight / 2; selEl.style.transform = 'translate3d(' + (G.edge - R_TILE() - selTile.offsetWidth / 2 + selTile.offsetWidth * 0.0) + 'px,' + sy + 'px,0)'; selEl.style.opacity = 1; if (free && selTile.dataset.i != ai) { selTile.dataset.i = ai; selTile.innerHTML = icon(S[ai].id); }
+    const pill = selEl.querySelector('.pill'); pill.style.left = (R_TILE() + selTile.offsetWidth / 2 - pill.offsetWidth / 2) + 'px';
+    selEl.querySelector('b').style.opacity = 1;
+    // the title beside the pill follows the nearest system
+    selLabel.textContent = S[ai].name; selLabel.style.opacity = clamp(1 - d * 2.4);
+  }
+  const R_GAP = () => G.R * 0.073, R_TILE = () => G.R * 0.16;
+  const selLabel = document.createElement('div'); selLabel.className = 'wl'; selLabel.style.cursor = 'default'; wheel.appendChild(selLabel);
+  // the selected title sits on the arc at the wheel's middle row, next to the pill
+  const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + (G.cy - selLabel.offsetHeight / 2) + 'px,0)'; };
+  const _frame = frame; // keep the selected label glued to the arc
+  labels.forEach((el, i) => el.addEventListener('click', () => { const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
+
+  let vis = true; new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(sec);
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { measure(); placeSel(); }, 120); });
+  const start = () => { render(0); search(); measure(); placeSel(); requestAnimationFrame(frame); };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(start, 60));
+})();
+/* how it works: the pictures on the right change by themselves */
+(() => {
+  const sec = document.getElementById('hiw'), imgs = [...sec.querySelectorAll('.hiw-card img')], nums = [...sec.querySelectorAll('.hiw-badge b')], dots = [...sec.querySelectorAll('.hiw-dots i')];
+  let k = 0, timer = null, vis = false; const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const go = n => { k = (n + imgs.length) % imgs.length; imgs.forEach((e, i) => e.classList.toggle('on', i === k)); nums.forEach((e, i) => e.classList.toggle('on', i === k)); dots.forEach((e, i) => e.classList.toggle('on', i === k)); };
+  const arm = () => { clearInterval(timer); if (vis && !reduce) timer = setInterval(() => go(k + 1), 4500); };
+  dots.forEach((d, i) => d.addEventListener('click', () => { go(i); arm(); }));
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; arm(); }, { threshold: 0.25 }).observe(sec);
+})();
+</script>
+</body>
+</html>
