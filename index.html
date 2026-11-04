@@ -232,7 +232,7 @@
   .faq-in details p { padding: 0 34px 20px 0; font-size: .86rem; line-height: 1.6; color: #a4a4a4; }
 
   /* ---------- Footer ---------- */
-  footer { border-top: 1px solid rgba(255,255,255,.12); padding: 0 clamp(20px, 11vw, 150px); background: #000; }
+  footer { padding: 0 clamp(20px, 11vw, 150px); background: #000; }
   .foot-logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 1.35rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; margin: 22px 0 0 18px; }
   .foot-bot { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; flex-wrap: wrap; padding: 36px 0 80px 18px; }
   .legal { max-width: 440px; font-size: .62rem; line-height: 1.4; color: #bdbdbd; }
@@ -251,9 +251,9 @@
   @media (max-width: 860px) { .ring-head h2, .m-head h2 { font-size: 1.7rem; } }
 
   /* ---------- closing statement: the words themselves are made of glowing dots ---------- */
-  #closing { position: relative; background: #000; padding: 7vh clamp(20px, 11vw, 150px) 3vh calc(clamp(20px, 11vw, 150px) + 18px); overflow: hidden; }    /* the left edge matches the logo and the legal text below */
+  #closing { position: relative; background: #000; border-top: 1px solid rgba(255,255,255,.12); padding: 52px clamp(20px, 11vw, 150px) 16px calc(clamp(20px, 11vw, 150px) + 18px); overflow: hidden; }    /* the left edge matches the logo and the legal text below */
   .cl-wrap { display: flex; align-items: center; justify-content: space-between; gap: 30px 40px; flex-wrap: wrap; }
-  .cl-text { position: relative; width: min(100%, 650px); aspect-ratio: 652 / 84; }                                  /* the letters' own box; the canvas bleeds a little beyond it for the halo */
+  .cl-text { position: relative; width: clamp(250px, 37vw, 640px); max-width: 100%; aspect-ratio: 652 / 84; }                                  /* the letters' own box; the canvas bleeds a little beyond it for the halo */
   #clglow { position: absolute; left: -3.7%; top: -21.4%; width: 107.4%; height: 142.9%; display: block; opacity: 0; transition: opacity 1.4s ease; } #clglow.in { opacity: 1; }
   .cl-wrap .btn { margin: 0; flex: none; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
