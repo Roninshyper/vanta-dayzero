@@ -737,7 +737,7 @@ const PART = (() => {
   const veinAmt = p => ss(p, 0.54, 0.62) * (1 - ss(p, 0.72, 0.82));   // 0 = normal hand, 1 = x-ray view
   const phoneAmt = p => ss(p, 0.84, 0.97);
 
-  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, swz, xs, ys, zs, rs, nxs, nys, nzs, PXa, PYa, visible = false, k = 1, Smin = 600, rb = 2, fz = 1000;
+  let W, H, dpr, N = 0, NA = 0, scenes = [], dly, swx, swy, swz, xs, ys, zs, rs, nxs, nys, nzs, PXa, PYa, visible = false, k = 1, bigK = 1.22, Smin = 600, rb = 2, fz = 1000;
   let boneSegs = [], boneKnobs = [], veinLines = [], veinDorsal = [0, 0, 1], veinMove = [0, 0], phoneBox = { slide: 800, z: 20 }, target = 0, cur = 0, lastNow = 0;
   const mouse = { x: -9999, y: -9999 };
 
@@ -773,10 +773,10 @@ const PART = (() => {
 
   function build() {
     k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760; Smin = Math.min(W, H);
-    const U = 1540 * k, sc = Math.pow(U / 2200, 2), apart = W * CFG.apart;                          // U = pixels per metre
-    const NH = clamp(Math.round(CFG.hands * sc), 5000, 20000), NAr = clamp(Math.round(CFG.arm * sc), 1500, 5000), NSy = clamp(Math.round(CFG.syringe * sc), 1500, 4200), ND = clamp(Math.round(CFG.details * sc), 250, 650);
-    rb = Math.sqrt(0.05 * U * U / NH) * 0.18;                                                        // base particle radius: about half the spacing between particles
-    const at = { user: [W * (m ? 0.32 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.3 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.66 : 0.74), H * (m ? 0.62 : 0.56)] };
+    bigK = W < 1000 ? 1 : 1.22; const U = 1540 * k * bigK, sc = Math.pow(U / 2200, 2), apart = W * CFG.apart;                          // U = pixels per metre
+    const NH = clamp(Math.round(CFG.hands * sc), 5000, 36000), NAr = clamp(Math.round(CFG.arm * sc), 1500, 9000), NSy = clamp(Math.round(CFG.syringe * sc), 1500, 7500), ND = clamp(Math.round(CFG.details * sc), 250, 1170);
+    rb = Math.sqrt(0.05 * U * U / NH) * 0.145;                                                        // base particle radius: about half the spacing between particles
+    const at = { user: [W * (m ? 0.32 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.3 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.66 : 0.74), H * (m ? 0.64 : 0.61)] };
 
     const smA = H3.samples(NH, 7), smB = H3.samples(NH, 19), armA = H3.arm(NAr, 11, 0.2), armB = H3.arm(NAr, 13, 0.2, { sleeve: 1.3 });                                  // the doctor wears a glove, so a rolled cuff and sleeve
     NA = NH + NAr + ND; const NB = NH + NAr + NSy + ND; N = NA + NB;      // each hand: skin, forearm, then a few hundred detail points (nails and creases, or glove wrinkles)
@@ -830,7 +830,7 @@ const PART = (() => {
       const c = line.cls || 0, jitter = ((li * 37) % 10) / 10 * 0.08, short = line.length <= 3;
       const wf = u => { const base = c === 0 ? 0.45 + 2.1 * Math.pow(u, 1.1) : c === 1 ? 0.5 + 1.9 * u : c === 2 ? 1.8 + 0.8 * Math.sin(3.1416 * u) : short ? 1.1 : 4.0 - 2.0 * u; return base * (1 + 0.15 * Math.sin(u * 11 + li * 1.9) + 0.07 * Math.sin(u * 27 + li)); };      // fine at the fingertips, swelling towards the trunks at the wrist and up the forearm, with the slight unevenness of a real vessel      // thin at the fingertips, thickening towards the trunks at the wrist
       const armFade = y => 1 - ss((y - wy) / 0.2, 0.4, 0.95), FA = sm.map((_, i) => { const r = i / 9, i0 = Math.min(line.length - 1, Math.floor(r)), i1 = Math.min(line.length - 1, i0 + 1); return armFade(line[i0][1] + (line[i1][1] - line[i0][1]) * (r - i0)); });
-      veinLines.push({ P: sm, F: FA, T: sm.map((_, i) => startT(c) + jitter + spanT(c) * i / (n - 1)), W: sm.map((_, i) => wf(i / (n - 1)) * Math.max(0.8, U / 1540)) });
+      veinLines.push({ P: sm, F: FA, T: sm.map((_, i) => startT(c) + jitter + spanT(c) * i / (n - 1)), W: sm.map((_, i) => wf(i / (n - 1)) * Math.max(0.8, U / 1540 / bigK)) });
     });
     const d0 = H3.place({ n: 2, x: [PIVOT[0], PIVOT[0] + 0.01], y: [0, 0], z: [PIVOT[2], PIVOT[2]], nx: new Float32Array(2), ny: new Float32Array(2), nz: new Float32Array(2) }, Object.assign({}, a3.o, { pos: [0, 0, 0] }));
     const dv = [d0.x[1] - d0.x[0], d0.y[1] - d0.y[0], d0.z[1] - d0.z[0]], dl = Math.hypot(...dv) || 1; veinDorsal = [dv[0] / dl, dv[1] / dl, dv[2] / dl];    // +X in the model is the back of the hand
@@ -900,7 +900,7 @@ const PART = (() => {
     ctx.clearRect(0, 0, W, H); ctx2.clearRect(0, 0, W, H);
     const bias = (p - 0.5) * 0.1;
     ctx.globalAlpha = ctx2.globalAlpha = 1 - 0.8 * va;                        // x-ray: the skin dots fade back while the veins come forward
-    PART.draw({ ctx, ctxFront: ctx2, zFront: phoneBox.front, time, n: N, X: xs, Y: ys, Z: zs, R: rs, NX: nxs, NY: nys, NZ: nzs, rRef: rb * 1.6, PX: PXa, PY: PYa, ox: W / 2, oy: H / 2, amt: AMT, yawBias: bias, f: fz, zRange: 0.17 * 1540 * k * 0.6, defocus: 0.12, drift: 0.15 });
+    PART.draw({ ctx, ctxFront: ctx2, zFront: phoneBox.front, time, n: N, X: xs, Y: ys, Z: zs, R: rs, NX: nxs, NY: nys, NZ: nzs, rRef: rb * 1.6, PX: PXa, PY: PYa, ox: W / 2, oy: H / 2, amt: AMT, yawBias: bias, f: fz, zRange: 0.17 * 1540 * k * bigK * 0.6, defocus: 0.12, drift: 0.15 });
     ctx.globalAlpha = ctx2.globalAlpha = 1;
 
     // x-ray: first the skeleton glows through the fading skin, then the veins draw in over it. Both ride the same camera as the hand.
