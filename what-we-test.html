@@ -363,6 +363,41 @@
   /* more air after the other panels, before the closing photo */
   @media (min-width: 901px) { #pn { padding-bottom: clamp(150px, 14vw, 240px); } }
   @media (max-width: 900px) { #pn { padding-bottom: 150px; } }
+
+  /* the carousel dots, smaller */
+  .hiw-dots { width: auto; gap: 10px; justify-content: center; bottom: 14px; }
+  .hiw-dots i { position: relative; width: 6px; box-shadow: 0 0 0 3px #0d0d0d; }
+  .hiw-dots i::after { content: ""; position: absolute; inset: -8px; }
+
+  /* the pictures were cropped from screenshots that had their own dots at the bottom: fade the last strip out so only the live dots show */
+  .hiw-card { background: #070707; }
+  .hiw-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 12%; background: linear-gradient(rgba(7,7,7,0), #070707 55%); pointer-events: none; z-index: 2; }
+
+  /* the picture is exactly as tall as the text beside it */
+  @media (min-width: 901px) {
+    .hiw-in { align-items: stretch; }
+    .hiw-r { flex: 0 0 auto; align-self: stretch; width: auto; height: auto; margin-top: 0; aspect-ratio: 733 / 916; }
+  }
+
+  /* the black space above and below "Our other panels" is the same */
+  :root { --pn-gap: clamp(150px, 14vw, 250px); }
+  @media (min-width: 901px) { #hiw { padding-bottom: var(--pn-gap); } #pn { padding-top: 0; padding-bottom: var(--pn-gap); } }
+  @media (max-width: 900px) { #hiw { padding-bottom: 110px; } #pn { padding-top: 0; padding-bottom: 110px; } }
+
+  /* step titles: the title and its pill sit side by side, and when there is no room the pill drops under the title at the same left edge */
+  .hiw-steps h4 { display: flex; flex-wrap: wrap; align-items: center; column-gap: 14px; row-gap: 8px; font-size: 1.25rem; }
+  .hiw-steps h4 b { font-weight: inherit; }
+  .hiw-steps h4 span { margin-left: 0; vertical-align: baseline; }
+  @media (min-width: 901px) { .hiw-l { flex: 0 1 min(44vw, 610px); } .hiw-steps h4 { font-size: 1.25rem; } }
+
+  /* on a phone the picture sits in the middle */
+  @media (max-width: 900px) { .hiw-r { margin: 0 auto; width: min(84%, 380px); } .hiw-badge { right: -6%; } }
+
+  /* the text column keeps its width, so the picture can never squeeze it */
+  @media (min-width: 901px) { .hiw-l { flex: 0 0 min(44vw, 610px); min-width: 0; } .hiw-r { flex: 0 0 auto; } }
+
+  /* the picture keeps its own proportions (the old bottom edge with the drawn-in dots stays hidden) */
+  @media (min-width: 901px) { .hiw-r { align-self: flex-start; } }
 </style>
 </head>
 <body>
@@ -418,9 +453,9 @@
       <p class="kick">How It Works</p>
       <h2>One draw. A doctor.<br>Ninety days.</h2>
       <div class="hiw-steps">
-        <div><h4>Home sample collection <span>Takes &lt;3 min</span></h4><p>A phlebotomist from the accredited partner lab comes to you in a morning slot you choose. Fasted, one arm, under three minutes. 141 biomarkers from one draw.</p></div>
-        <div><h4>Doctor consultation and protocol <span>Takes 30 min</span></h4><p>Within days the results land in Vanta HealthOS. A twenty-page report scores every marker against an optimal band; a doctor takes your history, walks you through it, and the protocol is written from both.</p></div>
-        <div><h4>Implementation through Vanta HealthOS <span>Takes 3 months</span></h4><p>The protocol runs inside the OS for ninety days: training, nutrition, supplementation, recovery, every action with its reason, tracked daily against your twin, with retests booked on their dates.</p></div>
+        <div><h4><b>Home sample collection</b><span>Takes &lt;3 min</span></h4><p>A phlebotomist from the accredited partner lab comes to you in a morning slot you choose. Fasted, one arm, under three minutes. 141 biomarkers from one draw.</p></div>
+        <div><h4><b>Doctor consultation and protocol</b><span>Takes 30 min</span></h4><p>Within days the results land in Vanta HealthOS. A twenty-page report scores every marker against an optimal band; a doctor takes your history, walks you through it, and the protocol is written from both.</p></div>
+        <div><h4><b>Implementation through Vanta HealthOS</b><span>Takes 3 months</span></h4><p>The protocol runs inside the OS for ninety days: training, nutrition, supplementation, recovery, every action with its reason, tracked daily against your twin, with retests booked on their dates.</p></div>
       </div>
     </div>
     <div class="hiw-r">
@@ -466,8 +501,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw2kwrkn"></script>
-<script src="organs-model.js?v=mw2kwrkn"></script>
+<script src="david-model.js?v=mw338vi7"></script>
+<script src="organs-model.js?v=mw338vi7"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -702,6 +737,11 @@
   const arm = () => { clearInterval(timer); if (vis && !reduce) timer = setInterval(() => go(k + 1), 4500); };
   dots.forEach((d, i) => d.addEventListener('click', () => { go(i); arm(); }));
   new IntersectionObserver(([e]) => { vis = e.isIntersecting; arm(); }, { threshold: 0.25 }).observe(sec);
+  // the picture is as tall as the text beside it, and as wide as that height asks for
+  const hl = sec.querySelector('.hiw-l'), hr = sec.querySelector('.hiw-r');
+  const fit = () => { if (!matchMedia('(min-width: 901px)').matches) { hr.style.width = ''; hr.style.height = ''; return; } const inner = hl.parentNode, cs = getComputedStyle(inner), avail = inner.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - hl.offsetWidth - parseFloat(cs.columnGap || 0), want = (hl.querySelector('.hiw-steps').lastElementChild.querySelector('p').getBoundingClientRect().bottom - hl.querySelector('.kick').getBoundingClientRect().top) * 733 / 916; const w = Math.round(Math.max(260, Math.min(want, avail, 500))); hr.style.width = w + 'px'; hr.style.height = Math.round(w * 916 / 733) + 'px'; };
+  fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit); addEventListener('load', fit);
+
 })();
 /* the other panels: cards drawn from the store's data, each with its own particle picture; the carousel moves by hand (arrows, swipe, trackpad) */
 (() => {

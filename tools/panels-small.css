@@ -18,3 +18,8 @@
   /* more air after the other panels, before the closing photo */
   @media (min-width: 901px) { #pn { padding-bottom: clamp(150px, 14vw, 240px); } }
   @media (max-width: 900px) { #pn { padding-bottom: 150px; } }
+
+  /* the black space above and below "Our other panels" is the same */
+  :root { --pn-gap: clamp(150px, 14vw, 250px); }
+  @media (min-width: 901px) { #hiw { padding-bottom: var(--pn-gap); } #pn { padding-top: 0; padding-bottom: var(--pn-gap); } }
+  @media (max-width: 900px) { #hiw { padding-bottom: 110px; } #pn { padding-top: 0; padding-bottom: 110px; } }

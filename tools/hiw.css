@@ -28,3 +28,33 @@
     .hiw-steps h4 { font-size: 20px; } .hiw-steps h4 span { margin-left: 12px; } .hiw-steps p { font-size: 14px; }
     .hiw-l h2 { font-size: 30px; } .hiw-steps { margin-top: 36px; gap: 34px; }
   }
+
+  /* the carousel dots, smaller */
+  .hiw-dots { width: auto; gap: 10px; justify-content: center; bottom: 14px; }
+  .hiw-dots i { position: relative; width: 6px; box-shadow: 0 0 0 3px #0d0d0d; }
+  .hiw-dots i::after { content: ""; position: absolute; inset: -8px; }
+
+  /* the pictures were cropped from screenshots that had their own dots at the bottom: fade the last strip out so only the live dots show */
+  .hiw-card { background: #070707; }
+  .hiw-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 12%; background: linear-gradient(rgba(7,7,7,0), #070707 55%); pointer-events: none; z-index: 2; }
+
+  /* the picture is exactly as tall as the text beside it */
+  @media (min-width: 901px) {
+    .hiw-in { align-items: stretch; }
+    .hiw-r { flex: 0 0 auto; align-self: stretch; width: auto; height: auto; margin-top: 0; aspect-ratio: 733 / 916; }
+  }
+
+  /* step titles: the title and its pill sit side by side, and when there is no room the pill drops under the title at the same left edge */
+  .hiw-steps h4 { display: flex; flex-wrap: wrap; align-items: center; column-gap: 14px; row-gap: 8px; font-size: 1.25rem; }
+  .hiw-steps h4 b { font-weight: inherit; }
+  .hiw-steps h4 span { margin-left: 0; vertical-align: baseline; }
+  @media (min-width: 901px) { .hiw-l { flex: 0 1 min(44vw, 610px); } .hiw-steps h4 { font-size: 1.25rem; } }
+
+  /* on a phone the picture sits in the middle */
+  @media (max-width: 900px) { .hiw-r { margin: 0 auto; width: min(84%, 380px); } .hiw-badge { right: -6%; } }
+
+  /* the text column keeps its width, so the picture can never squeeze it */
+  @media (min-width: 901px) { .hiw-l { flex: 0 0 min(44vw, 610px); min-width: 0; } .hiw-r { flex: 0 0 auto; } }
+
+  /* the picture keeps its own proportions (the old bottom edge with the drawn-in dots stays hidden) */
+  @media (min-width: 901px) { .hiw-r { align-self: flex-start; } }
