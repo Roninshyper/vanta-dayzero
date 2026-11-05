@@ -13,3 +13,15 @@
   .pn-txt { margin-bottom: 20px; }
   .pn-foot b { font-size: 1.25rem; }
   @media (max-width: 900px) { .pn-track { margin-left: 6vw; margin-right: 6vw; } .pn-card { flex-basis: 86%; } }
+
+  /* the other panels, a size smaller: the whole block is 980px wide at most */
+  @media (min-width: 901px) {
+    .pn-track { max-width: 980px; margin-right: auto; --pg: 20px; }
+    .pn-head { padding-right: calc(var(--gut) + max(0px, 100vw - 2 * var(--gut) - 980px)); }
+    .pn-card { padding: 14px 14px 12px; border-radius: 18px; }
+    .pn-top { margin-bottom: 10px; font-size: .625rem; }
+    .pn-img { border-radius: 11px; }
+    .pn-txt { margin-top: 14px; margin-bottom: 14px; } .pn-txt h3 { font-size: 1rem; } .pn-txt p { font-size: .75rem; margin-top: 6px; }
+    .pn-foot { padding-top: 11px; } .pn-foot b { font-size: 1.0625rem; } .pn-foot span { font-size: .5938rem; }
+    .pn-head h2 { font-size: clamp(1.25rem, 1rem + 1vw, 1.625rem); }
+  }
