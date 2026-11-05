@@ -1,0 +1,15 @@
+
+  /* ================= other panels, calmer: three cards across, a quiet drawing, the words under it ================= */
+  :root { --pg: 24px; }
+  .pn-track { margin: 14px var(--gut) 0; padding: 10px 0 14px; gap: var(--pg); scroll-padding-left: 0; -webkit-mask-image: none; mask-image: none; scroll-snap-type: x mandatory; }
+  .pn-card { flex: 0 0 calc((100% - 2 * var(--pg)) / 3); min-width: 0; padding: 18px 18px 16px; border-radius: 22px; background: #0f0f0f; display: flex; flex-direction: column; }
+  .pn-top { height: auto; padding: 0 2px; font-size: .6875rem; margin-bottom: 14px; }
+  .pn-img { margin-top: 0; border-radius: 14px; aspect-ratio: 3 / 2; background: #121212; border: 1px solid rgba(255,255,255,.05); }
+  .pn-img::after { display: none; }
+  .pn-txt { position: static; margin-top: 18px; }
+  .pn-txt h3 { font-size: 1.125rem; letter-spacing: -0.01em; }
+  .pn-txt p { margin-top: 8px; font-size: .8125rem; line-height: 1.5; color: #9a9a9a; text-align: left; -webkit-line-clamp: 3; }
+  .pn-foot { margin-top: auto; padding: 14px 2px 0; border-top: 1px solid #1f1f1f; }
+  .pn-txt { margin-bottom: 20px; }
+  .pn-foot b { font-size: 1.25rem; }
+  @media (max-width: 900px) { .pn-track { margin-left: 6vw; margin-right: 6vw; } .pn-card { flex-basis: 86%; } }

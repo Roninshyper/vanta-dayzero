@@ -407,6 +407,21 @@
 
   /* a card that lifts on hover has room above it (the scroller would otherwise clip it) */
   .pn-track { padding-top: 10px; padding-bottom: 12px; margin-top: 14px; }
+
+  /* ================= other panels, calmer: three cards across, a quiet drawing, the words under it ================= */
+  :root { --pg: 24px; }
+  .pn-track { margin: 14px var(--gut) 0; padding: 10px 0 14px; gap: var(--pg); scroll-padding-left: 0; -webkit-mask-image: none; mask-image: none; scroll-snap-type: x mandatory; }
+  .pn-card { flex: 0 0 calc((100% - 2 * var(--pg)) / 3); min-width: 0; padding: 18px 18px 16px; border-radius: 22px; background: #0f0f0f; display: flex; flex-direction: column; }
+  .pn-top { height: auto; padding: 0 2px; font-size: .6875rem; margin-bottom: 14px; }
+  .pn-img { margin-top: 0; border-radius: 14px; aspect-ratio: 3 / 2; background: #121212; border: 1px solid rgba(255,255,255,.05); }
+  .pn-img::after { display: none; }
+  .pn-txt { position: static; margin-top: 18px; }
+  .pn-txt h3 { font-size: 1.125rem; letter-spacing: -0.01em; }
+  .pn-txt p { margin-top: 8px; font-size: .8125rem; line-height: 1.5; color: #9a9a9a; text-align: left; -webkit-line-clamp: 3; }
+  .pn-foot { margin-top: auto; padding: 14px 2px 0; border-top: 1px solid #1f1f1f; }
+  .pn-txt { margin-bottom: 20px; }
+  .pn-foot b { font-size: 1.25rem; }
+  @media (max-width: 900px) { .pn-track { margin-left: 6vw; margin-right: 6vw; } .pn-card { flex-basis: 86%; } }
 </style>
 </head>
 <body>
@@ -510,8 +525,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw36aoon"></script>
-<script src="organs-model.js?v=mw36aoon"></script>
+<script src="david-model.js?v=mw39d08l"></script>
+<script src="organs-model.js?v=mw39d08l"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -752,7 +767,7 @@
   fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit); addEventListener('load', fit);
 
 })();
-/* the other panels: cards drawn from the store's data, each with its own particle picture; the carousel moves by hand (arrows, swipe, trackpad) */
+/* the other panels: cards drawn from the store's data, three on screen at a time, each with one quiet line drawing; the carousel moves by hand (arrows, swipe, trackpad) */
 (() => {
   const D = window.PANELS; if (!D) return;
   const track = document.getElementById('pnTrack'), prev = document.getElementById('pnPrev'), next = document.getElementById('pnNext');
@@ -761,59 +776,44 @@
   const count = p => p.soon ? 'Coming soon' : p.variants ? p.variants.map(v => v.label[0] + ' ' + v.markers).join(' · ') + ' Markers' : p.markers + ' ' + (p.unit ? p.unit[0].toUpperCase() + p.unit.slice(1) : 'Markers');
   track.innerHTML = D.items.map((p, i) => {
     const inner = '<div class="pn-top"><span>' + esc(plural[p.cat] || p.cat) + '</span><span>' + esc(count(p)) + '</span></div>' +
-      '<div class="pn-img"><canvas data-i="' + i + '"></canvas><div class="pn-txt"><h3>' + esc(p.name) + '</h3><p>' + esc(p.body || p.line) + '</p></div></div>' +
+      '<div class="pn-img"><canvas data-i="' + i + '"></canvas></div>' +
+      '<div class="pn-txt"><h3>' + esc(p.name) + '</h3><p>' + esc(p.line || p.body) + '</p></div>' +
       '<div class="pn-foot">' + (p.soon ? '<b class="soon">Coming soon</b>' : '<b>₹' + p.price.toLocaleString('en-IN') + '</b>') + '<span>At your door</span></div>';
     return p.soon ? '<div class="pn-card">' + inner + '</div>' : '<a class="pn-card" href="' + D.linkBase + p.slug + '" target="_blank" rel="noopener">' + inner + '</a>';
   }).join('');
 
-  // ---- the pictures: soft grey tiles with a white particle drawing of each panel's subject
+  // ---- the pictures: one thin white drawing per panel, on a flat dark tile, with plenty of empty space
   let sd = 3; const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
   function art(cv, i) {
-    const dpr = Math.min(devicePixelRatio || 1, 2), W = 348, H = 372; cv.width = W * dpr; cv.height = H * dpr; const c = cv.getContext('2d'); c.scale(dpr, dpr); sd = 11 + i * 7;
-    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#6d6d6d'); g.addColorStop(0.55, '#3a3a3a'); g.addColorStop(1, '#161616'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-    const gl = c.createRadialGradient(W * 0.5, H * 0.36, 10, W * 0.5, H * 0.36, W * 0.62); gl.addColorStop(0, 'rgba(255,255,255,.28)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+    const dpr = Math.min(devicePixelRatio || 1, 2), W = 360, H = 240; cv.width = W * dpr; cv.height = H * dpr; const c = cv.getContext('2d'); c.scale(dpr, dpr); sd = 11 + i * 7;
+    c.fillStyle = '#121212'; c.fillRect(0, 0, W, H);
+    const gl = c.createRadialGradient(W / 2, H / 2, 4, W / 2, H / 2, W * 0.5); gl.addColorStop(0, 'rgba(255,255,255,.075)'); gl.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
     const dot = (x, y, r, a) => { c.globalAlpha = Math.min(1, a); c.beginPath(); c.arc(x, y, r, 0, 6.2832); c.fill(); };
     c.fillStyle = '#fff';
-    const line = (a, b, n, r, al) => { for (let k = 0; k < n; k++) { const t = k / n; dot(a[0] + (b[0] - a[0]) * t + (rnd() - .5) * 1.2, a[1] + (b[1] - a[1]) * t + (rnd() - .5) * 1.2, r * (.6 + rnd() * .8), al); } };
-    const ring = (x, y, rx, ry, n, r, al, rot = 0) => { for (let k = 0; k < n; k++) { const t = k / n * 6.2832, px = Math.cos(t) * rx, py = Math.sin(t) * ry; dot(x + px * Math.cos(rot) - py * Math.sin(rot) + (rnd() - .5), y + px * Math.sin(rot) + py * Math.cos(rot) + (rnd() - .5), r * (.6 + rnd() * .8), al); } };
-    const fill = (x, y, rx, ry, n, r, al, rot = 0) => { for (let k = 0; k < n; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()), px = Math.cos(a) * rx * d, py = Math.sin(a) * ry * d; dot(x + px * Math.cos(rot) - py * Math.sin(rot), y + px * Math.sin(rot) + py * Math.cos(rot), r * (.5 + rnd() * .8), al * (.35 + .65 * d)); } };
-    const path = (f, n, w, r, al) => { for (let k = 0; k < n; k++) { const t = k / n, p = f(t), a = rnd() * 6.2832, d = rnd() * w; dot(p[0] + Math.cos(a) * d, p[1] + Math.sin(a) * d, r * (.5 + rnd() * .9), al); } };
+    const line = (a, b, n, al = .8) => { for (let k = 0; k <= n; k++) { const t = k / n; dot(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, .8, al); } };
+    const ring = (x, y, rx, ry, n, al = .8, rot = 0) => { for (let k = 0; k < n; k++) { const t = k / n * 6.2832, px = Math.cos(t) * rx, py = Math.sin(t) * ry; dot(x + px * Math.cos(rot) - py * Math.sin(rot), y + px * Math.sin(rot) + py * Math.cos(rot), .8, al); } };
+    const speck = (x, y, rx, ry, n, al = .5, rot = 0) => { for (let k = 0; k < n; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()), px = Math.cos(a) * rx * d, py = Math.sin(a) * ry * d; dot(x + px * Math.cos(rot) - py * Math.sin(rot), y + px * Math.sin(rot) + py * Math.cos(rot), .7, al * (.4 + .6 * d)); } };
+    const path = (f, n, al = .85) => { for (let k = 0; k <= n; k++) dot(...f(k / n), .85, al); };
+    const cx = W / 2, cy = H / 2;
     switch (i) {
-      case 0: // capsules and bubbles in a liquid
-        for (const b of [[110, 120, 74], [260, 90, 40], [300, 230, 54], [70, 260, 30], [200, 210, 24], [150, 40, 18]]) { ring(b[0], b[1], b[2], b[2], 110 + b[2] * 3, .9, .75); fill(b[0] - b[2] * .3, b[1] - b[2] * .35, b[2] * .22, b[2] * .15, 24, .8, .6); }
-        fill(205, 150, 46, 22, 700, 1, .9, -.55); ring(205, 150, 46, 22, 160, 1.1, 1, -.55); fill(110, 190, 42, 24, 600, 1, .85, .6); ring(110, 190, 42, 24, 150, 1.1, 1, .6); break;
-      case 1: // the thyroid: two lobes and a bridge, over the windpipe
-        for (let k = 0; k < 12; k++) ring(174, 40 + k * 22, 26, 5, 40, .9, .8);
-        for (const s of [-1, 1]) { fill(174 + s * 62, 170, 42, 78, 1800, 1, .8, s * -.28); ring(174 + s * 62, 170, 42, 78, 260, 1.2, 1, s * -.28); for (let k = 0; k < 40; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()); ring(174 + s * 62 + Math.cos(a) * 30 * d, 170 + Math.sin(a) * 60 * d, 6, 6, 8, .7, .55); } }
-        fill(174, 215, 26, 14, 300, 1, .9); break;
-      case 2: // test tubes, crossed
-        for (const [x, y, rot, L] of [[120, 175, -.95, 230], [215, 190, -.5, 240]]) { const dx = Math.cos(rot), dy = Math.sin(rot); line([x - dx * L / 2, y - dy * L / 2 - 17], [x + dx * L / 2, y + dy * L / 2 - 17], 150, 1, .9); line([x - dx * L / 2, y - dy * L / 2 + 17], [x + dx * L / 2, y + dy * L / 2 + 17], 150, 1, .9); ring(x + dx * L / 2, y + dy * L / 2, 17, 17, 40, 1, .9); fill(x - dx * L / 2, y - dy * L / 2, 20, 20, 160, 1.3, 1); for (let k = 0; k < 5; k++) { const t = .35 + k * .05; fill(x + dx * L * (t - .5), y + dy * L * (t - .5), 11, 14, 60, 1, .45); } }
-        break;
-      case 3: // a DNA double helix
-        for (let s = 0; s < 2; s++) path(t => [174 + Math.sin(t * 18 + s * Math.PI) * 62, 20 + t * 330], 1100, 1.6, 1.4, 1);
-        for (let k = 0; k < 30; k++) { const t = k / 30, a = Math.sin(t * 18) * 62; line([174 + a, 20 + t * 330], [174 - a, 20 + t * 330], 18, .9, .55); } break;
-      case 4: // the gut: a long folded tube
-        path(t => [174 + Math.sin(t * 22) * (110 - t * 40), 30 + t * 310 + Math.sin(t * 40) * 14], 2600, 15, 1.1, .85); path(t => [174 + Math.sin(t * 22) * (110 - t * 40), 30 + t * 310 + Math.sin(t * 40) * 14], 700, 1.5, 1.4, 1); break;
-      case 5: // a lattice of cells and crystals
-        for (let r = 0; r < 7; r++) for (let q = 0; q < 6; q++) { const x = 40 + q * 56 + (r % 2) * 28, y = 40 + r * 48, s = 22 * (.5 + rnd() * .6); ring(x, y, s, s, 6, 1.4, .9, rnd()); if (rnd() < .35) fill(x, y, s * .6, s * .6, 60, 1.1, .85); } break;
-      case 6: // a plate with food
-        ring(174, 175, 138, 138, 360, 1.1, .9); ring(174, 175, 98, 98, 260, 1, .6); for (const [x, y, r] of [[130, 140, 34], [215, 130, 26], [190, 215, 40], [120, 220, 22]]) { fill(x, y, r, r, 260, 1.1, .85); ring(x, y, r, r, 70, 1.2, 1); } break;
-      case 7: // many traces: a full read-out
-        for (let k = 0; k < 9; k++) path(t => [20 + t * 308, 50 + k * 34 + Math.sin(t * (9 + k) + k) * 9 + Math.sin(t * 31 + k * 2) * 3], 340, .6, 1.1, .95 - k * .05); break;
-      case 8: // a helix with its methyl marks, inside a clock face
-        ring(174, 175, 150, 150, 420, 1.1, .8); for (let k = 0; k < 12; k++) { const a = k / 12 * 6.2832; line([174 + Math.cos(a) * 138, 175 + Math.sin(a) * 138], [174 + Math.cos(a) * 150, 175 + Math.sin(a) * 150], 6, 1, .9); }
-        for (let s = 0; s < 2; s++) path(t => [174 + Math.sin(t * 12 + s * Math.PI) * 46, 55 + t * 240], 700, 1.4, 1.3, 1); for (let k = 0; k < 14; k++) { const t = k / 14, a = Math.sin(t * 12) * 46; dot(174 + a, 55 + t * 240, 4.2, 1); dot(174 - a, 55 + t * 240, 2.6, .8); } line([174, 175], [174, 95], 30, 1.2, 1); line([174, 175], [224, 200], 24, 1.2, 1); break;
-      default: { // a network of nodes inside a head
-        const nodes = []; for (let k = 0; k < 46; k++) { const a = rnd() * 6.2832, d = Math.sqrt(rnd()); nodes.push([174 + Math.cos(a) * 112 * d, 165 + Math.sin(a) * 92 * d]); }
-        ring(174, 165, 125, 104, 400, 1, .6); for (const a of nodes) for (const b of nodes) if (a !== b && Math.hypot(a[0] - b[0], a[1] - b[1]) < 56 && rnd() < .5) line(a, b, 9, .7, .55); for (const a of nodes) { fill(a[0], a[1], 4, 4, 14, 1.3, 1); } }
+      case 0: ring(cx - 28, cy + 6, 46, 46, 150); ring(cx + 52, cy - 24, 24, 24, 80); ring(cx + 40, cy + 36, 14, 14, 50); speck(cx - 28, cy + 6, 24, 24, 120, .35); break;   // bubbles
+      case 1: ring(cx - 42, cy, 34, 54, 150, .85, .26); ring(cx + 42, cy, 34, 54, 150, .85, -.26); line([cx - 12, cy + 18], [cx + 12, cy + 18], 16); speck(cx - 42, cy, 22, 40, 90, .3, .26); speck(cx + 42, cy, 22, 40, 90, .3, -.26); break;   // the thyroid
+      case 2: { const a = [cx - 62, cy + 52], b = [cx + 50, cy - 56], d = [(b[0] - a[0]) / 150, (b[1] - a[1]) / 150], nx = -d[1] * 150 / 78 * 11, ny = d[0] * 150 / 78 * 11; line([a[0] + nx, a[1] + ny], [b[0] + nx, b[1] + ny], 120); line([a[0] - nx, a[1] - ny], [b[0] - nx, b[1] - ny], 120); ring(b[0], b[1], 11, 11, 40); ring(a[0], a[1], 11, 11, 40, .8); speck((a[0] + b[0]) / 2 - 14, (a[1] + b[1]) / 2 + 14, 9, 22, 50, .4, .74); break; }   // one test tube
+      case 3: for (let s = 0; s < 2; s++) path(t => [cx + Math.sin(t * 12.5 + s * Math.PI) * 36, 24 + t * 192], 320); for (let k = 1; k < 8; k++) { const t = k / 8, a = Math.sin(t * 12.5) * 36; line([cx + a, 24 + t * 192], [cx - a, 24 + t * 192], 10, .4); } break;   // a DNA helix
+      case 4: path(t => [cx + Math.sin(t * 15) * (74 - t * 20), 24 + t * 192], 480, .8); break;   // the gut, as one line
+      case 5: for (const [x, y] of [[0, 0], [1, 0], [-1, 0], [.5, 1], [-.5, 1], [.5, -1], [-.5, -1]]) ring(cx + x * 58, cy + y * 50, 30, 30, 6, .9, 0.52); break;   // cells in a lattice
+      case 6: ring(cx, cy, 82, 82, 220); ring(cx, cy, 52, 52, 140, .45); dot(cx - 14, cy - 10, 3, .9); dot(cx + 20, cy + 6, 2.4, .8); dot(cx - 4, cy + 22, 2, .7); break;   // a plate
+      case 7: for (let k = 0; k < 5; k++) path(t => [34 + t * (W - 68), 62 + k * 28 + Math.sin(t * (7 + k * 1.5) + k) * 7], 200, .9 - k * .12); break;   // a few traces
+      case 8: for (let s = 0; s < 2; s++) path(t => [cx + Math.sin(t * 9 + s * Math.PI) * 30, 28 + t * 184], 260); for (let k = 1; k < 6; k++) { const t = k / 6; dot(cx + Math.sin(t * 9) * 30, 28 + t * 184, 3.2, .95); } ring(cx, cy, 94, 94, 260, .28); break;   // a helix with its marks, in a clock ring
+      default: { const nodes = [[-90, -20], [-52, -54], [-30, 12], [4, -28], [30, 44], [58, -8], [92, 20], [8, 30], [-58, 40], [60, -58]]; for (let a = 0; a < nodes.length; a++) for (let b = a + 1; b < nodes.length; b++) { const d = Math.hypot(nodes[a][0] - nodes[b][0], nodes[a][1] - nodes[b][1]); if (d < 74) line([cx + nodes[a][0], cy + nodes[a][1]], [cx + nodes[b][0], cy + nodes[b][1]], Math.round(d / 3), .35); } for (const n of nodes) { ring(cx + n[0], cy + n[1], 4.5, 4.5, 14, 1); } }   // a small network
     }
     c.globalAlpha = 1;
   }
   const cvs = [...track.querySelectorAll('canvas')]; const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { art(e.target, +e.target.dataset.i); io.unobserve(e.target); } }), { rootMargin: '300px' }); cvs.forEach(c => io.observe(c));
 
-  // ---- by hand: arrows move one card, swiping or the trackpad move it freely
+  // ---- by hand: the arrows move one card, swiping or the trackpad move it freely
   const step = () => { const c = track.querySelector('.pn-card'); return c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 20); };
-  const upd = () => { const m = track.scrollWidth - track.clientWidth; prev.disabled = track.scrollLeft < 4; next.disabled = track.scrollLeft > m - 4; track.classList.toggle('end', track.scrollLeft > m - 4); };
+  const upd = () => { const m = track.scrollWidth - track.clientWidth; prev.disabled = track.scrollLeft < 4; next.disabled = track.scrollLeft > m - 4; };
   prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' })); next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
   track.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
 })();
