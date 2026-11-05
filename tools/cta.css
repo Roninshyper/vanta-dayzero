@@ -10,3 +10,7 @@
   .cb.a { background: #fff; color: #000; } .cb.a:hover { transform: translateY(-1px); background: #f0f0f0; }
   .cb.b { background: rgba(10,10,10,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); } .cb.b:hover { border-color: rgba(255,255,255,.45); }
   @media (max-width: 900px) { .cta2 { height: 70vh; } .cta2-box { top: 58%; } }
+
+  /* the closing headline and buttons sit in the vertical middle of the photo */
+  .cta2-box { top: 50%; }
+  @media (max-width: 900px) { .cta2-box { top: 50%; } }

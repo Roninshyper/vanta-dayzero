@@ -5,17 +5,17 @@
   const $ = id => document.getElementById(id), sec = $('bm'), pin = sec.querySelector('.bm-pin'), wheel = $('wheel'), list = $('pList'), inner = $('pInner'), q = $('bmq');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, S = B.systems, N = S.length, clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
   const IC = {
-    metabolic: '<path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-10z"/>',
-    cardiovascular: '<path d="M20.8 5a5.2 5.2 0 0 0-7.4 0L12 6.4 10.6 5A5.2 5.2 0 0 0 3.2 12.4l1.4 1.4L12 21l7.4-7.2 1.4-1.4a5.2 5.2 0 0 0 0-7.4z"/>',
-    hormonal: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>',
-    nutrients: '<path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>',
-    liver: '<path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.4 0z"/>',
-    thyroid: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
-    kidney: '<path d="M22 3H2l8 9.5V19l4 2v-8.5z"/>',
-    immunity: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-    inflammation: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
-    'blood-health': '<path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
-    'toxin-exposure': '<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>'
+    metabolic: '<path d="M20 11a8 8 0 0 0-14.4-3.6L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14.4 3.6L20 15"/><path d="M20 20v-5h-5"/>',
+    cardiovascular: '<path d="M20.8 5a5.2 5.2 0 0 0-7.4 0L12 6.4 10.6 5A5.2 5.2 0 0 0 3.2 12.4l1.4 1.4L12 21l7.4-7.2 1.4-1.4a5.2 5.2 0 0 0 0-7.4z"/><path d="M7 12.5h2.6l1.4-3 2 5 1.3-2H17"/>',
+    hormonal: '<circle cx="6.5" cy="7" r="2.6"/><circle cx="17.5" cy="9" r="2"/><circle cx="11" cy="17.5" r="3"/><path d="M9.1 7.4l6.4 1.2"/><path d="M7.6 9.5l2.2 5.2"/><path d="M16.4 10.7l-3.6 4.8"/>',
+    nutrients: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14-.4 0-.7 0-1-.1z"/><path d="M5 19c3-4 6-7 10-9"/>',
+    liver: '<path d="M3.5 9.6c0-1.9 1.5-3.1 3.3-3.1H15c3.4 0 5.5 2.3 5.5 5.3 0 3.7-3.1 6.4-7 6.4-2.2 0-3.5-.6-4.9-1.7L6.2 17c-1.7-1-2.7-2.5-2.7-4.3z"/><path d="M9.6 8c.2 1.9 1.3 3.3 3.2 4.1"/>',
+    thyroid: '<ellipse cx="8" cy="12" rx="3.3" ry="5.2" transform="rotate(10 8 12)"/><ellipse cx="16" cy="12" rx="3.3" ry="5.2" transform="rotate(-10 16 12)"/><path d="M11 13.5h2"/><path d="M12 3.5v4M12 17v3.5"/>',
+    kidney: '<path d="M9 4.2C5.6 4.6 4 7.8 4 11.4 4 15.4 6.6 20 9.8 20c2.1 0 3.2-1.6 3.2-3.5 0-1.3-1-1.8-1-3.1S13 11.6 13 10c0-3.2-1.8-6.2-4-5.8z"/><path d="M15.4 7.6c1.9.5 3.1 2 3.6 4M15.6 15.6c1.4-.3 2.5-1.1 3.2-2.4"/>',
+    immunity: '<path d="M12 21.5s7.5-3.7 7.5-9.7V5.6L12 2.8 4.5 5.6v6.2c0 6 7.5 9.7 7.5 9.7z"/><circle cx="12" cy="11" r="2.6"/><path d="M12 6.8v1.6M12 13.6v1.6M7.8 11h1.6M14.6 11h1.6"/>',
+    inflammation: '<path d="M12 3c.7 3.2 4.8 5 4.8 9.6a4.8 4.8 0 0 1-9.6 0c0-2.1 1-3.3 2-4.3.1 1.6.8 2.5 2 2.9C10.8 9.7 10.5 6.1 12 3z"/>',
+    'blood-health': '<circle cx="8.5" cy="9" r="4.2"/><circle cx="16.3" cy="11.5" r="3.6"/><circle cx="10.5" cy="17.3" r="3.4"/><circle cx="8.5" cy="9" r="1.3"/><circle cx="16.3" cy="11.5" r="1.1"/><circle cx="10.5" cy="17.3" r="1"/>',
+    'toxin-exposure': '<path d="M9.5 3.5h5"/><path d="M10.5 3.5v5.2L5 18.2c-.7 1.3.2 2.8 1.7 2.8h10.6c1.5 0 2.4-1.5 1.7-2.8l-5.5-9.5V3.5"/><path d="M7.7 15h8.6"/>'
   };
   const icon = id => '<svg viewBox="0 0 24 24">' + (IC[id] || '') + '</svg>';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
