@@ -63,10 +63,16 @@
   #veinlines { position: absolute; display: none; z-index: 1; pointer-events: none; will-change: transform, opacity; filter: drop-shadow(0 0 2px rgba(255,255,255,.55)); }
   #phone { position: absolute; display: none; z-index: 2; transform-style: preserve-3d; will-change: transform; }
   #phone > div { position: absolute; inset: 0; border-radius: var(--pr, 18px); }
-  #phone .ph-slice { background: linear-gradient(90deg, #7f858d, #e9ecef 48%, #8c929a); }
-  #phone .ph-front { background: url(assets/phone.webp) center / 100% 100% no-repeat; }
-  #phone .ph-back { background: radial-gradient(circle at 28% 16%, #3a3d42, #17181b 55%); box-shadow: inset 0 0 0 2px #8d939b; }
-  #phone .ph-back::after { content: ""; position: absolute; left: 9%; top: 5%; width: 36%; height: 17%; border-radius: 22%; background: #0e0f11; box-shadow: inset 0 0 0 2px #555a61; }
+  #phone .ph-slice { background: linear-gradient(100deg, #1d1f22 0%, #34373b 14%, #4a4d52 28%, #2b2d31 46%, #3d4045 62%, #232529 80%, #1a1b1e 100%); }                  /* smooth dark aluminium, no grain */
+  /* the front: a smooth dark-titanium frame with a thin bright edge line, a black glass border, then the screen (the same app screen as before) */
+  #phone .ph-front { padding: var(--fr, 2px); background: linear-gradient(140deg, #4a4d52 0%, #1d1e21 34%, #2f3135 62%, #131416 100%); box-shadow: inset 0 0 0 1px rgba(205,209,215,.5), 0 0 0 1px rgba(10,11,12,.95); }
+  #phone .ph-scr { position: absolute; inset: var(--fr, 2px); border-radius: calc(var(--pr, 18px) - var(--fr, 2px)); background: #000; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; }
+  #phone .ph-img { position: absolute; inset: var(--bz, 2px); border-radius: calc(var(--pr, 18px) - var(--fr, 2px) - var(--bz, 2px)); overflow: hidden; }
+  #phone .ph-img img { position: absolute; display: block; width: 104.65%; height: 101.42%; left: -2.325%; top: -0.71%; max-width: none; }
+  #phone .ph-scr::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(112deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.06) 46%, rgba(255,255,255,0) 60%); pointer-events: none; }
+  #phone .ph-btn { inset: auto; width: 1.7%; background: linear-gradient(90deg, #17181a, #4a4d52 55%, #202225); border-radius: 2px; }
+  #phone .ph-back { background: radial-gradient(circle at 30% 18%, #3b3e43, #1f2124 58%, #141517); box-shadow: inset 0 0 0 2px #4a4d52, inset 0 0 26px rgba(0,0,0,.35); }
+  #phone .ph-back::after { content: ""; position: absolute; left: 9%; top: 5%; width: 36%; height: 17%; border-radius: 22%; background: radial-gradient(circle at 30% 30%, #26282c, #0b0c0d 72%); box-shadow: inset 0 0 0 2px #3a3d42, 0 0 0 1px #17181a; }
   #scene, #scene2 { -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 97%), linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%); -webkit-mask-composite: source-in;
     mask-image: linear-gradient(to bottom, #000 74%, transparent 97%), linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%); mask-composite: intersect; }
   #scene2 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; pointer-events: none; }
@@ -808,11 +814,12 @@ const PART = (() => {
   }
 
   function build() {
-    k = Math.min(W / 744 * 0.95, H / 560); const m = W < 760; Smin = Math.min(W, H);
+    const m = W < 760; k = Math.min(W / 744 * (m ? 1.35 : 0.95), H / 560); Smin = Math.min(W, H);
     bigK = W < 1000 ? 1 : 1.22; const U = 1540 * k * bigK, sc = Math.pow(U / 2200, 2), apart = W * CFG.apart;                          // U = pixels per metre
     const NH = clamp(Math.round(CFG.hands * sc), 5000, 36000), NAr = clamp(Math.round(CFG.arm * sc), 1500, 9000), NSy = clamp(Math.round(CFG.syringe * sc), 1500, 7500), ND = clamp(Math.round(CFG.details * sc), 250, 1170);
     rb = Math.sqrt(0.05 * U * U / NH) * 0.145;                                                        // base particle radius: about half the spacing between particles
-    const at = { user: [W * (m ? 0.32 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.3 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.66 : 0.74), H * (m ? 0.64 : 0.61)] };
+    const at = { user: [W * (m ? 0.37 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.535 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.5 : 0.74), H * (m ? 0.62 : 0.61)] };
+    const mul4 = m ? 1.45 : 1, U4 = U * mul4;                                                  // step 3 (the phone) is drawn larger on a phone-sized screen
 
     const smA = H3.samples(NH, 7), smB = H3.samples(NH, 19), armA = H3.arm(NAr, 11, 0.2), armB = H3.arm(NAr, 13, 0.2, { sleeve: 1.3 });                                  // the doctor wears a glove, so a rolled cuff and sleeve
     NA = NH + NAr + ND; const NB = NH + NAr + NSy + ND; N = NA + NB;      // each hand: skin, forearm, then a few hundred detail points (nails and creases, or glove wrinkles)
@@ -830,16 +837,16 @@ const PART = (() => {
     for (let i = 0; i < NA; i++) RM[i] = i < NH ? 1 : i < NH + NAr ? thin(armA, i - NH) : kSkin[i - NH - NAr];
     for (let i = 0; i < NB; i++) { const j = NA + i; RM[j] = i < NH ? 1.08 : i < NH + NAr ? thin(armB, i - NH) : i < NH + NAr + NSy ? (syr.k[i - NH - NAr] === 2 ? 1.1 : syr.k[i - NH - NAr] === 1 ? 0.5 : 0.8) : kGlove[i - NH - NAr - NSy]; }
     const put = (S, off, pts, o, count) => { const q = H3.place(pts, o); for (let i = 0; i < count; i++) { const d = off + i; S.X[d] = q.x[i]; S.Y[d] = q.y[i]; S.Z[d] = q.z[i]; S.NX[d] = q.nx[i]; S.NY[d] = q.ny[i]; S.NZ[d] = q.nz[i]; S.R[d] = rb * RM[d]; } };
-    const user = (rot, pos) => ({ s: U, pos: [pos[0], pos[1], 0], pivot: PIVOT, rot, mirror: true });
+    const user = (rot, pos, mul) => ({ s: U * (mul || 1), pos: [pos[0], pos[1], 0], pivot: PIVOT, rot, mirror: true });
     const doc = (rot, pos) => ({ s: U, pos: [pos[0], pos[1], 0], pivot: PIVOT, rot, mirror: true });
-    const sceneUser = (pose, rot, pos) => { const S = blank(), F = H3.fk(pose), o = user(rot, pos); put(S, 0, H3.points(smA, H3.skin(F)), o, NH); put(S, NH, armA, o, NAr); put(S, NH + NAr, H3.details(F, 'skin', ND, 5), o, ND); S.pv[0] = [pos[0], pos[1]]; return { S, F, o }; };
+    const sceneUser = (pose, rot, pos, mul) => { const S = blank(), F = H3.fk(pose), o = user(rot, pos, mul); put(S, 0, H3.points(smA, H3.skin(F)), o, NH); put(S, NH, armA, o, NAr); put(S, NH + NAr, H3.details(F, 'skin', ND, 5), o, ND); S.pv[0] = [pos[0], pos[1]]; return { S, F, o }; };
     const sceneDoc = (S, rot, pos) => { const o = doc(rot, pos); put(S, NA, ptsD, o, NH); put(S, NA + NH, armB, o, NAr); put(S, NA + NH + NAr, syr, o, NSy); put(S, NA + NH + NAr + NSy, H3.details(Fd, 'glove', ND, 9), o, ND); S.pv[1] = [pos[0], pos[1]]; };
 
     const S0 = blank(); for (let i = 0; i < N; i++) { S0.X[i] = W / 2 + (Math.random() - 0.5) * W * 1.1; S0.Y[i] = H / 2 + (Math.random() - 0.5) * H * 1.1; S0.Z[i] = (Math.random() - 0.5) * Smin * 0.9; }
     const a1 = sceneUser(POSE.reach, [30, 150, 70], [at.user[0] - apart, at.user[1] + H * 0.03]); sceneDoc(a1.S, [0, -90, -90], [at.doc[0] + apart, at.doc[1] - H * 0.03]);
     const a2 = sceneUser(POSE.reach, [30, 150, 70], at.user); sceneDoc(a2.S, [0, -90, -90], at.doc);
     const a3 = sceneUser(POSE.vein, [0, 180, -12], at.vein);
-    const a4 = sceneUser(POSE.hold, [0, 0, -68], at.fin);
+    const a4 = sceneUser(POSE.hold, [0, 0, -68], at.fin, mul4);
     // the doctor's hand drifts up and away from the touch, and stays hidden
     for (const A of [a3.S, a4.S]) for (let i = NA; i < N; i++) {
       const j = ((i - NA) * 7919) % 100 / 100, j2 = ((i - NA) * 104729) % 100 / 100;
@@ -893,13 +900,16 @@ const PART = (() => {
     boneSegs = bn.segs.map((s, i) => ({ a: bA[i], b: bB[i], r1: s.r1 * U, r2: s.r2 * U, f: bf((s.a[1] + s.b[1]) / 2), fl: s.fl, sd: i * 1.7 })); boneKnobs = bn.knobs.filter(s => !s.h).map((s, i) => ({ p: bK[bn.knobs.indexOf(s)], r: s.r * U, f: bf(s.p[1]), sd: i * 2.3 }));
 
     // the phone: a real 3D slab (rounded slices for the edge, screen on the front, camera on the back), resting on the palm
-    const pw = 0.0745 * U, ph = 0.1525 * U, T = 0.0088 * U, pcx = at.fin[0] - 0.004 * U, pcy = at.fin[1] - 0.016 * U;
+    const pw = 0.0745 * U4, ph = 0.1525 * U4, T = 0.0088 * U4, pcx = at.fin[0] - 0.004 * U4, pcy = at.fin[1] - 0.016 * U4;
     phoneEl.innerHTML = ''; phoneEl.style.setProperty('--pr', 0.14 * pw + 'px');
     const layer = (cls, z, extra) => { const d = document.createElement('div'); d.className = cls; d.style.transform = 'translateZ(' + z + 'px)' + (extra || ''); phoneEl.appendChild(d); };
     for (let i = 0; i < 9; i++) layer('ph-slice', -T / 2 + T * i / 8);
     layer('ph-back', -T / 2 - 0.6, ' rotateY(180deg)'); layer('ph-front', T / 2 + 0.6);
+    phoneEl.style.setProperty('--fr', 0.016 * pw + 'px'); phoneEl.style.setProperty('--bz', 0.014 * pw + 'px');
+    phoneEl.lastChild.innerHTML = '<div class="ph-scr"><div class="ph-img"><img src="assets/phone.webp" alt=""></div></div>';
+    for (const [side, y, h] of [['L', 0.14, 0.03], ['L', 0.205, 0.06], ['L', 0.285, 0.06], ['R', 0.25, 0.09]]) { const b = document.createElement('div'); b.className = 'ph-btn'; b.style.cssText = 'transform:translateZ(0);top:' + y * 100 + '%;height:' + h * 100 + '%;' + (side === 'L' ? 'left:-0.9%' : 'right:-0.9%'); phoneEl.appendChild(b); }          // the side buttons
     Object.assign(phoneEl.style, { width: pw + 'px', height: ph + 'px', left: pcx - pw / 2 + 'px', top: pcy - ph / 2 + 'px', transformOrigin: (at.fin[0] - (pcx - pw / 2)) + 'px ' + (at.fin[1] - (pcy - ph / 2)) + 'px' });
-    phoneBox = { slide: H - (pcy - ph / 2) + 40 * k, z: 0.0165 * U + T / 2, front: 0.0165 * U + T + 0.008 * U };
+    phoneBox = { slide: H - (pcy - ph / 2) + 40 * k, z: 0.0165 * U4 + T / 2, front: 0.0165 * U4 + T + 0.008 * U4 };
     fz = Math.max(W, H) * 1.3;
   }
 
