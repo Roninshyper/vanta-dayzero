@@ -404,6 +404,9 @@
 
   /* phones: the system title fits on one line with its count, and the list has no empty tail */
   @media (max-width: 900px) { .p-head { gap: 12px; } .p-head .tile { --tile: 44px; } .p-head h3 { font-size: clamp(.8rem, 3.9vw, 1.05rem); min-width: 0; white-space: nowrap; } .p-head h3 em { font-size: .95em; } }
+
+  /* a card that lifts on hover has room above it (the scroller would otherwise clip it) */
+  .pn-track { padding-top: 10px; padding-bottom: 12px; margin-top: 14px; }
 </style>
 </head>
 <body>

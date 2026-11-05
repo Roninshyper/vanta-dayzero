@@ -23,3 +23,6 @@
   :root { --pn-gap: clamp(150px, 14vw, 250px); }
   @media (min-width: 901px) { #hiw { padding-bottom: var(--pn-gap); } #pn { padding-top: 0; padding-bottom: var(--pn-gap); } }
   @media (max-width: 900px) { #hiw { padding-bottom: 110px; } #pn { padding-top: 0; padding-bottom: 110px; } }
+
+  /* a card that lifts on hover has room above it (the scroller would otherwise clip it) */
+  .pn-track { padding-top: 10px; padding-bottom: 12px; margin-top: 14px; }
