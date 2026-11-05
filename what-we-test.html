@@ -401,6 +401,9 @@
 
   /* on a phone the figure and its cards sit lower in the first screen */
   @media (max-width: 900px) { .m.hrv { top: max(17%, 130px) !important; } .m.hr { top: max(20%, 150px) !important; } .m.steps { top: 46% !important; } .m.sleep { top: 50% !important; } }
+
+  /* phones: the system title fits on one line with its count, and the list has no empty tail */
+  @media (max-width: 900px) { .p-head { gap: 12px; } .p-head .tile { --tile: 44px; } .p-head h3 { font-size: clamp(.8rem, 3.9vw, 1.05rem); min-width: 0; white-space: nowrap; } .p-head h3 em { font-size: .95em; } }
 </style>
 </head>
 <body>
@@ -504,8 +507,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw33cou0"></script>
-<script src="organs-model.js?v=mw33cou0"></script>
+<script src="david-model.js?v=mw33iywx"></script>
+<script src="organs-model.js?v=mw33iywx"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -681,7 +684,7 @@
     G.cx = -0.31 * R + (bw * 0.0); G.edge = G.cx + R;
     wheel.style.setProperty('--wf', Math.max(14, Math.min(20, R * 0.046)) + 'px'); wheel.style.setProperty('--tile', Math.max(44, Math.min(64, R * 0.16)) + 'px');
     const svg = wheel.querySelector('svg.ring'); ring.setAttribute('cx', G.cx); ring.setAttribute('cy', G.cy); ring.setAttribute('r', R);
-    const vp = list.clientHeight, slack = 150; plan = []; total = 0;
+    const vp = list.clientHeight, slack = innerWidth < 901 ? 30 : 150; plan = []; total = 0;
     S.forEach((s, i) => { const ovf = Math.max(0, s.markers.length * rowH - vp + (s.markers.length * rowH > vp ? slack : 0)), turn = i < N - 1 ? TURN() : 0; plan.push({ ovf, hold: HOLD(), turn, start: total }); total += ovf + HOLD() + turn; });
     sec.style.height = (pin.offsetHeight + total) + 'px'; top0 = sec.getBoundingClientRect().top + scrollY;
   }

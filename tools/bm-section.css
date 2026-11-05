@@ -60,3 +60,6 @@
     .p-cols, .p-row .hd { grid-template-columns: 1fr 32% 34px; }
     .p-foot { display: none; }
   }
+
+  /* phones: the system title fits on one line with its count, and the list has no empty tail */
+  @media (max-width: 900px) { .p-head { gap: 12px; } .p-head .tile { --tile: 44px; } .p-head h3 { font-size: clamp(.8rem, 3.9vw, 1.05rem); min-width: 0; white-space: nowrap; } .p-head h3 em { font-size: .95em; } }

@@ -62,7 +62,7 @@
     G.cx = -0.31 * R + (bw * 0.0); G.edge = G.cx + R;
     wheel.style.setProperty('--wf', Math.max(14, Math.min(20, R * 0.046)) + 'px'); wheel.style.setProperty('--tile', Math.max(44, Math.min(64, R * 0.16)) + 'px');
     const svg = wheel.querySelector('svg.ring'); ring.setAttribute('cx', G.cx); ring.setAttribute('cy', G.cy); ring.setAttribute('r', R);
-    const vp = list.clientHeight, slack = 150; plan = []; total = 0;
+    const vp = list.clientHeight, slack = innerWidth < 901 ? 30 : 150; plan = []; total = 0;
     S.forEach((s, i) => { const ovf = Math.max(0, s.markers.length * rowH - vp + (s.markers.length * rowH > vp ? slack : 0)), turn = i < N - 1 ? TURN() : 0; plan.push({ ovf, hold: HOLD(), turn, start: total }); total += ovf + HOLD() + turn; });
     sec.style.height = (pin.offsetHeight + total) + 'px'; top0 = sec.getBoundingClientRect().top + scrollY;
   }
