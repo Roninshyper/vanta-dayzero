@@ -444,6 +444,10 @@
   /* the closing headline and buttons sit in the vertical middle of the photo */
   .cta2-box { top: 50%; }
   @media (max-width: 900px) { .cta2-box { top: 50%; } }
+
+  /* the closing photo: a light sharpen, and a very fine grain that hides the compression banding */
+  .cta2 img { filter: url(#ctaSharp) contrast(1.03); image-rendering: auto; }
+  .cta2-shade::after { content: ""; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: .07; mix-blend-mode: overlay; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -521,7 +525,7 @@
 </section>
 
 <section id="cta" aria-label="Start with Day Zero">
-  <div class="cta2">
+  <div class="cta2"><svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ctaSharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.32 0 -0.32 2.28 -0.32 0 -0.32 0" preserveAlpha="true"/></filter></svg>
     <img src="assets/cta-clean.webp" alt="" loading="lazy">
     <div class="cta2-shade"></div>
     <div class="cta2-box">
