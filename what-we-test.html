@@ -398,6 +398,9 @@
 
   /* the picture keeps its own proportions (the old bottom edge with the drawn-in dots stays hidden) */
   @media (min-width: 901px) { .hiw-r { align-self: flex-start; } }
+
+  /* on a phone the figure and its cards sit lower in the first screen */
+  @media (max-width: 900px) { .m.hrv { top: max(17%, 130px) !important; } .m.hr { top: max(20%, 150px) !important; } .m.steps { top: 46% !important; } .m.sleep { top: 50% !important; } }
 </style>
 </head>
 <body>
@@ -501,8 +504,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw338vi7"></script>
-<script src="organs-model.js?v=mw338vi7"></script>
+<script src="david-model.js?v=mw33cou0"></script>
+<script src="organs-model.js?v=mw33cou0"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -536,7 +539,7 @@
   }
   function layout() {
     dpr = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    s = Math.min(H * 0.86 / 880, W * (W < 900 ? 1.0 : 0.7) / 900); ox = W / 2 - PIVX * s; oy = H * 0.05 - 165 * s; if (HEADDBG) { s *= 1.9; ox = W / 2 - skullC[0] * s; oy = H / 2 - skullC[1] * s; }
+    s = Math.min(H * 0.86 / 880, W * (W < 900 ? 1.0 : 0.7) / 900); ox = W / 2 - PIVX * s; oy = H * (W < 900 ? 0.14 : 0.05) - 165 * s; if (HEADDBG) { s *= 1.9; ox = W / 2 - skullC[0] * s; oy = H / 2 - skullC[1] * s; }
     const base = Math.max(0.35, Math.sqrt(900 * 880 * 0.5 * s * s / 60000) * 0.3);                // dot size from the spacing of the bust's dots
     for (let i = 0; i < n; i++) {
       const k = KD[i]; R0[i] = base * (k === 3 ? 0.9 : k === 1 ? 1.25 : k === 2 ? 0.95 : (k === 4 || k === 10 || k === 12 || k === 13) ? 1.4 : k === 11 ? 0.8 : k === 8 ? 1.12 : k === 5 ? 0.66 : k === 6 ? 0.8 : k === 7 ? 0.7 : k === 9 ? 0.75 : 0.9) * (0.8 + 0.4 * rnd());
