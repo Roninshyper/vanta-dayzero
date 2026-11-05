@@ -434,6 +434,12 @@
     .pn-foot { padding-top: 11px; } .pn-foot b { font-size: 1.0625rem; } .pn-foot span { font-size: .5938rem; }
     .pn-head h2 { font-size: clamp(1.25rem, 1rem + 1vw, 1.625rem); }
   }
+
+  /* the other panels block sits in the middle of the page */
+  @media (min-width: 901px) {
+    .pn-head, .pn-track { width: min(980px, calc(100% - 2 * var(--gut))); max-width: none; margin-left: auto; margin-right: auto; padding-left: 0; padding-right: 0; box-sizing: content-box; }
+    .pn-track { margin-top: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -537,8 +543,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw39oceu"></script>
-<script src="organs-model.js?v=mw39oceu"></script>
+<script src="david-model.js?v=mw3aqty8"></script>
+<script src="organs-model.js?v=mw3aqty8"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
