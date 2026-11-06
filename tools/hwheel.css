@@ -9,3 +9,6 @@
     .hdot { display: block; position: absolute; left: 50%; top: 7px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8a8a8a); }
     .panel { top: 124px; }
   }
+
+  /* phones: the title strip can be dragged sideways */
+  @media (max-width: 900px) { .wheel { pointer-events: auto; touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; } .wheel:active { cursor: grabbing; } }

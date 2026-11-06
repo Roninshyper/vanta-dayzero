@@ -68,7 +68,7 @@
   }
 
   // scroll -> target wheel position and list offset
-  let wTarget = 0, wCur = 0, offTarget = 0, segI = 0, lastScroll = -1;
+  let wBase = 0, wTarget = 0, wCur = 0, offTarget = 0, segI = 0, lastScroll = -1;
   const ease = t => t * t * (3 - 2 * t);
   function fromScroll() {
     const y = clamp(scrollY - top0, 0, total); let i = N - 1;
@@ -80,7 +80,7 @@
 
   function frame() {
     requestAnimationFrame(frame); if (!vis) return;
-    fromScroll(); if (free && searchW != null) wTarget = searchW; wCur += (wTarget - wCur) * (reduce ? 1 : 0.16); if (Math.abs(wTarget - wCur) < 0.0005) wCur = wTarget;
+    fromScroll(); if (free && searchW != null) wTarget = searchW; wBase = wTarget; wTarget = clamp(wBase + dragW, 0, N - 1); wCur += (wTarget - wCur) * (reduce ? 1 : 0.16); if (Math.abs(wTarget - wCur) < 0.0005) wCur = wTarget;
     const ai = clamp(Math.round(wCur), 0, N - 1), d = Math.abs(wCur - ai);
     if (!free && ai !== shown) render(ai);
     if (!free) { const o = listOffset(ai); inner.style.transform = 'translate3d(0,' + (-o) + 'px,0)'; const f = clamp(1 - d * 2.4); $('pIcon').parentNode.style.opacity = $('pIntro').style.opacity = list.style.opacity = f; list.style.opacity = Math.max(f, 0); }
@@ -106,7 +106,7 @@
   // on a phone the wheel lies on its side: a line with a dot at the top, the chosen system in the middle (icon tile and name), its neighbours on either side
   const hline = document.createElement('div'); hline.className = 'hline'; const hdot = document.createElement('div'); hdot.className = 'hdot'; wheel.appendChild(hline); wheel.appendChild(hdot);
   function horizFrame(ai, d) {
-    const W = wheel.clientWidth, step = Math.min(96, W * 0.27), rowY = 58, tile = 46;
+    const W = wheel.clientWidth, step = Math.min(96, W * 0.27), rowY = 58, tile = 46; hStep = step;
     wheel.style.setProperty('--tile', tile + 'px');
     labels.forEach((el, i) => {
       const dd = i - wCur, ad = Math.abs(dd);
@@ -124,7 +124,13 @@
   // the selected title sits on the arc at the wheel's middle row, next to the pill
   const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + G.cy + 'px,0) translateY(-50%)'; };
   const _frame = frame; // keep the selected label glued to the arc
-  labels.forEach((el, i) => el.addEventListener('click', () => { const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
+  let justDragged = false, drag = null, dragW = 0, hStep = 90;
+  labels.forEach((el, i) => el.addEventListener('click', () => { if (justDragged) return; const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
+  // on a phone: drag the strip sideways to move to another system (drag left for the next one); the page still scrolls up and down as usual
+  wheel.addEventListener('pointerdown', e => { if (innerWidth > 900) return; drag = { x: e.clientX, moved: false }; });
+  wheel.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x; if (Math.abs(dx) > 6) drag.moved = true; if (drag.moved) dragW = -dx / hStep; });
+  const endDrag = () => { if (!drag) return; if (drag.moved) { const to = clamp(Math.round(wBase + dragW), 0, N - 1), p = plan[to]; dragW = 0; justDragged = true; setTimeout(() => { justDragged = false; }, 350); if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); } else dragW = 0; drag = null; };
+  wheel.addEventListener('pointerup', endDrag); wheel.addEventListener('pointercancel', endDrag); addEventListener('pointerup', endDrag);
 
   let vis = true; new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(sec);
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { measure(); placeSel(); }, 120); });
