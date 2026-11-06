@@ -488,6 +488,31 @@
     .cta2-box h2 { font-size: 1.5rem; line-height: 1.2; }
     .cb { height: 48px; font-size: 1rem; padding: 0 24px; }
   }
+
+  /* phones: sizes matched to the reference site: headings 26px, intro text 16px, rows and secondary text 15px, system title 20px, labels 12px */
+  @media (max-width: 640px) {
+    .bm-head h2, .hiw-l h2, .pn-head h2, .cta2-box h2 { font-size: 1.625rem; line-height: 1.15; }
+    .bm-sub p, .p-intro { font-size: 1rem; line-height: 1.5; }
+    .p-head h3 { font-size: 1.25rem; white-space: normal; line-height: 1.1; }
+    .p-row .hd { font-size: .9375rem; } .p-row .bd { font-size: .9375rem; }
+    .hiw-steps h4 { font-size: 1.375rem; } .hiw-steps p { font-size: 1rem; }
+    .pn-txt h3 { font-size: 1.25rem; } .pn-txt p { font-size: .9375rem; }
+  }
+
+  /* phones: the exact sizes of the first version (22.4px headings, 13.6px intro text, 12px body, 10.4px secondary, 17.6px titles, 8.8px labels, 11px footer) */
+  @media (max-width: 640px) {
+    .bm-head h2, .hiw-l h2, .pn-head h2, .cta2-box h2 { font-size: 1.4rem; line-height: 1.24; }
+    .bm-sub p { font-size: .85rem; line-height: 1.5; }
+    .bm-search input { font-size: 1rem; }
+    .p-head h3 { font-size: 1.1rem; } .p-intro { font-size: .65rem; line-height: 1.5; }
+    .p-cols, .p-row .hd .un, .hiw-l .kick, .pn-head .kick, .pn-top, .pn-top span:last-child, .pn-foot span, .scroll-hint { font-size: .55rem; }
+    .p-row .hd { font-size: .75rem; } .p-row .hd .nm { font-size: .75rem; line-height: 1.5; } .p-row .bd { font-size: .75rem; line-height: 1.55; }
+    .hiw-steps h4 { font-size: 1.1rem; } .hiw-steps h4 span { font-size: .65rem; } .hiw-steps p { font-size: .65rem; line-height: 1.5; }
+    .hiw-badge { font-size: 1.1rem; }
+    .pn-txt h3 { font-size: 1.1rem; } .pn-txt p { font-size: .65rem; line-height: 1.5; } .pn-foot b { font-size: .85rem; } .pn-foot b.soon { font-size: .65rem; }
+    .cb { font-size: .75rem; }
+    .legal { font-size: .6875rem; line-height: 1.5; } .foot-links a, .foot-bot .foot-links a { font-size: .6875rem; }
+  }
 </style>
 </head>
 <body>
@@ -591,8 +616,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw4zk02p"></script>
-<script src="organs-model.js?v=mw4zk02p"></script>
+<script src="david-model.js?v=mw505z3o"></script>
+<script src="organs-model.js?v=mw505z3o"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
