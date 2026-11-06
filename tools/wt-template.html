@@ -524,6 +524,22 @@
     .hdot { display: block; position: absolute; left: 50%; top: 7px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8a8a8a); }
     .panel { top: 124px; }
   }
+
+  /* phones: the three links live behind a menu button */
+  .nav-menu { display: none; }
+  @media (max-width: 560px) {
+    nav { flex-wrap: wrap; justify-content: center; gap: 4px 6px; padding: 7px 8px 7px 18px; }
+    nav .nav-menu { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: none; border: 0; color: #fff; cursor: pointer; border-radius: 50%; -webkit-tap-highlight-color: transparent; }
+    nav .nav-menu svg path { transition: transform .25s ease; transform-origin: 10px 10px; }
+    nav.open .nav-menu .l1 { transform: translateY(3.5px) rotate(45deg); } nav.open .nav-menu .l2 { transform: translateY(-3.5px) rotate(-45deg); }
+    nav .opt { display: none; }
+    nav.open { border-radius: 28px; padding-bottom: 8px; }
+    nav.open .opt { display: flex; order: 9; flex: 0 0 100%; align-items: center; min-height: 48px; padding: 0 10px; font-size: 1rem; color: #fff; border-top: 1px solid rgba(255,255,255,.1); }
+    nav.open .opt.on { color: #fff; font-weight: 500; }
+    nav.open .opt:not(.on) { color: #cfcfcf; }
+  }
+
+  @media (max-width: 560px) { nav { width: calc(100vw - 28px); max-width: 420px; justify-content: flex-start; } nav .logo { margin-right: auto; } }
 </style>
 </head>
 <body>
@@ -533,6 +549,7 @@
   <a class="opt" href="index.html#steps">Day Zero</a>
   <a class="opt" href="#">Concierge</a>
   <a class="on opt" href="what-we-test.html">What we test</a>
+  <button class="nav-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navlinks"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path class="l1" d="M3 6.5h14"/><path class="l2" d="M3 13.5h14"/></svg></button>
   <a class="join" href="#">Join Concierge</a>
 </nav>
 
@@ -977,6 +994,14 @@
   function frame(now) { requestAnimationFrame(frame); if (!ready || !vis || reduce) return; draw(now); }
   (document.fonts && document.fonts.load ? document.fonts.load('700 44px Organetto').catch(() => 0).then(() => document.fonts.ready) : Promise.resolve()).then(() => { build(); draw(0); requestAnimationFrame(frame); });
   new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (e.isIntersecting) cv.classList.add('in'); }, { threshold: 0.2 }).observe(cv);
+})();
+(() => {
+  const nav = document.querySelector('nav'), b = nav && nav.querySelector('.nav-menu'); if (!b) return;
+  const set = o => { nav.classList.toggle('open', o); b.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+  b.addEventListener('click', e => { e.stopPropagation(); set(!nav.classList.contains('open')); });
+  nav.addEventListener('click', e => { if (e.target.closest('a.opt')) set(false); });
+  document.addEventListener('click', e => { if (!nav.contains(e.target)) set(false); });
+  addEventListener('scroll', () => { if (nav.classList.contains('open')) set(false); }, { passive: true });
 })();
 </script>
 </body>
