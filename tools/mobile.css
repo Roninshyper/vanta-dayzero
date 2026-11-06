@@ -63,3 +63,6 @@
     .cb { font-size: .75rem; }
     .legal { font-size: .6875rem; line-height: 1.5; } .foot-links a, .foot-bot .foot-links a { font-size: .6875rem; }
   }
+
+  /* phones: the footer links sit closer together */
+  @media (max-width: 640px) { .foot-links, .foot-bot .foot-links { gap: 0 2px; } .foot-links a, .foot-bot .foot-links a { padding: 8px 7px; min-height: 38px; } .foot-bot .foot-links { margin-top: 18px; } }

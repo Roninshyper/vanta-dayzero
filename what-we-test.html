@@ -554,6 +554,9 @@
 
   /* phones: the title and the paragraph can fold away */
   @media (max-width: 900px) { .bm-head h2, .bm-sub p { overflow: hidden; } .bm-sub { row-gap: 8px; } }
+
+  /* phones: the footer links sit closer together */
+  @media (max-width: 640px) { .foot-links, .foot-bot .foot-links { gap: 0 2px; } .foot-links a, .foot-bot .foot-links a { padding: 8px 7px; min-height: 38px; } .foot-bot .foot-links { margin-top: 18px; } }
 </style>
 </head>
 <body>
@@ -658,8 +661,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw5gp0yi"></script>
-<script src="organs-model.js?v=mw5gp0yi"></script>
+<script src="david-model.js?v=mw5h1fsp"></script>
+<script src="organs-model.js?v=mw5h1fsp"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;

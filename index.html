@@ -324,7 +324,7 @@
   }
 
   /* phones: the hero text sits at the top so it stays clear of the figure */
-  @media (max-width: 640px) { .hero-copy { top: 92px; transform: none; max-width: 90vw; } h1 { font-size: clamp(1.5rem, 6.4vw, 1.75rem); margin-top: 12px; } .lede { font-size: .9375rem; margin-top: 14px; } .hero-copy .btn { margin-top: 20px; } .eyebrow { letter-spacing: .1em; } #dots { transform: translateY(8vh); } }
+  @media (max-width: 640px) { .hero-copy { top: 92px; transform: none; max-width: 90vw; } h1 { font-size: clamp(1.5rem, 6.4vw, 1.75rem); margin-top: 12px; } .lede { font-size: .9375rem; margin-top: 14px; } .hero-copy .btn { margin-top: 20px; } .eyebrow { letter-spacing: .1em; } }
 
   @media (max-width: 640px) { .step h2 { font-size: 1.375rem; } .step p { font-size: .9375rem; line-height: 1.5; margin-top: 8px; } }
 
@@ -365,6 +365,33 @@
   }
 
   @media (max-width: 560px) { nav { width: calc(100vw - 28px); max-width: 420px; justify-content: flex-start; } nav .logo { margin-right: auto; } }
+
+  /* phones: the footer links sit closer together */
+  @media (max-width: 640px) { .foot-links, .foot-bot .foot-links { gap: 0 2px; } .foot-links a, .foot-bot .foot-links a { padding: 8px 7px; min-height: 38px; } .foot-bot .foot-links { margin-top: 18px; } }
+
+  /* phones: the hero text keeps clear of both edges */
+  @media (max-width: 640px) { .hero-copy { left: 20px; right: 20px; max-width: none; } h1 { font-size: clamp(1.75rem, 9.6vw, 2.375rem); } .eyebrow { font-size: .55rem; letter-spacing: .08em; } }
+
+  /* ================= the footer, the same as on the What we test page ================= */
+  :root { --gut: max(5vw, calc((100vw - 1240px) / 2)); }
+  @media (max-width: 900px) { :root { --gut: 6vw; } }
+  #closing { padding-left: var(--gut); padding-right: var(--gut); }
+  footer { padding-left: var(--gut); padding-right: var(--gut); }
+  .foot-logo svg { display: none; }
+  .foot-logo { margin-left: 0; }
+  .foot-bot { display: block; padding-left: 0; }
+  .foot-bot .foot-links { justify-content: center; margin-left: 0; padding-left: 0; }
+  @media (min-width: 641px) {
+    #closing { padding-top: 32px; padding-bottom: 14px; }
+    .cl-text { width: clamp(200px, 24vw, 340px); }
+    .foot-logo { font-size: 1.25rem; margin-top: 4px; }
+    .legal { font-size: .875rem; line-height: 1.55; max-width: 540px; color: #a3a3a3; }
+    .foot-links a, .foot-bot .foot-links a { font-size: .875rem; color: #a3a3a3; } .foot-links a:hover { color: #fff; }
+    .foot-bot { padding-top: 24px; padding-bottom: 40px; } .foot-bot .foot-links { gap: 10px 22px; margin-top: 32px; }
+  }
+
+  /* the footer on a phone: exactly as on the What we test page */
+  @media (max-width: 640px) { .legal { font-size: .6875rem; line-height: 1.5; } .foot-links a, .foot-bot .foot-links a { font-size: .6875rem; } }
 </style>
 </head>
 <body>
@@ -527,7 +554,6 @@
   <div class="cl-wrap">
     <h2 class="sr-only">Outlive Ordinary</h2>
     <div class="cl-text"><canvas id="clglow" aria-hidden="true"></canvas></div>
-    <a class="btn" href="#">Start Dayzero</a>
   </div>
 </section>
 
@@ -535,7 +561,7 @@
   <div class="foot-logo"><svg width="26" height="15" viewBox="0 0 235 139" fill="none" stroke="currentColor" stroke-width="11" aria-hidden="true"><path d="M23.0542 105.334C18.6114 86.1446 48.7118 55.2447 88.8616 32.509M88.8616 32.509C121.009 14.305 159.598 1.33501 192.058 3.80086C202.579 4.60013 209.954 7.0905 214.43 10.7805M4.97778 90.5973C3.82068 87.4789 3.3192 83.892 3.55781 79.8009C5.51978 46.1618 45.9247 33.3757 88.8616 32.509M88.8616 32.509C133.384 31.6103 180.629 43.5278 190.558 58.3013M190.558 58.3013C136.096 95.4481 19.426 129.536 4.97778 90.5973M190.558 58.3013C216.034 40.9254 225.963 22.4709 215.794 12.0328M4.97778 90.5973C4.09975 86.8489 3.65103 83.198 3.55781 79.8009M4.97778 90.5973C11.9381 120.312 45.8761 156.155 143.554 120.28C251.289 80.7123 237.281 32.4789 215.794 12.0328M214.43 10.7805C214.919 11.1838 215.374 11.6014 215.794 12.0328M214.43 10.7805C214.887 11.1854 215.342 11.603 215.794 12.0328"/></svg>VANTA</div>
   <div class="foot-bot">
     <p class="legal">Vanta HealthOS is a wellness product. It does not diagnose, treat or prevent any disease. Laboratory services are provided by an independent accredited partner. Always consult a qualified physician before acting on health information.<br>© 2026 Vanta LLP.</p>
-    <div class="foot-links"><a href="#">HealthOS</a><a href="#">Society</a><a href="#">Store</a><a href="#">Contact</a></div>
+    <div class="foot-links"><a href="#">HealthOS</a><a href="index.html">DayZero</a><a href="#">Concierge</a><a href="what-we-test.html">What we test</a><a href="#">About</a><a href="#">Society</a><a href="#">Store</a><a href="#">Contact</a><a href="#">TnC</a><a href="#">Privacy</a></div>
   </div>
 </footer>
 
@@ -764,7 +790,7 @@ const PART = (() => {
       const FACE = -0.6, cf = Math.cos(FACE), sf = Math.sin(FACE);                          // turn the bust about its own vertical axis, so he looks at you
       for (let i = 0; i < n; i++) { const x = model.x[i] - 1195, z = model.z[i], nx = model.nx[i], nz = model.nz[i]; model.x[i] = 1195 + x * cf + z * sf; model.z[i] = -x * sf + z * cf; model.nx[i] = nx * cf + nz * sf; model.nz[i] = -nx * sf + nz * cf; }
     }
-    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.5) / 845, W * (W > H ? 0.56 : 0.98) / 910), ox = (W > H ? W * 0.72 : W * 0.5) - 1195 * s, oy = H * (W > H ? 0.13 : 0.5) - 165 * s;
+    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.6) / 845, W * (W > H ? 0.56 : 1.28) / 910), ox = (W > H ? W * 0.72 - 1195 * s : W * 0.5 - 1121 * s), oy = H * (W > H ? 0.13 : 0.56) - 165 * s;
     const keep = [], nFront = M.n * 0.8 / (W < 700 ? 2 : 1);
     const step = W < 700 ? 2 : 1; for (let i = 0; i < M.n; i += step) if (M.y[i] < 1008) keep.push(i);
     N = keep.length; tx = new Float32Array(N); ty = new Float32Array(N); r = new Float32Array(N); zt = new Float32Array(N); zs0 = new Float32Array(N);
@@ -1178,14 +1204,14 @@ const PART = (() => {
   makeGlow({ host: 'measure', ring: 'ring2', canvas: 'ringdots2', head: 'mhead', r0: 0.29, sg: 0.16, sgIn: 0.03, tilt: 0.5, leanMin: 0.1, leanPow: 1.1, gain: 1.05 });
 
   // pills: hovering opens one at a time (so a tall card can never trap the pointer); a tap does the same on touch screens
-  const pills = [...document.querySelectorAll('.pill')], canHover = matchMedia('(hover: hover)').matches;
+  const pills = [...document.querySelectorAll('.pill')], hoverOk = matchMedia('(hover: hover)').matches, narrow = matchMedia('(max-width: 860px)'), canHoverNow = () => hoverOk && !narrow.matches;     // on a phone-sized screen a tap (or a click) opens a pill, even in a desktop browser
   const closeAll = except => pills.forEach(q => { if (q !== except) q.classList.remove('open'); });
   pills.forEach(p => {
-    p.addEventListener('pointerenter', e => { if (!canHover || e.pointerType === 'touch') return; clearTimeout(p._t); closeAll(p); p.classList.add('open'); });
-    p.addEventListener('pointerleave', e => { if (!canHover || e.pointerType === 'touch') return; p._t = setTimeout(() => p.classList.remove('open'), 20); });
-    p.addEventListener('click', e => { if (canHover && e.pointerType !== 'touch') return; const was = p.classList.contains('open'); closeAll(); if (!was) p.classList.add('open'); });
+    p.addEventListener('pointerenter', e => { if (!canHoverNow() || e.pointerType === 'touch') return; clearTimeout(p._t); closeAll(p); p.classList.add('open'); });
+    p.addEventListener('pointerleave', e => { if (!canHoverNow() || e.pointerType === 'touch') return; p._t = setTimeout(() => p.classList.remove('open'), 20); });
+    p.addEventListener('click', e => { if (canHoverNow() && e.pointerType !== 'touch') return; const was = p.classList.contains('open'); closeAll(); if (!was) p.classList.add('open'); });
   });
-  addEventListener('scroll', () => { if (canHover) closeAll(); }, { passive: true });
+  addEventListener('scroll', () => { if (canHoverNow()) closeAll(); }, { passive: true });
   document.addEventListener('pointerleave', () => closeAll());
 })();
 </script>
