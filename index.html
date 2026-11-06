@@ -299,6 +299,34 @@
   .legal { font-size: .875rem; line-height: 1.55; max-width: 540px; color: #a3a3a3; }
   .foot-links a, .foot-bot .foot-links a { font-size: .875rem; color: #a3a3a3; }
   .foot-links a:hover { color: #fff; }
+
+  /* ================= phones: one readable type scale, 1.5 line height, 48px touch targets ================= */
+  @media (max-width: 640px) {
+    html { -webkit-text-size-adjust: 100%; }
+    body { line-height: 1.5; }
+    nav a, nav .join { min-height: 44px; display: inline-flex; align-items: center; }
+    .legal { font-size: .8125rem; line-height: 1.6; max-width: none; }
+    .foot-links { gap: 0 8px; }
+    .foot-links a, .foot-bot .foot-links a { font-size: .875rem; padding: 14px 10px; display: inline-flex; align-items: center; min-height: 48px; }
+    .foot-logo { font-size: 1.375rem; }
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: clamp(1.5rem, 7.2vw, 2rem); line-height: 1.1; }
+    .step h2, .ring-head h2, .m-head h2, .cmp-head h2, .pv-info h2, .faq-in h2 { font-size: 1.5rem; line-height: 1.12; }
+    .eyebrow, .step .tag, .scroll-hint, .it .st, .mono { font-size: .75rem; }
+    .lede, .step p, .ring-head p, .m-head p, .cmp-head p, .pv-sub { font-size: 1rem; line-height: 1.55; }
+    .it { font-size: .9375rem; min-height: 56px; } .hd h3 { font-size: 1.125rem; }
+    .pv-list li { font-size: 1rem; padding: 14px 0; } .pv-note { font-size: .8125rem; }
+    .btn, .pv-cta { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0 26px; }
+    .pv-cta { display: flex; font-size: 1rem; }
+    .faq-in summary { font-size: 1.0625rem; min-height: 56px; padding: 14px 0; } .faq-in details p { font-size: 1rem; line-height: 1.55; }
+  }
+
+  /* phones: the hero text sits at the top so it stays clear of the figure */
+  @media (max-width: 640px) { .hero-copy { top: 92px; transform: none; max-width: 90vw; } h1 { font-size: clamp(1.5rem, 6.4vw, 1.75rem); margin-top: 12px; } .lede { font-size: .9375rem; margin-top: 14px; } .hero-copy .btn { margin-top: 20px; } .eyebrow { letter-spacing: .1em; } #dots { transform: translateY(8vh); } }
+
+  @media (max-width: 640px) { .step h2 { font-size: 1.375rem; } .step p { font-size: .9375rem; line-height: 1.5; margin-top: 8px; } }
 </style>
 </head>
 <body>
@@ -818,7 +846,7 @@ const PART = (() => {
     bigK = W < 1000 ? 1 : 1.22; const U = 1540 * k * bigK, sc = Math.pow(U / 2200, 2), apart = W * CFG.apart;                          // U = pixels per metre
     const NH = clamp(Math.round(CFG.hands * sc), 5000, 36000), NAr = clamp(Math.round(CFG.arm * sc), 1500, 9000), NSy = clamp(Math.round(CFG.syringe * sc), 1500, 7500), ND = clamp(Math.round(CFG.details * sc), 250, 1170);
     rb = Math.sqrt(0.05 * U * U / NH) * 0.145;                                                        // base particle radius: about half the spacing between particles
-    const at = { user: [W * (m ? 0.37 : 0.27), H * (m ? 0.66 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.3 : 0.27)], vein: [W * (m ? 0.535 : 0.24), H * (m ? 0.62 : 0.54)], fin: [W * (m ? 0.5 : 0.74), H * (m ? 0.62 : 0.61)] };
+    const at = { user: [W * (m ? 0.37 : 0.27), H * (m ? 0.71 : 0.62)], doc: [W * (m ? 0.7 : 0.76), H * (m ? 0.43 : 0.27)], vein: [W * (m ? 0.535 : 0.24), H * (m ? 0.68 : 0.54)], fin: [W * (m ? 0.5 : 0.74), H * (m ? 0.69 : 0.61)] };
     const mul4 = m ? 1.45 : 1, U4 = U * mul4;                                                  // step 3 (the phone) is drawn larger on a phone-sized screen
 
     const smA = H3.samples(NH, 7), smB = H3.samples(NH, 19), armA = H3.arm(NAr, 11, 0.2), armB = H3.arm(NAr, 13, 0.2, { sleeve: 1.3 });                                  // the doctor wears a glove, so a rolled cuff and sleeve

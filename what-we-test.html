@@ -448,6 +448,46 @@
   /* the closing photo: a light sharpen, and a very fine grain that hides the compression banding */
   .cta2 img { filter: url(#ctaSharp) contrast(1.03); image-rendering: auto; }
   .cta2-shade::after { content: ""; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: .07; mix-blend-mode: overlay; pointer-events: none; }
+
+  /* ================= phones: one readable type scale, 1.5 line height, 48px touch targets ================= */
+  @media (max-width: 640px) {
+    html { -webkit-text-size-adjust: 100%; }
+    body { line-height: 1.5; }
+    nav a, nav .join { min-height: 44px; display: inline-flex; align-items: center; }
+    .legal { font-size: .8125rem; line-height: 1.6; max-width: none; }
+    .foot-links { gap: 0 8px; }
+    .foot-links a, .foot-bot .foot-links a { font-size: .875rem; padding: 14px 10px; display: inline-flex; align-items: center; min-height: 48px; }
+    .foot-logo { font-size: 1.375rem; }
+  }
+
+  @media (max-width: 640px) {
+    /* the four cards in the first screen: big enough to read */
+    .m { width: 39%; } .m small { font-size: max(11px, 7.2cqw); } .m b { font-size: max(21px, 16cqw); } .m p { font-size: max(11px, 6.6cqw); } .pn-top span:last-child { font-size: .75rem; letter-spacing: .04em; } .m b i { font-size: .55em; }
+    .m.hrv { top: max(15%, 120px) !important; left: 3% !important; } .m.hr { top: max(24%, 175px) !important; left: auto !important; right: 3% !important; }
+    .m.steps { top: 50% !important; left: 3% !important; } .m.sleep { top: 58% !important; left: auto !important; right: 3% !important; }
+    .scroll-hint { font-size: .75rem; }
+    /* the biomarker list */
+    .bm-head h2, .hiw-l h2, .pn-head h2 { font-size: 1.5rem; line-height: 1.12; }
+    .bm-sub p { font-size: .9375rem; line-height: 1.5; }
+    .bm-search { height: 52px; } .bm-search input { font-size: 1rem; }
+    .p-head h3 { font-size: clamp(.9375rem, 4.4vw, 1.125rem); } .p-head .tile { --tile: 48px; }
+    .p-intro { font-size: .9375rem; line-height: 1.5; } .p-cols { font-size: .75rem; }
+    .p-row .hd { font-size: .9375rem; } .p-row .hd .un { font-size: .75rem; } .p-row .bd { font-size: .875rem; line-height: 1.5; }
+    .p-row .hd .pl { width: 44px; height: 44px; margin-right: -8px; } .p-row .hd .pl::before, .p-row .hd .pl::after { width: 16px; }
+    /* how it works */
+    .hiw-l .kick, .pn-head .kick { font-size: .75rem; }
+    .hiw-steps h4 { font-size: 1.25rem; line-height: 1.25; } .hiw-steps h4 span { font-size: .8125rem; }
+    .hiw-steps p { font-size: 1rem; line-height: 1.55; text-align: left; }
+    .hiw-badge { font-size: 1.25rem; }
+    .hiw-dots i::after { inset: -14px; }
+    /* the other panels */
+    .pn-arrows button { width: 48px; }
+    .pn-top { font-size: .75rem; } .pn-txt h3 { font-size: 1.125rem; } .pn-txt p { font-size: .9375rem; line-height: 1.5; -webkit-line-clamp: 4; }
+    .pn-foot b { font-size: 1.25rem; } .pn-foot b.soon { font-size: .9375rem; } .pn-foot span { font-size: .75rem; }
+    /* the closing photo */
+    .cta2-box h2 { font-size: 1.5rem; line-height: 1.2; }
+    .cb { height: 48px; font-size: 1rem; padding: 0 24px; }
+  }
 </style>
 </head>
 <body>
@@ -551,8 +591,8 @@
 </footer>
 <script src="panels-data.js"></script>
 <script src="biomarkers-data.js"></script>
-<script src="david-model.js?v=mw3ewygu"></script>
-<script src="organs-model.js?v=mw3ewygu"></script>
+<script src="david-model.js?v=mw4zk02p"></script>
+<script src="organs-model.js?v=mw4zk02p"></script>
 <script>
 (() => {
   const cv = document.getElementById('xray'), ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
