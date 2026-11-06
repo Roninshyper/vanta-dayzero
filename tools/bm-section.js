@@ -80,7 +80,7 @@
 
   function frame() {
     requestAnimationFrame(frame); if (!vis) return;
-    fromScroll(); if (free && searchW != null) wTarget = searchW; wBase = wTarget; wTarget = clamp(wBase + dragW, 0, N - 1); wCur += (wTarget - wCur) * (reduce ? 1 : 0.16); if (Math.abs(wTarget - wCur) < 0.0005) wCur = wTarget;
+    fromScroll(); if (free && searchW != null) wTarget = searchW; wBase = wTarget; wTarget = clamp(wBase + dragW, 0, N - 1); if (hold != null) { wTarget = hold; if (Math.abs(wBase - hold) < 0.01) hold = null; } if (scrubW != null) wTarget = scrubW; wCur += (wTarget - wCur) * (reduce || (drag && drag.moved && !drag.snapped) || (scrubW != null && !scrubSnap) ? 1 : 0.2); if (Math.abs(wTarget - wCur) < 0.0005) wCur = wTarget;
     const ai = clamp(Math.round(wCur), 0, N - 1), d = Math.abs(wCur - ai);
     if (!free && ai !== shown) render(ai);
     if (!free) { const o = listOffset(ai); inner.style.transform = 'translate3d(0,' + (-o) + 'px,0)'; const f = clamp(1 - d * 2.4); $('pIcon').parentNode.style.opacity = $('pIntro').style.opacity = list.style.opacity = f; list.style.opacity = Math.max(f, 0); }
@@ -107,7 +107,7 @@
   const hline = document.createElement('div'); hline.className = 'hline'; const hdot = document.createElement('div'); hdot.className = 'hdot'; wheel.appendChild(hline); wheel.appendChild(hdot);
   function horizFrame(ai, d) {
     const W = wheel.clientWidth, step = Math.min(96, W * 0.27), rowY = 58, tile = 46; hStep = step;
-    wheel.style.setProperty('--tile', tile + 'px');
+    wheel.style.setProperty('--tile', tile + 'px'); hdot.style.left = (W * 0.03 + clamp(wCur / (N - 1), 0, 1) * W * 0.94).toFixed(1) + 'px';
     labels.forEach((el, i) => {
       const dd = i - wCur, ad = Math.abs(dd);
       if (ad > 2.7) { el.style.opacity = 0; el.style.visibility = 'hidden'; return; }
@@ -124,13 +124,33 @@
   // the selected title sits on the arc at the wheel's middle row, next to the pill
   const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + G.cy + 'px,0) translateY(-50%)'; };
   const _frame = frame; // keep the selected label glued to the arc
-  let justDragged = false, drag = null, dragW = 0, hStep = 90;
-  labels.forEach((el, i) => el.addEventListener('click', () => { if (justDragged) return; const p = plan[i]; if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); }));
-  // on a phone: drag the strip sideways to move to another system (drag left for the next one); the page still scrolls up and down as usual
-  wheel.addEventListener('pointerdown', e => { if (innerWidth > 900) return; drag = { x: e.clientX, moved: false }; });
-  wheel.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x; if (Math.abs(dx) > 6) drag.moved = true; if (drag.moved) dragW = -dx / hStep; });
-  const endDrag = () => { if (!drag) return; if (drag.moved) { const to = clamp(Math.round(wBase + dragW), 0, N - 1), p = plan[to]; dragW = 0; justDragged = true; setTimeout(() => { justDragged = false; }, 350); if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'smooth' }); } else dragW = 0; drag = null; };
-  wheel.addEventListener('pointerup', endDrag); wheel.addEventListener('pointercancel', endDrag); addEventListener('pointerup', endDrag);
+  let justDragged = false, drag = null, dragW = 0, hStep = 90, hold = null, holdT = 0;
+  const goTo = to => { to = clamp(to, 0, N - 1); const p = plan[to]; hold = to; clearTimeout(holdT); holdT = setTimeout(() => { hold = null; }, 1200); if (p) scrollTo({ top: top0 + p.start + 2, behavior: 'instant' }); };   // lock on that system now, and jump the page to its start
+  labels.forEach((el, i) => el.addEventListener('click', () => { if (justDragged) return; goTo(i); }));
+  // on a phone: drag the strip sideways. It follows the finger; the moment the finger pauses it locks onto the nearest system, and on release it stays there (a quick flick moves one system). The page still scrolls up and down as usual.
+  const snapNow = () => { if (!drag || !drag.moved) return; dragW = clamp(Math.round(wBase + dragW), 0, N - 1) - wBase; drag.snapped = true; };
+  wheel.addEventListener('pointerdown', e => { if (innerWidth > 900) return; drag = { x: e.clientX, y: e.clientY, t: performance.now(), moved: false, dead: false, snapped: false, idle: 0 }; });
+  wheel.addEventListener('pointermove', e => {
+    if (!drag || drag.dead) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved) { if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { drag.dead = true; dragW = 0; return; } if (Math.abs(dx) > 6) drag.moved = true; }
+    if (drag.moved) { dragW = clamp(-dx / hStep, -1.6, 1.6); drag.snapped = false; clearTimeout(drag.idle); drag.idle = setTimeout(snapNow, 130); }
+  });
+  const endDrag = e => {
+    if (!drag) return; const d0 = drag; clearTimeout(d0.idle); drag = null; if (d0.dead || !d0.moved) { dragW = 0; return; }
+    const dx = ((e && e.clientX !== undefined) ? e.clientX : d0.x - dragW * hStep) - d0.x, dt = Math.max(1, performance.now() - d0.t), v = dx / dt, base = Math.round(wBase);
+    let to = clamp(Math.round(wBase + dragW), 0, N - 1);
+    if (!d0.snapped && Math.abs(dx) > 20 && Math.abs(v) > 0.45) to = clamp(base + (dx < 0 ? 1 : -1), 0, N - 1);          // a quick flick moves one system
+    justDragged = true; setTimeout(() => { justDragged = false; }, 350); dragW = 0; goTo(to);
+  };
+  wheel.addEventListener('pointerup', endDrag); wheel.addEventListener('pointercancel', endDrag);
+  // the ball on the line is a handle: drag it along the line to move through the systems (it rides along as the strip moves); let go and it settles on the nearest one
+  let scrubW = null, scrubSnap = false, scrubIdle = 0;
+  const scrubTo = e => { const r = wheel.getBoundingClientRect(); return clamp((e.clientX - r.left - r.width * 0.03) / (r.width * 0.94), 0, 1) * (N - 1); };
+  hdot.addEventListener('pointerdown', e => { if (innerWidth > 900) return; e.stopPropagation(); try { hdot.setPointerCapture(e.pointerId); } catch (_) {} scrubW = scrubTo(e); scrubSnap = false; hdot.classList.add('grab'); });
+  hdot.addEventListener('pointermove', e => { if (scrubW == null) return; scrubW = scrubTo(e); scrubSnap = false; clearTimeout(scrubIdle); scrubIdle = setTimeout(() => { if (scrubW != null) { scrubW = Math.round(scrubW); scrubSnap = true; } }, 130); });
+  const endScrub = () => { if (scrubW == null) return; clearTimeout(scrubIdle); const to = Math.round(scrubW); scrubW = null; hdot.classList.remove('grab'); justDragged = true; setTimeout(() => { justDragged = false; }, 350); goTo(to); };
+  hdot.addEventListener('pointerup', endScrub); hdot.addEventListener('pointercancel', endScrub);
+  hline.addEventListener('click', e => { if (innerWidth > 900 || justDragged) return; goTo(Math.round(scrubTo(e))); });
 
   let vis = true; new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(sec);
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { measure(); placeSel(); }, 120); });

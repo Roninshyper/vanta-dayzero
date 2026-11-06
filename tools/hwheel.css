@@ -12,3 +12,11 @@
 
   /* phones: the title strip can be dragged sideways */
   @media (max-width: 900px) { .wheel { pointer-events: auto; touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none; } .wheel:active { cursor: grabbing; } }
+
+  /* phones: the ball is a draggable handle on the line */
+  @media (max-width: 900px) {
+    .hline { pointer-events: auto; cursor: pointer; } .hline::after { content: ""; position: absolute; left: 0; right: 0; top: -14px; bottom: -14px; }
+    .hdot { left: 3%; top: 5px; width: 14px; height: 14px; margin-left: -7px; pointer-events: auto; touch-action: none; cursor: grab; box-shadow: 0 0 0 4px rgba(255,255,255,.08); transition: box-shadow .2s, transform .2s; }
+    .hdot::after { content: ""; position: absolute; inset: -16px; }
+    .hdot.grab { cursor: grabbing; transform: scale(1.25); box-shadow: 0 0 0 7px rgba(255,255,255,.14); }
+  }
