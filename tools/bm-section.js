@@ -85,6 +85,7 @@
     if (!free && ai !== shown) render(ai);
     if (!free) { const o = listOffset(ai); inner.style.transform = 'translate3d(0,' + (-o) + 'px,0)'; const f = clamp(1 - d * 2.4); $('pIcon').parentNode.style.opacity = $('pIntro').style.opacity = list.style.opacity = f; list.style.opacity = Math.max(f, 0); }
     else list.style.opacity = 1;
+    if (innerWidth < 901) { horizFrame(ai, d); return; }
     // the wheel
     const R = G.R + R_GAP(), cx = G.cx, cy = G.cy;
     labels.forEach((el, i) => {
@@ -102,6 +103,23 @@
     selLabel.textContent = S[ai].name; selLabel.style.opacity = clamp(1 - d * 2.4);
   }
   const R_GAP = () => G.R * 0.073, R_TILE = () => G.R * 0.16;
+  // on a phone the wheel lies on its side: a line with a dot at the top, the chosen system in the middle (icon tile and name), its neighbours on either side
+  const hline = document.createElement('div'); hline.className = 'hline'; const hdot = document.createElement('div'); hdot.className = 'hdot'; wheel.appendChild(hline); wheel.appendChild(hdot);
+  function horizFrame(ai, d) {
+    const W = wheel.clientWidth, step = Math.min(96, W * 0.27), rowY = 58, tile = 46;
+    wheel.style.setProperty('--tile', tile + 'px');
+    labels.forEach((el, i) => {
+      const dd = i - wCur, ad = Math.abs(dd);
+      if (ad > 2.7) { el.style.opacity = 0; el.style.visibility = 'hidden'; return; }
+      el.style.visibility = ''; el.style.fontSize = '11px';
+      el.style.transform = 'translate3d(' + (W / 2 + dd * step).toFixed(1) + 'px,' + rowY + 'px,0) translate(-50%,-50%)';
+      el.style.opacity = ad < 0.6 ? clamp(ad * 1.6) * 0.3 : Math.max(0, 0.62 - (ad - 1) * 0.3) * (free ? 0.7 : 1);
+    });
+    selEl.style.transform = 'translate3d(' + (W / 2 - tile / 2) + 'px,' + (rowY - tile / 2) + 'px,0)'; selEl.style.opacity = 1;
+    if (selTile.dataset.i != ai) { selTile.dataset.i = ai; selTile.innerHTML = icon(S[ai].id); }
+    selLabel.textContent = S[ai].name + '  ' + cnt(S[ai]); selLabel.style.fontSize = '11px'; selLabel.style.opacity = clamp(1 - d * 2.4);
+    selLabel.style.transform = 'translate3d(' + (W / 2).toFixed(1) + 'px,' + (rowY + tile / 2 + 10) + 'px,0) translateX(-50%)';
+  }
   const selLabel = document.createElement('div'); selLabel.className = 'wl'; selLabel.style.cursor = 'default'; wheel.appendChild(selLabel);
   // the selected title sits on the arc at the wheel's middle row, next to the pill
   const placeSel = () => { selLabel.style.transform = 'translate3d(' + (G.edge + R_GAP()) + 'px,' + G.cy + 'px,0) translateY(-50%)'; };

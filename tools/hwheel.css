@@ -1,0 +1,11 @@
+
+  /* ---------- phones: the title wheel lies on its side above the list ---------- */
+  .hline, .hdot { display: none; }
+  @media (max-width: 900px) {
+    .wheel { display: block; left: 0; right: 0; width: auto; top: 0; height: 120px; overflow: hidden; pointer-events: none; }
+    .wheel svg.ring, .wheel .sel b, .wheel .sel .pill { display: none; }
+    .wheel .wl { text-align: center; transform-origin: 50% 50%; }
+    .hline { display: block; position: absolute; left: 3%; right: 3%; top: 12px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.42) 18%, rgba(255,255,255,.42) 82%, transparent); }
+    .hdot { display: block; position: absolute; left: 50%; top: 7px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8a8a8a); }
+    .panel { top: 124px; }
+  }
