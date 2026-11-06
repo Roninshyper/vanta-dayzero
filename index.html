@@ -392,6 +392,12 @@
 
   /* the footer on a phone: exactly as on the What we test page */
   @media (max-width: 640px) { .legal { font-size: .6875rem; line-height: 1.5; } .foot-links a, .foot-bot .foot-links a { font-size: .6875rem; } }
+
+  /* phones: the hero text is in the flow and the hero is as tall as it needs, so the bust always has room below the button */
+  @media (max-width: 640px) {
+    #hero { height: auto; min-height: 100dvh; padding-bottom: clamp(430px, 62vh, 560px); }
+    .hero-copy { position: relative; left: 0; right: 0; top: auto; transform: none; max-width: none; padding: 92px 20px 0; }
+  }
 </style>
 </head>
 <body>
@@ -790,7 +796,10 @@ const PART = (() => {
       const FACE = -0.6, cf = Math.cos(FACE), sf = Math.sin(FACE);                          // turn the bust about its own vertical axis, so he looks at you
       for (let i = 0; i < n; i++) { const x = model.x[i] - 1195, z = model.z[i], nx = model.nx[i], nz = model.nz[i]; model.x[i] = 1195 + x * cf + z * sf; model.z[i] = -x * sf + z * cf; model.nx[i] = nx * cf + nz * sf; model.nz[i] = -nx * sf + nz * cf; }
     }
-    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.6) / 845, W * (W > H ? 0.56 : 1.28) / 910), ox = (W > H ? W * 0.72 - 1195 * s : W * 0.56 - 1121 * s), oy = H * (W > H ? 0.13 : 0.575) - 165 * s;
+    const M = model; let hcx = 0, hcn = 0; for (let i = 0; i < M.n; i++) if (M.y[i] < 330) { hcx += M.x[i]; hcn++; } hcx = hcn ? hcx / hcn : 1121;                            // where his head is, side to side
+    const phone = W < 641 && H > W, hc = document.querySelector('.hero-copy'), headTop = phone && hc ? hc.offsetTop + hc.offsetHeight + 34 : H * 0.575;                  // on a phone he starts below the text
+    const s = phone ? Math.max(0.22, Math.min(W * 1.28 / 910, (H * 0.95 - headTop) / 640)) : Math.min(H * (W > H ? 0.92 : 0.6) / 845, W * (W > H ? 0.56 : 1.28) / 910),
+      ox = W > H ? W * 0.72 - 1195 * s : W * 0.5 - hcx * s, oy = phone ? headTop - 165 * s : H * (W > H ? 0.13 : 0.575) - 165 * s;
     const keep = [], nFront = M.n * 0.8 / (W < 700 ? 2 : 1);
     const step = W < 700 ? 2 : 1; for (let i = 0; i < M.n; i += step) if (M.y[i] < 1008) keep.push(i);
     N = keep.length; tx = new Float32Array(N); ty = new Float32Array(N); r = new Float32Array(N); zt = new Float32Array(N); zs0 = new Float32Array(N);
@@ -838,6 +847,7 @@ const PART = (() => {
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(document.getElementById('hero'));
   window.replayDots = () => { build(); t0 = 0; };
   layout(); setTimeout(() => { build(); requestAnimationFrame(frame); }, 30);
+  { let first = true, rt2; const hero = document.getElementById('hero'); if (hero && window.ResizeObserver) new ResizeObserver(() => { if (first) { first = false; return; } clearTimeout(rt2); rt2 = setTimeout(() => { layout(); build(); }, 150); }).observe(hero); }
 })();
 
 /* ======================= STEPS: real 3D hands, a syringe and a phone, made of particles, morphing between poses ======================= */
