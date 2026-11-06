@@ -122,7 +122,7 @@
     });
     selEl.style.transform = 'translate3d(' + (W / 2 - tile / 2) + 'px,' + (rowY - tile / 2) + 'px,0)'; selEl.style.opacity = 1;
     if (selTile.dataset.i != ai) { selTile.dataset.i = ai; selTile.innerHTML = icon(S[ai].id); }
-    selLabel.textContent = S[ai].name + '  ' + cnt(S[ai]); selLabel.style.fontSize = '11px'; selLabel.style.opacity = clamp(1 - d * 2.4);
+    selLabel.textContent = S[ai].name; selLabel.style.fontSize = '11px'; selLabel.style.opacity = clamp(1 - d * 2.4);
     selLabel.style.transform = 'translate3d(' + (W / 2).toFixed(1) + 'px,' + (rowY + tile / 2 + 10) + 'px,0) translateX(-50%)';
   }
   const selLabel = document.createElement('div'); selLabel.className = 'wl'; selLabel.style.cursor = 'default'; wheel.appendChild(selLabel);
