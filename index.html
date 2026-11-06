@@ -1204,7 +1204,7 @@ const PART = (() => {
   makeGlow({ host: 'measure', ring: 'ring2', canvas: 'ringdots2', head: 'mhead', r0: 0.29, sg: 0.16, sgIn: 0.03, tilt: 0.5, leanMin: 0.1, leanPow: 1.1, gain: 1.05 });
 
   // pills: hovering opens one at a time (so a tall card can never trap the pointer); a tap does the same on touch screens
-  const pills = [...document.querySelectorAll('.pill')], hoverOk = matchMedia('(hover: hover)').matches, narrow = matchMedia('(max-width: 860px)'), canHoverNow = () => hoverOk && !narrow.matches;     // on a phone-sized screen a tap (or a click) opens a pill, even in a desktop browser
+  const pills = [...document.querySelectorAll('.pill')], hoverOk = matchMedia('(hover: hover)').matches, narrow = matchMedia('(max-width: 1099px)'), canHoverNow = () => hoverOk && !narrow.matches;     // on a phone-sized screen a tap (or a click) opens a pill, even in a desktop browser
   const closeAll = except => pills.forEach(q => { if (q !== except) q.classList.remove('open'); });
   pills.forEach(p => {
     p.addEventListener('pointerenter', e => { if (!canHoverNow() || e.pointerType === 'touch') return; clearTimeout(p._t); closeAll(p); p.classList.add('open'); });
