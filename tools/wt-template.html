@@ -551,6 +551,9 @@
     .hdot::after { content: ""; position: absolute; inset: -16px; }
     .hdot.grab { cursor: grabbing; transform: scale(1.25); box-shadow: 0 0 0 7px rgba(255,255,255,.14); }
   }
+
+  /* phones: the title and the paragraph can fold away */
+  @media (max-width: 900px) { .bm-head h2, .bm-sub p { overflow: hidden; } .bm-sub { row-gap: 8px; } }
 </style>
 </head>
 <body>
@@ -823,7 +826,7 @@
   q.parentNode.querySelector('.clr').addEventListener('click', () => { q.value = ''; q.dispatchEvent(new Event('input')); q.focus(); });
 
   // geometry and the scroll plan: for each system, its list scrolls first, then it holds, then the wheel turns to the next one
-  let rowH = 64, vh = innerHeight, plan = [], total = 0, top0 = 0;
+  let hH = 0, pH = 0, introLen = 0, rowH = 64, vh = innerHeight, plan = [], total = 0, top0 = 0;
   const HOLD = () => vh * 0.22, TURN = () => vh * 0.5;
   function measure() {
     vh = innerHeight; const cs = getComputedStyle(pin); rowH = Math.max(44, Math.min(70, vh * 0.075)); pin.style.setProperty('--row', rowH + 'px');
@@ -832,7 +835,9 @@
     G.cx = -0.31 * R + (bw * 0.0); G.edge = G.cx + R;
     wheel.style.setProperty('--wf', Math.max(14, Math.min(20, R * 0.046)) + 'px'); wheel.style.setProperty('--tile', Math.max(44, Math.min(64, R * 0.16)) + 'px');
     const svg = wheel.querySelector('svg.ring'); ring.setAttribute('cx', G.cx); ring.setAttribute('cy', G.cy); ring.setAttribute('r', R);
-    const vp = list.clientHeight, slack = innerWidth < 901 ? 30 : 150; plan = []; total = 0;
+    // on a phone the title and its paragraph scroll away first (the search box and the title strip stay at the top), so the list gets the whole screen
+    const mob = innerWidth < 901, ih2 = sec.querySelector('.bm-head h2'), ip = sec.querySelector('.bm-sub p'); ih2.style.maxHeight = ''; ip.style.maxHeight = ''; hH = ih2.offsetHeight; pH = ip.offsetHeight; introLen = mob ? Math.round(hH + pH + 28) : 0;
+    const vp = list.clientHeight + introLen, slack = mob ? 70 : 150; plan = []; total = introLen;
     S.forEach((s, i) => { const ovf = Math.max(0, s.markers.length * rowH - vp + (s.markers.length * rowH > vp ? slack : 0)), turn = i < N - 1 ? TURN() : 0; plan.push({ ovf, hold: HOLD(), turn, start: total }); total += ovf + HOLD() + turn; });
     sec.style.height = (pin.offsetHeight + total) + 'px'; top0 = sec.getBoundingClientRect().top + scrollY;
   }
@@ -844,7 +849,7 @@
     const y = clamp(scrollY - top0, 0, total); let i = N - 1;
     for (let k = 0; k < N; k++) if (y < plan[k].start + plan[k].ovf + plan[k].hold + plan[k].turn || k === N - 1) { i = k; break; }
     const p = plan[i], qy = y - p.start; segI = i;
-    wTarget = i + (p.turn ? ease(clamp((qy - p.ovf - p.hold) / p.turn)) : 0); offTarget = Math.min(qy, p.ovf);
+    wTarget = i + (p.turn ? ease(clamp((qy - p.ovf - p.hold) / p.turn)) : 0); offTarget = Math.max(0, Math.min(qy, p.ovf));
   }
   function listOffset(ai) { const p = plan[ai]; if (!p) return 0; return segI === ai ? offTarget : segI < ai ? 0 : p.ovf; }
 
@@ -855,6 +860,9 @@
     if (!free && ai !== shown) render(ai);
     if (!free) { const o = listOffset(ai); inner.style.transform = 'translate3d(0,' + (-o) + 'px,0)'; const f = clamp(1 - d * 2.4); $('pIcon').parentNode.style.opacity = $('pIntro').style.opacity = list.style.opacity = f; list.style.opacity = Math.max(f, 0); }
     else list.style.opacity = 1;
+    { const ih2 = sec.querySelector('.bm-head h2'), ip = sec.querySelector('.bm-sub p'), t = innerWidth < 901 && introLen ? clamp((scrollY - top0) / introLen) : 0;     // the title and the paragraph fold away as you scroll
+      ih2.style.maxHeight = t > 0 ? ((1 - t) * hH).toFixed(1) + 'px' : ''; ih2.style.opacity = t > 0 ? (1 - t * 1.4 < 0 ? 0 : 1 - t * 1.4).toFixed(2) : '';
+      sec.querySelector('.bm-sub').style.marginTop = t > 0 ? ((1 - t) * 18 + 2).toFixed(1) + 'px' : ''; ip.style.maxHeight = t > 0 ? ((1 - t) * pH).toFixed(1) + 'px' : ''; ip.style.opacity = t > 0 ? (1 - t * 1.4 < 0 ? 0 : 1 - t * 1.4).toFixed(2) : ''; }
     if (innerWidth < 901) { horizFrame(ai, d); return; }
     // the wheel
     const R = G.R + R_GAP(), cx = G.cx, cy = G.cy;
