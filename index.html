@@ -790,7 +790,7 @@ const PART = (() => {
       const FACE = -0.6, cf = Math.cos(FACE), sf = Math.sin(FACE);                          // turn the bust about its own vertical axis, so he looks at you
       for (let i = 0; i < n; i++) { const x = model.x[i] - 1195, z = model.z[i], nx = model.nx[i], nz = model.nz[i]; model.x[i] = 1195 + x * cf + z * sf; model.z[i] = -x * sf + z * cf; model.nx[i] = nx * cf + nz * sf; model.nz[i] = -nx * sf + nz * cf; }
     }
-    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.6) / 845, W * (W > H ? 0.56 : 1.28) / 910), ox = (W > H ? W * 0.72 - 1195 * s : W * 0.5 - 1121 * s), oy = H * (W > H ? 0.13 : 0.56) - 165 * s;
+    const M = model, s = Math.min(H * (W > H ? 0.92 : 0.6) / 845, W * (W > H ? 0.56 : 1.28) / 910), ox = (W > H ? W * 0.72 - 1195 * s : W * 0.56 - 1121 * s), oy = H * (W > H ? 0.13 : 0.575) - 165 * s;
     const keep = [], nFront = M.n * 0.8 / (W < 700 ? 2 : 1);
     const step = W < 700 ? 2 : 1; for (let i = 0; i < M.n; i += step) if (M.y[i] < 1008) keep.push(i);
     N = keep.length; tx = new Float32Array(N); ty = new Float32Array(N); r = new Float32Array(N); zt = new Float32Array(N); zs0 = new Float32Array(N);
